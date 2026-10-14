@@ -46,6 +46,7 @@ evidence is not there.
 | [`npu-profiler-analysis`](skills/npu-profiler-analysis/) | Read a torch_npu trace: which Ascend ops dominate, core split, host/device balance |
 | [`model-day0-support`](skills/model-day0-support/) | Turn a new architecture into a Day-0 plan on NPU: PR DAG, validation matrix, release gates |
 | [`model-pr-history-knowledge`](skills/model-pr-history-knowledge/) | Before changing a model path, see what upstream already did to it |
+| [`ascend-compute-simulation`](skills/ascend-compute-simulation/) | Per-op FLOPs and shapes from a config; MFU only against a sourced chip peak |
 
 ## Install
 
