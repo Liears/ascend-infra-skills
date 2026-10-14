@@ -1,0 +1,4 @@
+INFO 10-14 15:52:01 [worker.py:472] Free memory on device (62.31/64.0 GiB) on startup. Desired GPU memory utilization is (0.92, 58.88 GiB). Actual usage: 24.15 GiB for weights, 1.82 GiB for peak activation, 3.41 GiB for non-torch memory, 2.07 GiB for NPU graph memory. Replace gpu_memory_utilization with `--kv-cache-memory=26518185984` (24.70 GiB) to fit into requested memory, or `--kv-cache-memory=31024021504` (28.89 GiB) to fully utilize NPU free memory. Current KV cache memory: 27.43 GiB.
+INFO 10-14 15:52:01 [worker.py:594] Available KV cache memory: 27.43 GiB
+INFO 10-14 15:52:03 [kv_cache_utils.py:1744] GPU KV cache size: 4,010,585 tokens
+INFO 10-14 15:52:03 [kv_cache_utils.py:1746] Maximum concurrency for 1,048,576 tokens per request: 3.82x

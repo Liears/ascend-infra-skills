@@ -1,0 +1,80 @@
+name: lint-and-test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+
+      - name: Run the test suite
+        run: python -m pytest tests/ -q
+
+      - name: Check every skill has frontmatter and a matching name
+        run: python -m pytest tests/test_repo_metadata.py -q
+
+      - name: Smoke-test each skill CLI
+        run: |
+          set -e
+          python skills/ascend-open-source-finder/scripts/find_open_source.py \
+            --model "Example-1.0" --hardware 910B --sources '' >/dev/null
+          python skills/llm-serving-capacity-planner/scripts/capacity_analyzer.py \
+            --help >/dev/null
+          python skills/npu-profiler-analysis/scripts/analyze_profile.py --help >/dev/null
+          python skills/llm-serving-auto-benchmark/scripts/compare_results.py --template >/dev/null
+          python skills/model-day0-support/scripts/plan_template.py \
+            --model Example --chip 910B3 >/dev/null
+          python skills/model-pr-history-knowledge/scripts/mine_pr_history.py --help >/dev/null
+          echo "all skill entry points import and run"
+
+  markdown-link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for broken relative markdown links
+        run: |
+          python - <<'PY'
+          import os, re, sys
+          root = "."
+          bad = []
+          for dirpath, dirnames, filenames in os.walk(root):
+              dirnames[:] = [d for d in dirnames if d not in (".git", "node_modules")]
+              for fn in filenames:
+                  if not fn.endswith(".md"):
+                      continue
+                  p = os.path.join(dirpath, fn)
+                  with open(p, encoding="utf-8", errors="ignore") as f:
+                      text = f.read()
+                  for m in re.finditer(r"\]\((\.[^)]+)\)", text):
+                      target = m.group(1).split("#")[0]
+                      if not target:
+                          continue
+                      resolved = os.path.normpath(os.path.join(dirpath, target))
+                      if not os.path.exists(resolved):
+                          bad.append(f"{p}: {target}")
+          if bad:
+              print("Broken relative links:")
+              print("\n".join(bad))
+              sys.exit(1)
+          print("all relative markdown links resolve")
+          PY

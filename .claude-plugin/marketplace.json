@@ -1,0 +1,20 @@
+{
+  "name": "ascend-infra-skills",
+  "description": "Skills for AI-infrastructure work on Ascend NPUs: open-source port discovery, cross-framework benchmarks, NPU profiler analysis, capacity planning, and model Day-0 support.",
+  "owner": {
+    "name": "ascend-infra-skills contributors"
+  },
+  "plugins": [
+    {
+      "name": "ascend-infra-skills",
+      "source": "./",
+      "description": "Ascend NPU infrastructure skills under an evidence discipline.",
+      "version": "0.1.0",
+      "category": "ai-infra",
+      "tags": [
+        "ascend", "npu", "cann", "vllm-ascend", "mindie",
+        "profiler", "benchmark", "day0", "llm-serving"
+      ]
+    }
+  ]
+}

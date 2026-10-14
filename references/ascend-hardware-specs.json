@@ -1,0 +1,81 @@
+{
+  "$schema_note": "Ascend NPU hardware specs for capacity planning and compute simulation. Every numeric field MUST cite a source. Fields marked \"unverified\" were not confirmed on this machine and MUST NOT be used for acceptance numbers.",
+  "sources": {
+    "npu-smi": "Read directly from `npu-smi info` on Ascend hardware (authoritative for this machine).",
+    "cann-doc": "CANN official documentation / aclnn & AscendC docs shipped under /usr/local/Ascend.",
+    "vendor-spec": "Vendor datasheet. Cite the exact table; do not round.",
+    "measured": "Measured on this machine by a recorded run. Attach the trace/log path."
+  },
+  "chips": {
+    "910b3": {
+      "display_name": "Ascend 910B3",
+      "family": "Ascend 910B",
+      "product_name_aliases": ["IT21HMDC_Bin6"],
+      "hbm_gb": 64,
+      "hbm_capacity_unit": "vendor GB (65536 MB as reported by npu-smi); measure usable GiB before quoting capacity",
+      "aicore_count": 20,
+      "aicore_freq_mhz_nominal": 1800,
+      "dies_per_card": 1,
+      "shape": "PCIe add-in card, 1 die per card, 1 device per card",
+      "typical_deployment": "A2 (Atlas 800 A2, 8x910B3 = 8 devices)",
+      "source": "npu-smi",
+      "verified_on": "2026-10-14",
+      "notes": [
+        "This machine reports 8 cards / 8 devices / 8 dies.",
+        "Chip frequency observed at idle was 800 MHz while nominal is 1800 MHz; do not use the idle reading as a compute bound.",
+        "Do NOT conflate with 910B2/B4 — the aicore count and HBM differ."
+      ]
+    },
+    "910c": {
+      "display_name": "Ascend 910C",
+      "family": "Ascend 910C",
+      "hbm_gb": null,
+      "dies_per_card": 2,
+      "shape": "2 dies per card. Device numbering runs /dev/davinci0..15 on an 8-card server.",
+      "typical_deployment": "A3 (Atlas 800 A3, 8 cards = 16 devices)",
+      "source": "vendor-spec",
+      "verified_on": "not verified on this machine",
+      "notes": [
+        "CRITICAL: TP/EP degrees count DEVICES, not physical cards. 8 cards = 16 devices.",
+        "This machine has no 910C; every 910C number must be sourced from vendor docs or a run on real A3.",
+        "unverified: hbm_gb must be filled from the A3 datasheet before any capacity claim."
+      ]
+    },
+    "950dt": {
+      "display_name": "Ascend 950DT",
+      "family": "Ascend 950",
+      "hbm_gb": 96,
+      "dies_per_card": null,
+      "typical_deployment": "A5 class (96GB x 8)",
+      "source": "vendor-spec",
+      "verified_on": "not verified on this machine",
+      "notes": [
+        "unverified on this machine. 96GB per die appears in vllm-ascend model tutorials; confirm before use."
+      ]
+    }
+  },
+  "hardware_terms": {
+    "card": "A physical PCIe board. A 910B3 card carries 1 die; a 910C card carries 2.",
+    "device": "A single compute die addressable as /dev/davinciN. This is what TP/EP/DP degrees count.",
+    "rank": "The process-level index mapped onto a device for a given parallel group.",
+    "rule": "Every benchmark row MUST state whether its parallelism is in cards or devices. Mixing them silently is the single most common cause of wrong capacity math on Ascend."
+  },
+  "memory_scope": {
+    "hbm": "On-die HBM. Reported by npu-smi as HBM-Usage(MB).",
+    "host": "Host DRAM reachable over PCIe/HCCS. Engram-class embeddings and KV offload may live here.",
+    "hbm_total_mb_this_machine": 65536,
+    "baseline_resident_mb_this_machine": 3414,
+    "baseline_resident_note": "~3.2-3.4 GB per card is resident before any user process (driver + exporters). Subtract this before reasoning about a model's headroom."
+  },
+  "network": {
+    "interconnect": "HCCL over HCCS / RoCE depending on the server SKU",
+    "note": "Cross-framework benchmarks on Ascend MUST record the HCCL backend and topology; a collective-heavy model's numbers are not comparable across backends.",
+    "tooling": ["hccn_tool", "hccl_test"]
+  },
+  "software_stack_reference": {
+    "cann_toolkit_this_machine": "8.1.RC1 / runtime 7.1.0.9.220 (see /usr/local/Ascend/ascend-toolkit/latest/version.cfg)",
+    "driver_this_machine": "25.5.2 (Innerversion V100R001C23SPC007B221)",
+    "firmware_this_machine": "7.8.0.7.220",
+    "note": "npu-smi reports 'Software Version 25.5.2'. CANN toolkit component versions are read from version.cfg. Record BOTH in any benchmark evidence."
+  }
+}

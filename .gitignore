@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Profiler / benchmark artifacts (large; keep only curated examples in-tree)
+prof/
+*_ascend_pt/
+*.prof
+kernel_details.csv
+trace_view.json
+*.db
+# but keep the curated example fixtures
+!examples/**/sample-*.log
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Local scratch
+/tmp/
+*.local.md
