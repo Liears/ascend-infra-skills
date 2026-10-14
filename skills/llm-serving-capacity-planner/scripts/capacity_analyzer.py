@@ -70,10 +70,17 @@ RE_MAX_CONCURRENCY = re.compile(
 )
 
 # vllm-ascend also lets you set the KV budget directly instead of a fraction.
+#
+# CRITICAL: `--kv-cache-memory` appears in TWO very different contexts:
+#   1. vLLM *advising* you to switch: "Replace gpu_memory_utilization with
+#      `--kv-cache-memory=13351176806` (12.43 GiB) to fit into requested memory"
+#      — this is a suggestion, the flag was NOT used.
+#   2. the actual launch command / config echoing the flag that WAS set.
+# Matching context 1 and reporting "KV budget was set explicitly" is wrong and
+# misleads the diagnosis. The suggestion only ever appears after "Replace", so
+# we exclude it; a real setting comes from the arg list or an explicit "set to".
 RE_KV_CACHE_MEM_ARG = re.compile(r"--kv-cache-memory[=\s]+(\d+)")
-
-# npu-smi style HBM line, in case the log embeds one.
-RE_NPU_SMI_HBM = re.compile(r"(\d+)\s*/\s*(\d+)\s*$")
+_KV_SUGGESTION = re.compile(r"Replace\s+gpu_memory_utilization\s+with", re.IGNORECASE)
 
 
 @dataclass
@@ -139,9 +146,17 @@ def parse_log(text: str) -> MemoryBreakdown:
         b.max_model_len = int(m.group(1).replace(",", ""))
         b.max_concurrency = float(m.group(2))
 
-    m = RE_KV_CACHE_MEM_ARG.search(text)
-    if m:
+    # Only count `--kv-cache-memory` when it is the *effective* setting, not when
+    # vLLM is advising the user to switch to it. Check each occurrence's line and
+    # skip any line that is a "Replace gpu_memory_utilization with ..." suggestion.
+    for m in RE_KV_CACHE_MEM_ARG.finditer(text):
+        line_start = text.rfind("\n", 0, m.start()) + 1
+        line_end = text.find("\n", m.start())
+        line = text[line_start: line_end if line_end != -1 else len(text)]
+        if _KV_SUGGESTION.search(line):
+            continue
         b.kv_cache_memory_bytes_arg = int(m.group(1))
+        break
 
     return b
 

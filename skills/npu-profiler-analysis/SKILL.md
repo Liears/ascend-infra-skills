@@ -87,10 +87,33 @@ means an unfused elementwise chain, not that the model is "vector bound".
 | Finding | Reading |
 |---|---|
 | One op type > 50% of device time | a fused replacement or shape fix there is the highest-leverage change |
+| **Communication ≥ 40% of device time** | the run is collective-bound. This is the **normal shape** for a large MoE served with EP/TP on Ascend, not a defect — but it caps what kernel tuning can achieve (only the remaining share). Look at parallelism layout (EP vs TP), overlap, and HCCL first |
 | host API time ≫ device time | launch-bound → graph mode (`torch.compile` / aclgraph / npugraph_ex) |
-| device/host event ratio near 1 | little host/device batching overlap; more host events means more exposed latency |
+| device/host event ratio near 1:1 | little host/device batching overlap; more host events means more exposed latency |
+| device/host event ratio high (≫5) | heavy batching — the expected shape under graph mode |
 | 1–2 device streams only | single-stream exposes tails; multi-stream is a candidate |
 | `MIX_AIV` dominant on a matmul-heavy model | the "matmul" is running in a mixed kernel with vector work attached — check tiling |
+
+### The communication-dominance finding, concretely
+
+On a real DeepSeek-V4.1-Flash trace (8×910B3, TP8/EP8, one decode workload),
+the core split came out as:
+
+| core | % device time |
+|---|---:|
+| **COMMUNICATION** | **83.06** |
+| MIX_AIC | 7.95 |
+| AI_VECTOR_CORE | 5.05 |
+| AI_CORE | 2.64 |
+
+The top ops were `AivKernel` (41.5%), `allReduce` (39.4%), `alltoallv`,
+`allGather` — all collectives. **A GPU-shaped analyzer reports these as
+unremarkable "other kernels" and then points the reader at a 2%-of-time matmul
+as the hot spot.** That is the wrong conclusion by an order of magnitude. The
+analyzer therefore detects a communication-majority split and says what it
+implies: compute-kernel tuning can move at most the non-collective share.
+
+See `examples/deepseek-v4.1-flash-910b/` for the full captured output.
 
 ## What this skill does NOT do
 

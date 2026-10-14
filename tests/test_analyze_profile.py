@@ -133,5 +133,81 @@ class TestAnalyze(unittest.TestCase):
             self.assertTrue(any("no trace_view.json" in f for f in a.findings))
 
 
+COMM_CSV_HEADER = (
+    "Device_id,Model ID,Task ID,Stream ID,Name,Type,OP State,Accelerator Core,"
+    "Start Time(us),Duration(us),Wait Time(us),Block Num\n"
+)
+
+
+class TestCommunicationDominance(unittest.TestCase):
+    """Real V4.1-Flash traces are ~83% collective time; the analyzer must say so."""
+
+    def _prof(self, tmp):
+        out = os.path.join(tmp, "ASCEND_PROFILER_OUTPUT")
+        os.makedirs(out, exist_ok=True)
+        with open(os.path.join(out, "kernel_details.csv"), "w") as f:
+            f.write(COMM_CSV_HEADER)
+            # communication-heavy: 90% collective
+            f.write('0,0,1,47,allReduce_x,Reduce,dynamic,COMMUNICATION,1,900.0,0,1\n')
+            f.write('0,0,2,47,aclnnMatMul,MatMul,dynamic,AI_CORE,2,100.0,0,1\n')
+        return out
+
+    def test_comm_dominance_finding(self):
+        with tempfile.TemporaryDirectory() as t:
+            self._prof(t)
+            a = ap.analyze(t, top=10)
+            self.assertTrue(any("communication dominates" in f for f in a.findings))
+            self.assertTrue(any("hottest *compute* op" in f for f in a.findings))
+            self.assertGreaterEqual(a.core_split.get("COMMUNICATION", 0), 80)
+
+    def test_compute_op_excludes_collectives(self):
+        with tempfile.TemporaryDirectory() as t:
+            self._prof(t)
+            a = ap.analyze(t, top=10)
+            line = next(f for f in a.findings if "hottest *compute* op" in f)
+            self.assertIn("MatMul", line)
+            self.assertNotIn("allReduce", line)
+
+
+class TestHostDeviceRatioText(unittest.TestCase):
+    def _prof_with_events(self, tmp, host_n, dev_n):
+        out = os.path.join(tmp, "ASCEND_PROFILER_OUTPUT")
+        os.makedirs(out, exist_ok=True)
+        with open(os.path.join(out, "kernel_details.csv"), "w") as f:
+            f.write(COMM_CSV_HEADER)
+            f.write('0,0,1,47,aclnnMatMul,MatMul,dynamic,AI_CORE,1,10.0,0,1\n')
+        events = ([{"ph": "X", "name": "AscendCL@x", "pid": 1, "tid": 2, "ts": i, "dur": 1.0, "args": {}}
+                   for i in range(host_n)]
+                  + [{"ph": "X", "name": "aclnnK", "pid": 9, "tid": 47, "ts": i, "dur": 1.0, "args": {}}
+                     for i in range(dev_n)])
+        with open(os.path.join(out, "trace_view.json"), "w") as f:
+            json.dump(events, f)
+        return out
+
+    def test_ratio_text_matches_the_number(self):
+        with tempfile.TemporaryDirectory() as t:
+            self._prof_with_events(t, host_n=4, dev_n=8)
+            a = ap.analyze(t, top=5)
+            line = next(f for f in a.findings if "host-API events vs" in f)
+            self.assertIn("2.00:1", line)
+            self.assertNotIn("ratio near 1", line)
+
+    def test_low_ratio_says_overlap_poor(self):
+        with tempfile.TemporaryDirectory() as t:
+            self._prof_with_events(t, host_n=10, dev_n=10)
+            a = ap.analyze(t, top=5)
+            line = next(f for f in a.findings if "host-API events vs" in f)
+            self.assertIn("1.00:1", line)
+            self.assertIn("near 1:1", line)
+
+    def test_high_ratio_describes_batching(self):
+        with tempfile.TemporaryDirectory() as t:
+            self._prof_with_events(t, host_n=2, dev_n=20)
+            a = ap.analyze(t, top=5)
+            line = next(f for f in a.findings if "host-API events vs" in f)
+            self.assertIn("10.00:1", line)
+            self.assertIn("graph mode", line)
+
+
 if __name__ == "__main__":
     unittest.main()

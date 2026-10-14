@@ -1,0 +1,15 @@
+[serve_a2] run_id=a2_20261015_023728 image=dsv41-a2:v9 model=/mnt/local/hbw-work/dsv41-w4a8
+[serve_a2] port=8100 served_name=deepseek-v41 tp=8 dp=1 util=0.92 max_len=1048576 max_seqs=4 bat=8192
+[serve_a2] sptok=5 capture_sizes=1,2,3,4,6,12,18,24,30,32
+[serve_a2] MOE_AG=1 O_PROJ_2D=1 MOE_MASK=1 ROPE_IDXSEL=1 IDS64_HOIST=0 PAD_SKIP=1 ENGRAM_WKV_TP=1
+[serve_a2] ENGRAM_JIT=1 QLI_NOCAND=1 LOCAL_OWNER=fast GATE_CHUNK=0
+[serve_a2] PYTHON_PGO=0 pgo_target=none STATIC_KERNEL=1 NPUGRAPH_EX=1
+[serve_a2] LOAD_FORMAT=<real weights> MOE_ZERO=0(unverified) MOE_NF=0(negative-result) DRAFT_GRAPH=0(unverified)
+[serve_a2] 口径：MAX_SEQS=4 PREFIX=0(0=性能口径/1=生产口径) capture_max=32
+[serve_a2] 诊断项：HCCL_DET=none（true 会掉 GSM8K 到 91/100，仅诊断）
+[serve_a2] cpuset=-1 mems=-1
+[serve_a2] PROFILE=0（1 => /start_profile 与 /stop_profile 可用，落到 /tmp/dsv41-ascend/results/a2_20261015_023728/prof）
+[serve_a2] ENGRAM_DEVICE_INDEX=auto ENGRAM_DEVICE_FALLBACK=0
+[serve_a2] KV_ARGS_EXTRA=<none>
+[serve_a2] SP_SCHEDULE=<fixed K=5>（按并发切 K；空=固定）
+[serve_a2] PATCH_MODE=baked ADMISSION_GATE=n/a(live_hits=0)

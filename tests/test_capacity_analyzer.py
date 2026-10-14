@@ -51,8 +51,20 @@ class TestParse(unittest.TestCase):
         self.assertEqual(self.b.max_concurrency, 3.82)
         self.assertEqual(self.b.max_model_len, 1048576)
 
-    def test_explicit_kv_arg(self):
-        self.assertEqual(self.b.kv_cache_memory_bytes_arg, 26518185984)
+    def test_suggestion_is_not_treated_as_setting(self):
+        # The REAL_LOG contains only a vLLM *suggestion* ("Replace
+        # gpu_memory_utilization with `--kv-cache-memory=N`"); the flag was never
+        # passed. Reporting it as an effective setting produces a false
+        # diagnosis, so the parser must ignore suggestions.
+        self.assertIsNone(self.b.kv_cache_memory_bytes_arg)
+
+    def test_explicit_kv_arg_is_taken(self):
+        b = ca.parse_log("--kv-cache-memory 26518185984 --port 8100\n")
+        self.assertEqual(b.kv_cache_memory_bytes_arg, 26518185984)
+
+    def test_explicit_kv_arg_equals_form(self):
+        b = ca.parse_log("serving with --kv-cache-memory=13351176806\n")
+        self.assertEqual(b.kv_cache_memory_bytes_arg, 13351176806)
 
 
 class TestEdgeCases(unittest.TestCase):
@@ -113,8 +125,18 @@ class TestDiagnosis(unittest.TestCase):
         notes = ca.diagnose(b)
         self.assertTrue(any("NPU graph memory" in n for n in notes))
 
-    def test_flags_explicit_kv_budget(self):
-        b = ca.parse_log(REAL_LOG)
+    def test_no_false_kv_budget_diagnosis_from_suggestion(self):
+        # REAL_LOG only *suggests* the flag; the diagnosis must not claim it was set.
+        notes = ca.diagnose(ca.parse_log(REAL_LOG))
+        self.assertFalse(any("kv-cache-memory" in n for n in notes))
+
+    def test_flags_explicit_kv_budget_when_really_set(self):
+        # A real log has the memory lines AND the effective flag.
+        b = ca.parse_log(
+            "Free memory on device (62.31/64.0 GiB) on startup\n"
+            "Available KV cache memory: 12.43 GiB\n"
+            "--kv-cache-memory=13351176806\n"
+        )
         notes = ca.diagnose(b)
         self.assertTrue(any("kv-cache-memory" in n for n in notes))
 

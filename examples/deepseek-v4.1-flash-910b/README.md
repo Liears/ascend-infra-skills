@@ -90,21 +90,32 @@ row is pool-bound or scaled.
 
 ## 04 — Profiling: what does an NPU trace look like?
 
-```bash
-python3 skills/npu-profiler-analysis/scripts/analyze_profile.py /tmp/prof-out
-```
+Two captures, both on **real hardware** (see `04-profiling/`):
 
-Output: [`04-profiling/profile-output.md`](04-profiling/profile-output.md)
+**(a) A small smoke workload** — [`04-profiling/profile-output.md`](04-profiling/profile-output.md).
+Ran on a tiny NPU job profiled with `torch_npu.profiler` at Level1 +
+PipeUtilization, producing the 46-column `kernel_details.csv`. Establishes the
+*format*: Ascend op names (`aclnnAddmm_MatMulCommon_MatMulV2`), the two event
+families, the pipe-column dependency. A CUDA-era analyzer reads none of this.
 
-This ran on a **real trace captured on this machine**: a small NPU workload
-profiled with `torch_npu.profiler` at Level1 + PipeUtilization, producing the
-46-column `kernel_details.csv` and a `trace_view.json`.
+**(b) The live DeepSeek-V4.1-Flash service** —
+[`04-profiling/real-service-trace.md`](04-profiling/real-service-trace.md).
+Captured by `/start_profile` → run requests → `/stop_profile` on the running
+8×910B3 server, then parsed offline with `torch_npu.profiler.analyse()`:
+**229,642 kernel rows, 486 MB trace**. The result is the finding the whole
+example exists to produce:
 
-**Result:** kernel attribution by Ascend op type, the accelerator-core split
-(AI_CORE / AI_VECTOR_CORE / MIX_AIV), and the host/device event balance. The
-point is the *format*: Ascend op names (`aclnnAddmm_MatMulCommon_MatMulV2`),
-the two event families, and the pipe-column dependency. A CUDA-era analyzer
-reads none of this.
+| core | % device time |
+|---|---:|
+| **COMMUNICATION** | **83.06** |
+| MIX_AIC | 7.95 |
+| AI_VECTOR_CORE | 5.05 |
+| AI_CORE | 2.64 |
+
+The top ops are all collectives (`AivKernel` 41.5%, `allReduce` 39.4%, `alltoallv`,
+`allGather`). **This is the normal shape of a large MoE on Ascend with EP/TP**,
+and it means compute-kernel tuning can move at most ~17% of the time — a
+conclusion a GPU-shaped analyzer would get backwards.
 
 ---
 
@@ -138,12 +149,19 @@ risk**, because its host-resident tables have no analogue in the runtime.
 
 ## What this example does NOT claim
 
-- It does **not** claim to have served DeepSeek-V4.1-Flash. That is the next
-  phase and needs the 273 GB W4A8 weights plus a running vLLM-Ascend service.
+- It does **not** claim any accuracy result. `run_test.sh` ran in `MODE=quick`,
+  so GSM8K was not evaluated.
+- It does **not** claim the vision path works — the vision cases were skipped
+  (no official image directory was provided).
 - It does **not** endorse any performance number in the audited repo. The audit
-  explicitly flags that the toolchain versions are ambiguous.
+  explicitly flags that the toolchain versions are ambiguous, and our own
+  measured 27.2 tok/s @8K is well below the repo's A3 figures (A2 is a slower
+  device, and this run had no PGO artifact).
+- It does **not** claim DRAM offload works. The verifier's own summary line
+  said it did, but every criterion under it read `未验` — see the fail-open bug
+  in [`06-onboard/evidence/README.md`](06-onboard/evidence/README.md).
 - It does **not** treat the audited repo's claims as verified — only its
-  artefact inventory.
+  artefact inventory (and now, its actual behaviour on this machine).
 
 Every step above follows [`docs/EVIDENCE-RULES.md`](../../docs/EVIDENCE-RULES.md):
 state what was done, attach the artifact, and mark what was not done.

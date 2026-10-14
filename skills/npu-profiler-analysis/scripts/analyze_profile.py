@@ -269,6 +269,39 @@ def analyze(path: str, top: int) -> Analysis:
                 "one op type exceeds half of device time — a fused replacement or a "
                 "shape fix there moves the number more than tuning anything else"
             )
+
+        # Communication dominance is THE defining shape of a large Ascend MoE run
+        # (EP/TP collectives over HCCL). On the V4.1-Flash 8x910B3 trace it is
+        # ~83% of device time. A GPU-shaped analyzer would report this as "misc
+        # kernels" and miss the point entirely.
+        comm_pct = a.core_split.get("COMMUNICATION", 0.0)
+        if comm_pct >= 40:
+            comm_ops = [k for k in a.top_kernels
+                        if "COMMUNICATION" in k.get("cores", [])][:5]
+            names = ", ".join(k["op_type"] for k in comm_ops) or "(see table)"
+            a.findings.append(
+                f"**communication dominates**: {comm_pct:.0f}% of device time is "
+                f"collective ops ({names}). On a large MoE with EP/TP this is the "
+                f"normal shape, not a defect — but it means kernel-level tuning of "
+                f"compute ops can move at most ~{100-comm_pct:.0f}% of the time. "
+                f"Look at parallelism layout (EP vs TP), overlap, and HCCL before "
+                f"anything else."
+            )
+        elif comm_pct >= 15:
+            a.findings.append(
+                f"communication is {comm_pct:.0f}% of device time — non-trivial; "
+                f"check the collective layout before tuning compute kernels"
+            )
+
+        # Point at the top compute op separately, since communication may mask it.
+        compute = [k for k in a.top_kernels if "COMMUNICATION" not in k.get("cores", [])]
+        if compute:
+            c1 = compute[0]
+            a.findings.append(
+                f"hottest *compute* op (excluding collectives) is `{c1['op_type']}` "
+                f"at {c1['pct']}% of total device time"
+            )
+
     if tf.x_events:
         if tf.host_api_us > 2 * tf.device_us and tf.device_us > 0:
             a.findings.append(
@@ -276,10 +309,20 @@ def analyze(path: str, top: int) -> Analysis:
                 f"({tf.device_us:.0f} us) — launch-bound; look at graph mode before "
                 f"tuning kernels"
             )
-        a.findings.append(
-            f"{tf.host_calls} host-API events vs {tf.device_kernels} device events — "
-            f"a ratio near 1 means little host-side batching overlap"
-        )
+        # State the actual ratio; never emit a canned phrase that can contradict it.
+        if tf.host_calls:
+            ratio = tf.device_kernels / tf.host_calls
+            if ratio < 1.5:
+                reading = "little host-side batching overlap (near 1:1)"
+            elif ratio < 5:
+                reading = "moderate host/device batching"
+            else:
+                reading = ("heavy host/device batching — many device events per "
+                           "host call, which is the expected shape under graph mode")
+            a.findings.append(
+                f"{tf.host_calls} host-API events vs {tf.device_kernels} device events "
+                f"(ratio {ratio:.2f}:1) — {reading}"
+            )
     if tf.streams <= 2 and tf.device_us > 0:
         a.findings.append(
             f"only {tf.streams} device stream(s) observed — single-stream execution "

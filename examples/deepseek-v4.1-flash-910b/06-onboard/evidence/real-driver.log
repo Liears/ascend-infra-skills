@@ -1,0 +1,87 @@
+
+[1m[02:37:28][0m 预检
+  [32m✓[0m docker 可用
+  [32m✓[0m 镜像 dsv41-a2:v9 存在
+  [32m✓[0m 模型目录：/mnt/local/hbw-work/dsv41-w4a8
+  [check] 模型目录: /mnt/local/hbw-work/dsv41-w4a8
+    [32mOK[0m    config.json
+    [32mOK[0m    quant_model_weights.safetensors.index.json
+    [32mOK[0m    config.json 解析成功  model_type=deepseek_v41  quant=ascend
+    info    engram_layer_ids=[1, 14]  engram 权重条目=['engram_extra.safetensors', 'engram_int8']  optional/quarot=True
+    [32mOK[0m    Engram 配置与权重都在（2 层）
+    [32mOK[0m    有 optional/quarot.safetensors
+    [32mOK[0m    有 vision 分片
+    [33mWARN[0m  无法判定 vision 是否为 qrot 修复版；若未修复，视觉约 10/23 而非 23/23
+           -> 用 tools/check_vision_rotation.py 确认；需修复则 tools/make_qrot_vision_product.py --src <此目录> --dst <新目录>
+    [32mOK[0m    有 mtpq 分片（4 个，推荐配置）
+    [32mOK[0m    顶层软链完好
+  
+  [check] 结论：可以起服，但 1 个警告（见上）
+  [32m✓[0m 检测到 Engram（enable_engram=true）
+  [31m✗[0m 未找到官方 checkpoint 目录（视觉用例会跳过）；可用 OFFICIAL_DIR=... 指定
+  [32m✓[0m 目标芯片（0 1 2 3 4 5 6 7）HBM 空闲
+
+[1m[02:37:30][0m 起服（模式：真权重；sptok=5；mseqs=4；prefix=；PGO=1）
+
+[1m[serve_a2][0m 模型挂载（auto 模式，1 个目录，含软链链条；ENGRAM_DEVICE_INDEX=auto MODEL_MOUNT_ALL_RW=0）
+
+[1m[serve_a2][0m    -v /mnt/local/hbw-work/dsv41-w4a8:/mnt/local/hbw-work/dsv41-w4a8:ro
+
+[1m[serve_a2][0m engram 表目录（1 个）挂成 :rw（只读 VMA 会被 aclrtHostRegister 拒绝：ret=507899）：
+
+[1m[serve_a2][0m    -v /mnt/local/hbw-work/dsv41-w4a8/engram_int8:/mnt/local/hbw-work/dsv41-w4a8/engram_int8:rw
+
+[1m[serve_a2][0m 起容器 dsv41-a2（image=dsv41-a2:v9 port=8100 devs='0 1 2 3 4 5 6 7' util=0.92 pgo=0 patch_mode=baked mseqs=4 prefix=0）
+
+[1m[serve_a2][0m page cache 已清理：MemFree 1251979 MiB -> 2028284 MiB (+776305 MiB)
+
+[1m[serve_a2][0m 服务已提交启动，日志：/tmp/dsv41-ascend/results/a2_20261015_023728/serve.log
+
+[1m[serve_a2][0m 等待就绪（每 15 s 报一次，最多 35 分钟；首次要编译 static kernel）
+
+[1m[serve_a2][0m 就绪（用时 1160s）
+  [32m✓[0m static_kernel 未被降级（static_kernel.py:650 命中 0 次）
+  [32m✓[0m prefill batch 生效：--max-num-batched-tokens 8192（inner.sh 也是 8192）
+
+[1m[02:59:49][0m Engram local-owner 自检（validate → 全对则切 fast）
+  [32m✓[0m validate 通过 → 切 fast（最快路径）
+
+[1m[03:00:10][0m 容量检查（门槛 2800000 tokens；GPU_UTIL=0.92）
+  [32m✓[0m KV 2942071 tokens > 2800000
+
+[1m[03:00:10][0m quote 口径 8192 tokens（2 发）…
+      [curve] === context 8192 ===
+      [curve] ctx=8192 prompt=8192 steps=149.0 ms/step=61.966 tok/step=1.705 tok/s=27.51 ttft=1.641s maxrun=1.0 err=None
+      [curve] results appended to /tmp/dsv41-ascend/results/a2_20261015_023728/p42_t4_quote_8192_quote_8k.jsonl
+  [t_quote] points=4 usable=2 target_tokens=8192
+    prompt_tokens_actual: median=8192.0
+    ttft_s: median=1.646
+    prefill_tok_s: median=4976.1
+    ms_per_step: median=62.320499999999996
+    tok_per_step: median=1.6945000000000001
+    decode_tok_s: median=27.191000000000003
+    accept_length: median=1.7015
+    n_sse_chunks: median=149.0
+    >> ms/step=62.32  A=1.702  tok/s=27.2  (1000/ms*A=27.3)
+    exclusive_ok: True
+
+[1m[03:00:45][0m quote 口径 32768 tokens（2 发）…
+      [curve] === context 32768 ===
+      [curve] ctx=32768 prompt=32768 steps=88.0 ms/step=60.174 tok/step=2.875 tok/s=47.778 ttft=5.334s maxrun=1.0 err=None
+      [curve] results appended to /tmp/dsv41-ascend/results/a2_20261015_023728/p42_t4_quote_32768_quote_32k.jsonl
+  [t_quote] points=4 usable=2 target_tokens=32768
+    prompt_tokens_actual: median=32768.0
+    ttft_s: median=8.483
+    prefill_tok_s: median=4480.05
+    ms_per_step: median=60.912
+    tok_per_step: median=2.9085
+    decode_tok_s: median=47.7485
+    accept_length: median=2.9085
+    n_sse_chunks: median=87.0
+    >> ms/step=60.91  A=2.909  tok/s=47.7  (1000/ms*A=47.7)
+    exclusive_ok: True
+  [31m✗[0m 跳过视觉（未找到官方图片目录：/inference/examples/images）
+
+[1m[03:01:20][0m 生成报告
+
+[1m[03:01:20][0m 完成。产出目录：/tmp/dsv41-ascend/results/a2_20261015_023728
