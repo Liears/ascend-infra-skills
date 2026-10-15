@@ -96,3 +96,33 @@ to the norm. Consequences for the fused-kernel wiring:
 
 Path 1 is self-contained and is the genuine operator-layer work; path 2 is a
 version bump away. Both converge on the same wiring plan above.
+
+## Phase-1 result: Triton kernel written, validated — and the honest verdict
+
+Wrote `rms_norm_dynamic_quant` as a chunked Triton-Ascend kernel (UB-safe,
+BLOCK sweep 512–4096 all converge ~127 µs):
+
+| metric | result |
+|---|---|
+| int8 vs aclnn reference | maxdiff 1 step, **95.0% exact match** |
+| scale vs reference | max rel diff 3.1e-3 |
+| eager micro-benchmark | 267.9 → **126.8 µs (2.1×)**; CANN's add-fused variant: 59.7 µs |
+
+## The honest headroom arithmetic (why wiring stops here)
+
+The eager 2.1× overstates the in-graph payoff. At this deployment's decode
+shapes the tensors are **6×5120×2 B = 60 KB** — inside the draft graph,
+launches are already amortized and the cost is memory traffic. The fusion
+removes one intermediate round-trip ≈ 1–2 µs per site × ~40–80 sites/step
+≈ **0.3–1.2% end-to-end** — below the cost of the wiring (mHC restructure +
+attention threading + restart + gates), by the campaign's own early-stop
+rule.
+
+Where the operator layer WOULD pay: larger batches (the elementwise tensors
+scale linearly while vendor GEMM/attention cost scales slower), or the big
+kernels themselves — SparseFlashMla (11%) and the GEMM family (19%) — which
+are vendor/upstream territory (DeepGEMM-Ascend / DeepEP-Ascend track), not
+writable from this layer.
+
+The kernel ships as a validated, reusable artifact (correctness proven
+against the aclnn reference on live NPU) for the higher-batch case.
