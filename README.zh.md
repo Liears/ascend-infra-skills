@@ -47,6 +47,7 @@ keywords:
 | [`model-pr-history-knowledge`](skills/model-pr-history-knowledge/) | 改模型代码之前，先看上游已经对它做过什么 |
 | [`ascend-compute-simulation`](skills/ascend-compute-simulation/) | 从 config 算逐算子 FLOPs 与形状；MFU 只在有可信来源的峰值下计算 |
 | [`llm-serving-accuracy-gate`](skills/llm-serving-accuracy-gate/) | 起服之后的三层精度门禁（确定性/冒烟、AIME 级敏感检测、覆盖门）；拒绝口径不匹配的对比 |
+| [`extreme-perf-campaign`](skills/extreme-perf-campaign/) | 编排整场优化战役——理论排序杠杆、门禁随行实验、诚实收益算术、上游漂移定价；是其余 skill 之上的纪律层 |
 | [`serving-config-search`](skills/serving-config-search/) | 在 SLA 内找最优启动配置：离线剪枝 + 排序试验，不搞网格扫描；精度耦合旋钮自动标记 |
 
 ## 安装

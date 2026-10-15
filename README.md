@@ -50,6 +50,7 @@ evidence is not there.
 | [`model-pr-history-knowledge`](skills/model-pr-history-knowledge/) | Before changing a model path, see what upstream already did to it |
 | [`ascend-compute-simulation`](skills/ascend-compute-simulation/) | Per-op FLOPs and shapes from a config; MFU only against a sourced chip peak |
 | [`llm-serving-accuracy-gate`](skills/llm-serving-accuracy-gate/) | After serving, verdict accuracy with three gates (determinism/smoke, AIME-class detector, coverage); refuses protocol-mismatched comparisons |
+| [`extreme-perf-campaign`](skills/extreme-perf-campaign/) | Orchestrate the whole optimization campaign — theory-ranked levers, gated experiments, honest headroom arithmetic, upstream-drift pricing; the discipline layer over the others |
 | [`serving-config-search`](skills/serving-config-search/) | Find the best launch config under an SLA: offline-pruned, ordered trials instead of a grid sweep; flags accuracy-coupled knobs |
 
 ## Install
