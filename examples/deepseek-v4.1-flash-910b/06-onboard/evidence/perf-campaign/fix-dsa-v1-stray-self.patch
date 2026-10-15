@@ -1,0 +1,22 @@
+--- a/vllm_ascend/attention/dsa_v1.py
++++ b/vllm_ascend/attention/dsa_v1.py
+@@ def build_dspark_swa_indices (module level, ~line 623)
+     # [DYNSPEC-DIAG 2026-10-03] gather 前先断言行数一致 ...
+-    _v41_bt_parent = getattr(self, "block_table", block_table)
+     if block_table.shape[0] != safe_nums.shape[0]:
+         raise RuntimeError(
+             "[DYNSPEC-DIAG] build_dspark_swa_indices 行数不一致: "
+             f"block_table={tuple(block_table.shape)} "
+             f"safe_nums={tuple(safe_nums.shape)} "
+             f"seq_lens={tuple(seq_lens.shape)} "
+             f"query_start_loc={tuple(query_start_loc.shape)} "
+             f"num_decode_tokens={num_decode_tokens} index_width={index_width} "
+-            f"parent_self_block_table={tuple(_v41_bt_parent.shape)} "
+-            f"parent_num_actual_tokens={getattr(self, 'num_actual_tokens', None)}"
+         )
+
+Root cause: build_dspark_swa_indices is a module-level function; the three
+removed lines reference `self`, which does not exist in that scope. The
+_v41_bt_parent line executed unconditionally on every call, so the DRAFT_GRAPH
+path (the only caller of this deferred lambda) crashed with
+NameError on its first request. The row-mismatch diagnostic is preserved.
