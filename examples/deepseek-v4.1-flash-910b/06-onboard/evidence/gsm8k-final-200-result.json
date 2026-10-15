@@ -1,0 +1,9 @@
+{
+  "harness": "acc_eval.py @ chiro2001 port (8-shot, /v1/completions + official encoder)",
+  "dataset": "gsm8k test, 200 problems (AI-ModelScope/gsm8k parquet->jsonl)",
+  "sampling": "chat mode, conc 4, effort 75, max_tokens 512",
+  "draft": "DSpark S=5 + DRAFT_GRAPH=1, FUSED_MC2=1 (optimized config)",
+  "correct": 197,
+  "total": 200,
+  "artifact": "/mnt/local/hbw-work/gsm8k-final-200.json"
+}
