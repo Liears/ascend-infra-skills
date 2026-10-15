@@ -70,6 +70,8 @@ and the gap between them is where the optimization work is.
 | Script | Purpose |
 |---|---|
 | `scripts/model_compute_sim.py` | Config → per-op FLOPs + optional MFU |
+| `scripts/comm_volume.py` | Per-layout communication model: collective COUNT and bytes per step (latency-bound vs bandwidth-bound) |
+| `scripts/theoretical_optimum.py` | Achievable bound: necessary work × measured op capability; gap decomposition vs the measured step |
 
 ## References
 
