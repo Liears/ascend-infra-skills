@@ -1,0 +1,1620 @@
+{
+ "summary": {
+  "tag": "w4a8",
+  "task": "gsm8k",
+  "mode": "chat",
+  "n": 200,
+  "correct": 197,
+  "acc": 98.5,
+  "empty": 0,
+  "errors": 0,
+  "seconds": 231.1,
+  "gsm8k_jsonl_sha256": {
+   "train": "aab3610849c9dcb3caaa8662759da2a6e6b74eb561f60ec56332031a222549f6",
+   "test": "5a2118a96fcec430069d3b0386a95c0d58cf59a53ee33f0bc7175035a470b5ab"
+  },
+  "served_model": "deepseek-v41"
+ },
+ "results": [
+  {
+   "idx": "gsm8k-0",
+   "gold": "18",
+   "pred": "18",
+   "raw": "Janet's ducks lay 16 eggs per day.  \nShe eats 3 eggs for breakfast and uses 4 eggs for muffins, so she uses 3 + 4 = 7 eggs.  \nThat leaves 16 - 7 = 9 eggs to sell.  \nShe sells them for $2 each, so she makes 9 × 2 = $18 per day.  \n\n#### 18",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-1",
+   "gold": "3",
+   "pred": "3",
+   "raw": "It takes 2/2=<<2/2=1>>1 bolt of white fiber.\nSo the total is 2+1=<<2+1=3>>3 bolts of fiber.\n#### 3",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-2",
+   "gold": "70000",
+   "pred": "70000",
+   "raw": "The cost of the house and repairs came out to 80,000+50,000=<<80000+50000=130000>>130,000\nHe increased the value of the house by 80,000*1.5=<<80000*1.5=120000>>120,000\nSo the new value of the house is 120,000+80,000=<<120000+80000=200000>>200,000\nSo he made a profit of 200,000-130,000=<<200000-130000=70000>>70,000\n#### 70000",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-3",
+   "gold": "540",
+   "pred": "540",
+   "raw": "He runs 3 sprints * 3 times a week = <<3*3=9>>9 sprints a week.  \nHe runs 9 sprints * 60 meters = <<9*60=540>>540 meters a week.  \n#### 540",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-4",
+   "gold": "20",
+   "pred": "20",
+   "raw": "If Wendi has 20 chickens and each chicken gets 3 cups per day, the total feed needed per day is:\n\n20 × 3 = 60 cups.\n\nShe has already given 15 cups in the morning and 25 cups in the afternoon:\n\n15 + 25 = 40 cups.\n\nSo for the final meal, she needs:\n\n60 − 40 = 20 cups.\n\n**Answer: 20 cups**",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-5",
+   "gold": "64",
+   "pred": "64",
+   "raw": "The price of one glass is $5, and every second glass costs 60% of $5, which is 0.6 * 5 = $<<0.6*5=3>>3.  \nSo for every pair of glasses, Kylar pays 5 + 3 = $<<5+3=8>>8.  \n\nHe wants to buy 16 glasses, which is 16 / 2 = <<16/2=8>>8 pairs.  \nSo the total cost is 8 * 8 = $<<8*8=64>>64.  \n\n#### 64",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-6",
+   "gold": "260",
+   "pred": "260",
+   "raw": "Let's go step by step.\n\nSeattle has 20 sheep.  \nCharleston has 4 times as many as Seattle:  \n20 × 4 = 80 sheep.\n\nToulouse has twice as many as Charleston:  \n80 × 2 = 160 sheep.\n\nNow, total:  \nSeattle: 20  \nCharleston: 80  \nToulouse: 160  \n\n20 + 80 + 160 = 260 sheep.\n\n**Final answer:**  \n\\[\n\\boxed{260}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-7",
+   "gold": "160",
+   "pred": "160",
+   "raw": "Let's go step by step.\n\n**Step 1: Time to reach 40% of the file**  \nThe file is 200 GB.  \n40% of 200 GB = \\( 0.4 \\times 200 = 80 \\) GB.  \nAt 2 GB/min, time to download 80 GB = \\( 80 \\div 2 = 40 \\) minutes.\n\n**Step 2: Windows restart**  \nThe restart takes 20 minutes.\n\n**Step 3: Restart download from beginning**  \nShe must download the full 200 GB again.  \nTime for 200 GB at 2 GB/min = \\( 200 \\div 2 = 100 \\) minutes.\n\n**Step 4: Total time**  \n40 minutes (first partial download) + 20 minutes (restart) + 100 minutes (full download)  \n= \\( 40 + 20 + 100 = 160 \\) minutes.\n\n**Final answer:**  \n\\[\n\\boxed{160}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-8",
+   "gold": "45",
+   "pred": "45",
+   "raw": "Let’s go step-by-step.\n\n**Step 1 – First part of the trip (away from home):**  \nJohn drives 3 hours at 60 mph.  \nDistance = \\( 3 \\times 60 = 180 \\) miles away from home.\n\n**Step 2 – He turns around to go back home.**  \nHe has 4 hours to get home, but:\n\n- First 2 hours: standstill traffic → distance covered = 0 miles.\n- Next half hour (0.5 hours) at 30 mph → distance = \\( 0.5 \\times 30 = 15 \\) miles toward home.\n- Remaining time: \\( 4 - 2 - 0.5 = 1.5 \\) hours at 80 mph → distance = \\( 1.5 \\times 80 = 120 \\) miles toward home.\n\n**Step 3 – Total distance traveled toward home:**  \n\\( 15 + 120 = 135 \\) miles toward home.\n\n**Step 4 – Position after 4 hours:**  \nHe started 180 miles from home, moved 135 miles back toward home.  \nRemaining distance from home = \\( 180 - 135 = 45 \\) miles.\n\n\\[\n\\boxed{45}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-9",
+   "gold": "460",
+   "pred": "460",
+   "raw": "Eliza worked 45 hours, so she has 45 - 40 = <<45-40=5>>5 hours of overtime.  \nHer overtime rate is 1.2 × $10 = $<<1.2*10=12>>12 per hour.  \nHer regular pay is 40 × $10 = $<<40*10=400>>400.  \nHer overtime pay is 5 × $12 = $<<5*12=60>>60.  \nTotal earnings = $400 + $60 = $<<400+60=460>>460.  \n#### 460",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-10",
+   "gold": "366",
+   "pred": "366",
+   "raw": "Let's go step by step.\n\n**Month 1:**  \nDownloads = 60\n\n**Month 2:**  \nThree times as many as month 1:  \n60 × 3 = 180 downloads\n\n**Month 3:**  \nReduced by 30% from month 2:  \n30% of 180 = 0.30 × 180 = 54  \n180 − 54 = 126 downloads\n\n**Total over three months:**  \n60 + 180 + 126 = 366\n\nSo the total is:\n\n\\[\n\\boxed{366}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-11",
+   "gold": "694",
+   "pred": "694",
+   "raw": "The total cost for the donuts is 3 * 68 = $<<3*68=204>>204.  \nThe total cost for the mini cupcakes is 2 * 80 = $<<2*80=160>>160.  \nThe total cost for the mini cheesecakes is 6 * 55 = $<<6*55=330>>330.  \nThe total cost is 204 + 160 + 330 = $<<204+160+330=694>>694.  \n#### 694",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-12",
+   "gold": "13",
+   "pred": "13",
+   "raw": "Let's go step by step.\n\n**Step 1: Cost to plant the tree**  \nThe tree costs $90 to plant.\n\n**Step 2: Yearly profit from lemons**  \nEach year, the tree grows 7 lemons.  \nEach lemon sells for $1.5.  \nYearly revenue from lemons = \\( 7 \\times 1.5 = 10.5 \\) dollars.\n\n**Step 3: Yearly costs**  \nIt costs $3 per year to water and feed the tree.\n\n**Step 4: Net profit per year**  \nNet profit per year = Revenue − Cost = \\( 10.5 - 3 = 7.5 \\) dollars per year.\n\n**Step 5: How many years to recover the initial $90?**  \nWe need to find the smallest number of years where total net profit ≥ $90.\n\nAfter \\( n \\) years, total net profit = \\( 7.5n \\).\n\nWe need \\( 7.5n \\geq 90 \\).\n\n\\( n \\geq 90 / 7.5 = 12 \\).\n\nSo after 12 years, he will have earned back the initial cost.\n\n**Step 6: \"Starts earning money\" means when profit exceeds total costs**  \nAt the end of year 12, total profit = $90, which just breaks even.  \nHe starts earning money (profit > 0 overall) after year 12, i.e., during year 13.\n\nBut the question asks: \"How many years will it take before he starts earning money on the lemon tree?\"  \nThat means: after how many years does his cumulative profit become positive?  \nAt year 12, cumulative profit = $90 − $90 = $0.  \nAt year 13, cumulative profit = $97.5 − $90 = $7.5 (positive).\n\nSo it takes **13 years** before he starts earning money.\n\nHowever, some interpretations consider \"earning money\" as when the yearly profit exceeds yearly costs (which happens from year 1), but that's not the case here because of the initial $90. The standard interpretation in such problems is when total revenue exceeds total costs (including initial planting cost).\n\nThus, the answer is **13 years**.\n\n\\[\n\\boxed{13}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-13",
+   "gold": "18",
+   "pred": "18",
+   "raw": "Let's go step-by-step.\n\n---\n\n**Step 1 – Define the starting number**  \nLet \\( x \\) be the number of vacuum cleaners Melanie started with.\n\n---\n\n**Step 2 – Sales at the green house**  \nShe sold a third of them at the green house:  \nSold = \\( \\frac{x}{3} \\)  \nRemaining = \\( x - \\frac{x}{3} = \\frac{2x}{3} \\)\n\n---\n\n**Step 3 – Sales at the red house**  \nShe sold 2 more to the red house:  \nRemaining = \\( \\frac{2x}{3} - 2 \\)\n\n---\n\n**Step 4 – Sales at the orange house**  \nShe sold half of what was left at the orange house:  \nHalf of remaining = \\( \\frac{1}{2} \\times \\left( \\frac{2x}{3} - 2 \\right) \\)  \nAfter selling half, half remains:  \nRemaining after orange house = \\( \\frac{1}{2} \\times \\left( \\frac{2x}{3} - 2 \\right) \\)\n\n---\n\n**Step 5 – Final remaining is 5**  \nSo:  \n\\[\n\\frac{1}{2} \\times \\left( \\frac{2x}{3} - 2 \\right) = 5\n\\]\n\nMultiply both sides by 2:  \n\\[\n\\frac{2x}{3} - 2 = 10\n\\]\n\nAdd 2:  \n\\[\n\\frac{2x}{3} = 12\n\\]\n\nMultiply by 3:  \n\\[\n2x = 36\n\\]\n\nDivide by 2:  \n\\[\nx = 18\n\\]\n\n---\n\n**Step 6 – Conclusion**  \nMelanie started with **18** vacuum cleaners.\n\n\\[\n\\boxed{18}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-14",
+   "gold": "60",
+   "pred": "60",
+   "raw": "Let's go step by step.\n\n**Step 1: Find how many students enrolled in contemporary dance.**  \n20% of 20 students = \\( 0.20 \\times 20 = 4 \\) students.\n\n**Step 2: Find the remaining students after contemporary.**  \nRemaining = \\( 20 - 4 = 16 \\) students.\n\n**Step 3: Find how many of the remaining enrolled in jazz.**  \n25% of 16 = \\( 0.25 \\times 16 = 4 \\) students.\n\n**Step 4: Find how many are left for hip-hop.**  \nRemaining after jazz = \\( 16 - 4 = 12 \\) students.\n\n**Step 5: Find the percentage of the entire class in hip-hop.**  \n\\( \\frac{12}{20} \\times 100 = 60\\% \\).\n\n**Final answer:**  \n\\[\n\\boxed{60}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-15",
+   "gold": "125",
+   "pred": "125",
+   "raw": "Let's compare the profit from each option.\n\n**Jewelry:**\n- Value: $5,000\n- Increase: 2.5%  \nProfit = \\( 5000 \\times 0.025 = 125 \\)\n\n**Electronic gadgets:**\n- Value: $8,000\n- Increase: 1.2%  \nProfit = \\( 8000 \\times 0.012 = 96 \\)\n\nThe jewelry gives a higher profit: $125 vs $96.\n\nSo the maximum profit is:\n\n\\[\n\\boxed{125}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-16",
+   "gold": "230",
+   "pred": "230",
+   "raw": "Each train travels 80 miles westward on the first day and 150 miles northward on the second day.  \nTotal distance per train = 80 + 150 = 230 miles.  \n\n#### 230",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-17",
+   "gold": "57500",
+   "pred": "57500",
+   "raw": "Let’s break it down step by step.\n\n**Step 1: Calculate her weekly earnings as a teacher.**  \nShe earns $20 per hour and works 35 hours a week.  \n20 × 35 = $700 per week.\n\n**Step 2: Calculate her weekly earnings as a coach.**  \nShe earns $30 per hour and works 15 hours a week.  \n30 × 15 = $450 per week.\n\n**Step 3: Add them for total weekly earnings.**  \n700 + 450 = $1,150 per week.\n\n**Step 4: Multiply by the number of weeks she works per year.**  \nShe works 50 weeks a year.  \n1,150 × 50 = $57,500 per year.\n\n**Final answer:**  \n\\[\n\\boxed{57500}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-18",
+   "gold": "7",
+   "pred": "7",
+   "raw": "She eats 3 eggs a day * 7 days a week = <<3*7=21>>21 eggs a week.\nIn 4 weeks, she eats 21 eggs/week * 4 weeks = <<21*4=84>>84 eggs.\nSince a dozen is 12 eggs, she eats 84/12 = <<84/12=7>>7 dozens of eggs.\n#### 7",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-19",
+   "gold": "6",
+   "pred": "6",
+   "raw": "Let’s go step by step.\n\nMarissa has hiked:\n\n- First 4 miles in 1 hour  \n- Next 2 miles in 1 hour  \n\nTotal distance so far: \\(4 + 2 = 6\\) miles  \nTotal time so far: \\(1 + 1 = 2\\) hours  \n\nRemaining distance: \\(12 - 6 = 6\\) miles.\n\nShe wants an **average speed of 4 mph** for the whole 12 miles.\n\nTotal time needed for 12 miles at 4 mph:  \n\\[\n\\frac{12}{4} = 3 \\text{ hours}\n\\]\n\nShe has already taken 2 hours, so she has \\(3 - 2 = 1\\) hour left.\n\nShe must cover the remaining 6 miles in 1 hour, so her speed must be:\n\n\\[\n\\frac{6}{1} = 6 \\text{ mph}\n\\]\n\n**Final answer:**  \n\\[\n\\boxed{6}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-20",
+   "gold": "15",
+   "pred": "15",
+   "raw": "Let's go step by step.\n\n**Step 1: Water in the orange drink**  \nWe start with 10 liters of orange drink that is \\( \\frac{2}{3} \\) water.  \nWater in orange drink = \\( 10 \\times \\frac{2}{3} = \\frac{20}{3} \\) liters.\n\n**Step 2: Spilling 1 liter of orange drink**  \nIf we spill 1 liter of the orange drink, we lose water in the same proportion.  \nWater lost = \\( 1 \\times \\frac{2}{3} = \\frac{2}{3} \\) liters.  \nRemaining orange drink = \\( 10 - 1 = 9 \\) liters.  \nWater left in orange drink = \\( \\frac{20}{3} - \\frac{2}{3} = \\frac{18}{3} = 6 \\) liters.\n\n**Step 3: Water in the pineapple drink**  \n15 liters of pineapple drink that is \\( \\frac{3}{5} \\) water.  \nWater in pineapple drink = \\( 15 \\times \\frac{3}{5} = 9 \\) liters.\n\n**Step 4: Total water in the mixture**  \nTotal water = water from orange drink + water from pineapple drink  \n= \\( 6 + 9 = 15 \\) liters.\n\n**Step 5: Check total volume**  \nRemaining orange drink = 9 liters, pineapple drink = 15 liters, total = 24 liters (matches the problem statement).\n\nSo the amount of water in the final 24 liters is **15 liters**.\n\n\\[\n\\boxed{15}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-21",
+   "gold": "14",
+   "pred": "14",
+   "raw": "Let's go step by step.\n\n- Samantha is now 31.\n- Raymond was born 6 years before Samantha, so Raymond is 31 + 6 = 37 years old now.\n- Raymond had a son at age 23.\n- That means his son was born 37 − 23 = 14 years ago.\n\n**Answer:** 14 years ago.",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-22",
+   "gold": "7",
+   "pred": "7",
+   "raw": "Billy sold 3 x 1 = <<3*1=3>>3 DVDs to his first 3 customers.\nHe sold 2 x 2 = <<2*2=4>>4 DVDs to his next 2 customers.\nSo, he sold a total of 3 + 4 = <<3+4=7>>7 DVDs on Tuesday.\n#### 7",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-23",
+   "gold": "8",
+   "pred": "8",
+   "raw": "The candle burns for 4 hours (from 1:00 PM to 5:00 PM).  \nIt melts 2 cm each hour, so it will be shorter by 2 × 4 = 8 cm.  \n\n**Answer:** 8 centimeters.",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-24",
+   "gold": "26",
+   "pred": "26",
+   "raw": "Let's go step by step.\n\nKyle bought the book for $19.50 after a 25% discount.  \nThat means $19.50 is 75% of the original price.\n\nLet the original price be \\( x \\).\n\n\\[\n0.75x = 19.50\n\\]\n\nDivide both sides by 0.75:\n\n\\[\nx = \\frac{19.50}{0.75} = 26\n\\]\n\nSo the original price was:\n\n\\[\n\\boxed{26}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-25",
+   "gold": "2",
+   "pred": "2",
+   "raw": "Let's break it down step by step.\n\n**Step 1: Cost of the chicken meal**  \n1 chicken meal = $12.\n\n**Step 2: Cost of the milk**  \n5 packs × $3 each = $15.\n\n**Step 3: Cost of the apples**  \n4 apples × $1.50 each = $6.\n\n**Step 4: Total spent on chicken, milk, and apples**  \n$12 + $15 + $6 = $33.\n\n**Step 5: Money left for pizza**  \nTotal paid = $50.  \n$50 − $33 = $17 for pizza.\n\n**Step 6: Number of pizza boxes**  \nEach box costs $8.50.  \n$17 ÷ $8.50 = 2.\n\nSo Marie ordered **2 boxes of pizza**.\n\n\\[\n\\boxed{2}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-26",
+   "gold": "243",
+   "pred": "243",
+   "raw": "Mishka spent 3 * 16.50 = $<<3*16.5=49.50>>49.50 on shorts.  \nShe spent 3 * 22.50 = $<<3*22.5=67.50>>67.50 on pants.  \nShe spent 3 * 42 = $<<3*42=126>>126 on shoes.  \nAltogether, she spent 49.50 + 67.50 + 126 = $<<49.5+67.5+126=243>>243.  \n#### 243",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-27",
+   "gold": "16",
+   "pred": "16",
+   "raw": "Let's go step by step.\n\nCynthia eats **1 serving per night**.  \nEach carton has **15 servings**.  \nSo one carton lasts \\( 15 \\) days.\n\nIn **60 days**, she will need:  \n\\( 60 \\div 15 = 4 \\) cartons.\n\nEach carton costs **$4.00**, so:  \n\\( 4 \\times 4 = 16 \\) dollars.\n\n**Final answer:**  \n\\[\n\\boxed{16}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-28",
+   "gold": "25",
+   "pred": "25",
+   "raw": "He traveled 60 - 20 = <<60-20=40>>40 miles after his first stop.  \nHis second stop was 15 miles before the end, so between the first and second stops he traveled 40 - 15 = <<40-15=25>>25 miles.  \n#### 25",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-29",
+   "gold": "104",
+   "pred": "104",
+   "raw": "Let's go step by step.\n\n**Step 1: Find the cost of the second pair of heels.**  \nThe first pair costs $33.  \nThe second pair costs twice as much:  \n\\( 33 \\times 2 = 66 \\).\n\n**Step 2: Find the total cost of the two pairs of heels.**  \n\\( 33 + 66 = 99 \\).\n\n**Step 3: The heels together cost $5 less than the boots.**  \nThat means the boots cost $5 more than the heels:  \n\\( 99 + 5 = 104 \\).\n\n**Final answer:**  \n\\[\n\\boxed{104}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-30",
+   "gold": "109",
+   "pred": "109",
+   "raw": "The ratio of Darrell's age to Allen's age is 7:11, so let their ages be 7x and 11x.  \nTheir total age is 162, so:\n\n7x + 11x = 162  \n18x = 162  \nx = 9  \n\nAllen's current age = 11x = 11 × 9 = 99.  \nIn 10 years, Allen's age will be 99 + 10 = 109.\n\n#### 109",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-31",
+   "gold": "80",
+   "pred": "80",
+   "raw": "Let's go step by step.\n\n**Step 1: First friend's guess**  \nFirst friend says: 80.\n\n**Step 2: Second friend's guess**  \n\"20 more than half the first one\"  \nHalf of 80 = 40.  \n20 more than 40 = 60.  \nSecond friend: 60.\n\n**Step 3: Third friend's guess**  \n\"25% more than the first one\"  \n25% of 80 = 20.  \n80 + 20 = 100.  \nThird friend: 100.\n\n**Step 4: Average guess**  \nSum of guesses = 80 + 60 + 100 = 240.  \nNumber of guesses = 3.  \nAverage = 240 / 3 = 80.\n\n**Final answer:**  \n\\[\n\\boxed{80}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-32",
+   "gold": "35",
+   "pred": "35",
+   "raw": "He spends 10*.5=<<10*.5=5>>5 hours a day\nThat means he spends 5*7=<<5*7=35>>35 hours a week\n#### 35",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-33",
+   "gold": "70",
+   "pred": "70",
+   "raw": "Let \\( s \\) be the number of silver coins.  \nThen the number of gold coins is \\( s + 30 \\).  \n\nWe know:  \n\\[\ns + (s + 30) = 110\n\\]  \n\\[\n2s + 30 = 110\n\\]  \n\\[\n2s = 80\n\\]  \n\\[\ns = 40\n\\]  \n\nGold coins:  \n\\[\n40 + 30 = 70\n\\]  \n\n**Answer:**  \nGretchen has **70 gold coins**.  \n\n\\[\n\\boxed{70}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-34",
+   "gold": "23",
+   "pred": "23",
+   "raw": "Half of Raymond's jewels is 40 / 2 = <<40/2=20>>20 jewels.\nAaron has 5 more jewels than that, so Aaron has 20 + 5 = <<20+5=25>>25 jewels.\nSiobhan has 2 fewer jewels than Aaron, so Siobhan has 25 - 2 = <<25-2=23>>23 jewels.\n#### 23",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-35",
+   "gold": "9",
+   "pred": "9",
+   "raw": "In the second 20 minutes, he scores 25% more points than in the first 20 minutes.  \n25% of 4 is 4 * 0.25 = 1.  \nSo he scores 4 + 1 = 5 points in the second 20 minutes.  \n\nTotal points = 4 + 5 = 9.  \n\n#### 9",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-36",
+   "gold": "75",
+   "pred": "75",
+   "raw": "Let's go step by step.\n\nTerry eats 2 yogurts a day.  \nOver 30 days, he eats:  \n2 × 30 = 60 yogurts.\n\nThe sale is 4 yogurts for $5.00.  \nSo the price per yogurt is:  \n5 ÷ 4 = $1.25.\n\nTotal cost:  \n60 × 1.25 = $75.\n\nAlternatively, 60 yogurts ÷ 4 per pack = 15 packs.  \n15 packs × $5 = $75.\n\n**Final answer:**  \n\\[\n\\boxed{75}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-37",
+   "gold": "2",
+   "pred": "2",
+   "raw": "Let's go step by step.\n\n**Step 1: Find how much money John got from selling lego sets.**  \nHe sold 13 lego sets for $15 each:  \n13 × 15 = $195.\n\n**Step 2: Find how much he spent on video games.**  \nHe bought 8 games for $20 each:  \n8 × 20 = $160.\n\n**Step 3: Check the leftover money.**  \nThe problem says he had $5 left after buying the games.  \nIf he started with $195 and spent $160, he should have:  \n195 − 160 = $35 left.  \nBut the problem says he had $5 left, meaning he must have spent more than $160, or he didn’t sell all 13 lego sets.\n\n**Step 4: Find how much he actually spent.**  \nIf he had $5 left from $195, he spent:  \n195 − 5 = $190.\n\n**Step 5: Find how many lego sets he sold to get $190.**  \nEach lego set is $15:  \n190 ÷ 15 = 12.666…, which isn’t a whole number.  \nThat suggests maybe the $5 left is *after* buying games, but the money from lego sets was the only income. Let’s check:  \nIf he sold *x* lego sets, money = 15x.  \nHe spent $160 on games and had $5 left:  \n15x − 160 = 5  \n15x = 165  \nx = 11.\n\nSo he sold 11 lego sets.\n\n**Step 6: Find how many lego sets he still has.**  \nHe started with 13 sets, sold 11:  \n13 − 11 = 2.\n\n**Final answer:**  \n\\[\n\\boxed{2}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-38",
+   "gold": "10",
+   "pred": "10",
+   "raw": "Let's go step by step.\n\n**Step 1: Find how many hours he runs each day.**  \n- Day 1: 3 hours.  \n- The other two days: half as much as the first day → \\( 3 / 2 = 1.5 \\) hours each.\n\n**Step 2: Total hours per week.**  \n\\( 3 + 1.5 + 1.5 = 6 \\) hours per week.\n\n**Step 3: Find his speed.**  \nHe runs 60 miles in 6 hours.  \nSpeed = \\( 60 / 6 = 10 \\) miles per hour.\n\n**Final answer:**  \n\\[\n\\boxed{10}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-39",
+   "gold": "18",
+   "pred": "18",
+   "raw": "Let's go step by step.\n\n---\n\n**Step 1: Find Dana's running speed.**  \nShe can skip at 3 mph, and skipping is half as fast as running.  \nSo running speed = \\( 3 \\times 2 = 6 \\) mph.\n\n---\n\n**Step 2: Find Dana's walking speed.**  \nRunning is 4 times faster than walking.  \nSo walking speed = \\( 6 \\div 4 = 1.5 \\) mph.\n\n---\n\n**Step 3: Time allocation in 6 hours.**  \nShe spends \\( \\frac{1}{3} \\) of the time running:  \n\\( 6 \\times \\frac{1}{3} = 2 \\) hours running.\n\nShe spends \\( \\frac{2}{3} \\) of the time walking:  \n\\( 6 \\times \\frac{2}{3} = 4 \\) hours walking.\n\n---\n\n**Step 4: Distance covered.**  \nRunning: \\( 6 \\times 2 = 12 \\) miles.  \nWalking: \\( 1.5 \\times 4 = 6 \\) miles.\n\n---\n\n**Step 5: Total distance.**  \n\\( 12 + 6 = 18 \\) miles.\n\n---\n\n\\[\n\\boxed{18}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-40",
+   "gold": "8",
+   "pred": "8",
+   "raw": "Ben's iPhone is two times older than Suzy's iPhone, so Ben's iPhone is 1 * 2 = <<1*2=2>>2 years old.  \nBrandon's iPhone is four times as old as Ben's iPhone, so Brandon's iPhone is 2 * 4 = <<2*4=8>>8 years old.  \n#### 8",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-41",
+   "gold": "200",
+   "pred": "200",
+   "raw": "Let's go step by step.\n\n- Normally, Polly can throw the javelin 400 feet.\n- With the sapphire gemstone, she can throw it 3 times farther:  \n  400 × 3 = 1200 feet.\n- The dragon’s flames reach 1000 feet.\n- If she stands just outside the flames, she must be more than 1000 feet away, but she can still hit the dragon up to 1200 feet away.\n- The extra distance outside the dragon’s reach is:  \n  1200 − 1000 = 200 feet.\n\nSo the answer is:\n\n**200 feet**",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-42",
+   "gold": "26",
+   "pred": "26",
+   "raw": "Let's go step by step.\n\n1. **Total pieces of pie initially:**  \nGrandma baked 5 pies, each cut into 8 pieces.  \n\\( 5 \\times 8 = 40 \\) pieces.\n\n2. **Pieces remaining at the end:**  \n14 pieces were left.\n\n3. **Pieces taken by guests:**  \n\\( 40 - 14 = 26 \\) pieces.\n\n**Final answer:**  \n\\[\n\\boxed{26}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-43",
+   "gold": "48",
+   "pred": "48",
+   "raw": "Let's go step by step.\n\n**Step 1: Determine remaining calories**  \nDaily target = 2000 calories  \nAlready consumed = 1800 calories  \nRemaining = 2000 − 1800 = 200 calories.\n\n**Step 2: Find calories per gram of chips**  \nThe bag has 250 calories per serving.  \nThe bag is 300g and has 5 servings.  \nSo each serving weighs: 300 ÷ 5 = 60g.  \nEach serving has 250 calories, so calories per gram = 250 ÷ 60 = 25/6 ≈ 4.1667 cal/g.\n\n**Step 3: Find grams for 200 calories**  \nGrams = 200 ÷ (25/6) = 200 × (6/25) = 1200 ÷ 25 = 48g.\n\n**Final answer:**  \nYou can eat **48 grams** of chips.\n\n\\[\n\\boxed{48}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-44",
+   "gold": "20",
+   "pred": "20",
+   "raw": "Let's go step by step.\n\n**Step 1: Determine how many pounds of beeswax are needed for 20 candles.**  \nFor every pound of beeswax, Charlie can make 10 candles.  \nSo for 20 candles, he needs \\( 20 \\div 10 = 2 \\) pounds of beeswax.\n\n**Step 2: Calculate the cost of supplies.**  \nEach pound of beeswax and wicks costs $10.  \nFor 2 pounds, cost = \\( 2 \\times 10 = 20 \\) dollars.\n\n**Step 3: Calculate total revenue from selling 20 candles.**  \nEach candle sells for $2.  \nRevenue = \\( 20 \\times 2 = 40 \\) dollars.\n\n**Step 4: Calculate net profit.**  \nNet profit = Revenue – Cost = \\( 40 - 20 = 20 \\) dollars.\n\n**Final answer:**  \n\\[\n\\boxed{20}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-45",
+   "gold": "104",
+   "pred": "104",
+   "raw": "Let’s go step by step.\n\n**Monday:**  \nShe wrote 5 articles.  \nTime = 5 × 4 = 20 hours.\n\n**Tuesday:**  \nShe wrote \\( \\frac{2}{5} \\) times more than Monday.  \n\"2/5 times more\" means she wrote \\( 5 + \\frac{2}{5} \\times 5 = 5 + 2 = 7 \\) articles.  \nTime = 7 × 4 = 28 hours.\n\n**Wednesday:**  \nShe wrote twice the number she wrote on Tuesday.  \nArticles = 2 × 7 = 14.  \nTime = 14 × 4 = 56 hours.\n\n**Total hours:**  \n20 + 28 + 56 = 104 hours.\n\n\\[\n\\boxed{104}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-46",
+   "gold": "163",
+   "pred": "163",
+   "raw": "Let's break it down.\n\nCandice started with **80** post-it notes.  \nShe used **220** at work.  \nShe had **23** left at the end.\n\nLet \\( x \\) be the number of post-it notes in the package she bought.\n\nThe total she had after buying the package:  \n\\( 80 + x \\)\n\nShe used 220, so:\n\n\\[\n80 + x - 220 = 23\n\\]\n\n\\[\nx - 140 = 23\n\\]\n\n\\[\nx = 163\n\\]\n\nSo the package had **163** post-it notes.\n\n\\[\n\\boxed{163}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-47",
+   "gold": "800",
+   "pred": "800",
+   "raw": "Let's go step by step.\n\n**Step 1: Find how many blue ties John bought.**  \nHe spent $200 on blue ties that cost $40 each.  \nNumber of blue ties = \\( 200 \\div 40 = 5 \\).\n\n**Step 2: Find how many red ties he bought.**  \nHe buys twice as many red ties as blue ties.  \nRed ties = \\( 5 \\times 2 = 10 \\).\n\n**Step 3: Find the cost of each red tie.**  \nRed ties cost 50% more than blue ties.  \nBlue tie cost = $40.  \n50% of $40 = $20.  \nRed tie cost = \\( 40 + 20 = 60 \\) dollars.\n\n**Step 4: Find total spent on red ties.**  \n10 red ties × $60 each = $600.\n\n**Step 5: Find total spent on all ties.**  \nBlue ties: $200.  \nRed ties: $600.  \nTotal = \\( 200 + 600 = 800 \\).\n\n**Final answer:**  \n\\[\n\\boxed{800}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-48",
+   "gold": "8",
+   "pred": "8",
+   "raw": "Tracy had a wire 4 feet long.  \nSince 1 foot = 12 inches, the wire was 4 × 12 = 48 inches long.  \n\nShe cut it into pieces 6 inches long.  \nNumber of pieces = 48 ÷ 6 = 8.  \n\nSo she obtained 8 pieces.  \n\n**Answer:** 8",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-49",
+   "gold": "30",
+   "pred": "30",
+   "raw": "The building has 15 floors * 8 units = <<15*8=120>>120 units.  \n3/4 of the building is occupied, so 1/4 is unoccupied.  \nUnoccupied units = 120 * 1/4 = <<120*1/4=30>>30.  \n#### 30",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-50",
+   "gold": "294",
+   "pred": "294",
+   "raw": "Lloyd's chickens produce 252 eggs per day.  \nIn one week, they produce 252 × 7 = 1764 eggs.\n\nSince eggs are sold by the dozen, we divide by 12:  \n1764 ÷ 12 = 147 dozen eggs per week.\n\nHe sells each dozen for $2, so his weekly earnings are:  \n147 × 2 = $294.\n\n**Answer:**  \nLloyd makes $294 per week on eggs.",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-51",
+   "gold": "5",
+   "pred": "5",
+   "raw": "He travels from 1 to 4 PM, which is 3 hours.  \nAt 10 mph, he covers \\(10 \\times 3 = 30\\) miles.  \n\nOn the way back, he travels 30 miles at 6 mph.  \nTime = \\(30 / 6 = 5\\) hours.  \n\n**Final answer:**  \n\\[\n\\boxed{5}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-52",
+   "gold": "15",
+   "pred": "15",
+   "raw": "30 comic books weigh 30 * 1/4 = <<30*1/4=7.5>>7.5 pounds.\nHe needs to remove 15 - 7.5 = <<15-7.5=7.5>>7.5 pounds more.\nEach toy weighs 1/2 pound, so he needs to remove 7.5 / 0.5 = <<7.5/0.5=15>>15 toys.\n#### 15",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-53",
+   "gold": "40",
+   "pred": "40",
+   "raw": "Let’s go step by step.\n\n**Thursday revenue:**\n- Truck tires: 6 × $60 = $360  \n- Car tires: 4 × $40 = $160  \n- Thursday total: $360 + $160 = $520  \n\n**Friday revenue:**\n- Car tires: 12 × $40 = $480  \n- Friday total: $480  \n\n**Difference:**\n- Higher revenue day: Thursday ($520)  \n- $520 − $480 = $40 more  \n\n**Final answer:**\n\\[\n\\boxed{40}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-54",
+   "gold": "40",
+   "pred": "40",
+   "raw": "Let's break it down.\n\n- The sisters are bringing home **7 adopted kittens**.\n- Patchy (first cat) had **thrice the number of adopted kittens**:  \n  \\( 3 \\times 7 = 21 \\) kittens.\n- Trixie (second cat) had **12 kittens**.\n\nNow, total kittens:\n\n\\[\n7 + 21 + 12 = 40\n\\]\n\n**Final answer:**  \n\\[\n\\boxed{40}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-55",
+   "gold": "14",
+   "pred": "14",
+   "raw": "Jean has 30 - 2 = <<30-2=28>>28 lollipops left.  \nShe can fill 28 / 2 = <<28/2=14>>14 bags.  \n#### 14",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-56",
+   "gold": "3",
+   "pred": "3",
+   "raw": "Let's break it down.\n\nEach trip to the movies costs Peter:\n\n- Ticket: $7  \n- Popcorn: $7  \n- Total per trip: $7 + $7 = $14  \n\nHe has $42 for the week.\n\nNumber of trips = \\( 42 ÷ 14 = 3 \\)\n\nSo Peter can go to the movies **3 times**.\n\n\\[\n\\boxed{3}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-57",
+   "gold": "83",
+   "pred": "83",
+   "raw": "Let’s go step-by-step.\n\n1. The bridge can carry at most **5000 pounds**.  \n2. The empty truck plus driver weighs **3755 pounds**.  \n3. That leaves:  \n\\[\n5000 - 3755 = 1245 \\text{ pounds}\n\\]\nfor the boxes.\n\n4. Each box weighs **15 pounds**.  \nThe maximum number of boxes is:  \n\\[\n1245 \\div 15 = 83\n\\]\n\nSo the maximum number of boxes is **83**.\n\n\\[\n\\boxed{83}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-58",
+   "gold": "57",
+   "pred": "57",
+   "raw": "He spent $40.00 on groceries.\nThe delivery vendor added a 25% fee: 25% of $40.00 is 0.25 * 40 = $<<0.25*40=10>>10.\nSo the total after the 25% fee is $40 + $10 = $<<40+10=50>>50.\nThen they charged $3.00 in delivery fees: $50 + $3 = $<<50+3=53>>53.\nStephen also added a $4.00 tip: $53 + $4 = $<<53+4=57>>57.\n#### 57",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-59",
+   "gold": "187",
+   "pred": "187",
+   "raw": "Let's break it down:\n\n- **Clusters:** 6 clusters × 20 fruit each = 120 fruit  \n- **Individual fruit:** 67 fruit  \n- **Total:** 120 + 67 = 187 raspberries  \n\nSo the answer is:\n\n\\[\n\\boxed{187}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-60",
+   "gold": "17",
+   "pred": "17",
+   "raw": "Let's go step by step.\n\n- Total oranges: 25  \n- Bad: 1  \n- Unripe: 20% of 25 = \\( 0.20 \\times 25 = 5 \\)  \n- Sour: 2  \n- Good: the rest.\n\nFirst, sum the non-good oranges:  \n\\( 1 + 5 + 2 = 8 \\)\n\nGood oranges:  \n\\( 25 - 8 = 17 \\)\n\nSo the number of good oranges is:\n\n\\[\n\\boxed{17}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-61",
+   "gold": "1430",
+   "pred": "1430",
+   "raw": "Let's break it down step by step.\n\n1. **Cost of materials**: $500  \n2. **Cost to construct**: $800  \n   Total so far: \\( 500 + 800 = 1300 \\)\n\n3. **Insurance cost**: 10% of $1300  \n   \\( 1300 \\times 0.10 = 130 \\)\n\n4. **Total paid**:  \n   \\( 1300 + 130 = 1430 \\)\n\n**Final answer**:  \n\\[\n\\boxed{1430}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-62",
+   "gold": "25000",
+   "pred": "25000",
+   "raw": "Let’s go step by step.\n\n- Marcy gets the full pension ($50,000/year) only if she works 40 years.  \n- Starting after 20 years, she becomes entitled to 5% of the pension’s value per year.  \n- If she quits after 30 years, that means she worked 10 years beyond the 20-year mark.\n\nEach of those 10 years gives her 5% of $50,000:\n\n\\[\n5\\% \\times 50{,}000 = 2{,}500\n\\]\n\nFor 10 years:\n\n\\[\n10 \\times 2{,}500 = 25{,}000\n\\]\n\nSo her annual pension would be:\n\n\\[\n\\boxed{25000}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-63",
+   "gold": "1596",
+   "pred": "1596",
+   "raw": "Let's break it down:\n\n- First half of the year (6 months): $140 per month  \n  Total = 6 × 140 = $840\n\n- Second half of the year: 10% less than $140  \n  10% of 140 = 14  \n  New monthly cost = 140 − 14 = $126  \n  Total for 6 months = 6 × 126 = $756\n\n- Total for the year = 840 + 756 = $1596\n\n**Final answer:**  \n\\[\n\\boxed{1596}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-64",
+   "gold": "300",
+   "pred": "300",
+   "raw": "To find the total distance Sophia can drive on a full tank, we first need to determine her car's fuel efficiency (miles per gallon).\n\nShe drove 100 miles and used 4 gallons to refill the tank, so her car travels:\n\n100 miles ÷ 4 gallons = 25 miles per gallon.\n\nHer tank holds 12 gallons, so on a full tank she can drive:\n\n25 miles/gallon × 12 gallons = 300 miles.\n\n**Answer:** 300 miles.",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-65",
+   "gold": "36",
+   "pred": "36",
+   "raw": "Let's break it down step by step.\n\n**Step 1: Daily TV and reading time**  \nJim watches TV for 2 hours.  \nHe reads for half as long: \\( 2 \\div 2 = 1 \\) hour.  \nTotal per day: \\( 2 + 1 = 3 \\) hours.\n\n**Step 2: Weekly time**  \nHe does this 3 times a week:  \n\\( 3 \\times 3 = 9 \\) hours per week.\n\n**Step 3: Time in 4 weeks**  \n\\( 9 \\times 4 = 36 \\) hours.\n\n**Final answer:**  \n\\[\n\\boxed{36}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-66",
+   "gold": "48",
+   "pred": "48",
+   "raw": "Let's break it down:\n\n- Each school has a girls’ team and a boys’ team → 2 teams per school.\n- Each team has 5 players → 5 players × 2 teams = 10 players per school.\n- Each team also has a coach → 2 coaches per school.\n- So each school sent 10 players + 2 coaches = 12 people.\n- There are 4 schools → 4 × 12 = 48 people in total.\n\n**Final answer:**  \n\\[\n\\boxed{48}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-67",
+   "gold": "595",
+   "pred": "595",
+   "raw": "Let's go step by step.\n\n- **Diamonds**: 175  \n- **Rubies**: 35 fewer than diamonds → 175 − 35 = 140  \n- **Emeralds**: twice the number of rubies → 140 × 2 = 280  \n\nNow add them all:\n\n175 + 140 + 280 = 595\n\nSo there were **595 gems** in the chest.\n\n\\[\n\\boxed{595}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-68",
+   "gold": "36",
+   "pred": "36",
+   "raw": "Let's go step by step.\n\n- There are **60 girls**.\n- There are **twice as many boys as girls**, so boys = \\( 60 \\times 2 = 120 \\).\n- Total students = \\( 60 + 120 = 180 \\).\n- There are **5 students per teacher**, so teachers = \\( 180 \\div 5 = 36 \\).\n\n\\[\n\\boxed{36}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-69",
+   "gold": "60",
+   "pred": "60",
+   "raw": "Let’s go step by step.\n\n1. Bailey receives $5 per week for 8 weeks:  \n\\( 5 \\times 8 = 40 \\) dollars from allowance.\n\n2. At the end of 8 weeks, she has $100 total.  \nThat means her starting money plus $40 equals $100.\n\n3. So, starting money = \\( 100 - 40 = 60 \\).\n\n**Final answer:**  \n\\[\n\\boxed{60}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-70",
+   "gold": "7425",
+   "pred": "7425",
+   "raw": "Let’s break it down step by step.\n\n**Step 1: Number of classes per week**  \nJudy teaches 5 classes per day on weekdays (Monday–Friday).  \nThat’s \\( 5 \\times 5 = 25 \\) classes on weekdays.  \nOn Saturday, she teaches 8 classes.  \nTotal classes per week: \\( 25 + 8 = 33 \\).\n\n**Step 2: Number of students per week**  \nEach class has 15 students.  \nTotal students per week: \\( 33 \\times 15 = 495 \\).\n\n**Step 3: Total money earned**  \nShe charges $15 per student.  \nTotal earnings: \\( 495 \\times 15 = 7425 \\).\n\n\\[\n\\boxed{7425}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-71",
+   "gold": "60",
+   "pred": "60",
+   "raw": "The second recipe has twice as many instructions as the first one, so it has 20 * 2 = <<20*2=40>>40 instructions.  \nIn total, Kelian has to read 20 + 40 = <<20+40=60>>60 instructions.  \n#### 60",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-72",
+   "gold": "221",
+   "pred": "221",
+   "raw": "Tommy raises 43 * 3 = $<<43*3=129>>129 from brownies.\nHe raises 23 * 4 = $<<23*4=92>>92 from cheesecakes.\nIn total, Tommy raises 129 + 92 = $<<129+92=221>>221.\n#### 221",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-73",
+   "gold": "255",
+   "pred": "255",
+   "raw": "Let's go step by step.\n\n**Step 1: Find the total cost of the phones before interest.**  \nShiela bought 5 phones at $150 each.  \nTotal cost = \\( 5 \\times 150 = 750 \\) dollars.\n\n**Step 2: Calculate the interest.**  \nInterest is 2% per unit (per phone).  \nInterest per phone = \\( 150 \\times 0.02 = 3 \\) dollars.  \nFor 5 phones, total interest = \\( 5 \\times 3 = 15 \\) dollars.\n\n**Step 3: Total amount to pay.**  \nTotal = \\( 750 + 15 = 765 \\) dollars.\n\n**Step 4: Monthly payment over 3 months.**  \nMonthly payment = \\( 765 \\div 3 = 255 \\) dollars.\n\n\\[\n\\boxed{255}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-74",
+   "gold": "88",
+   "pred": "88",
+   "raw": "Let's go step by step.\n\n**Step 1: Round each price to the nearest dollar.**\n\n- Marigolds: $2.74 → rounds to $3  \n- Petunias: $1.87 → rounds to $2  \n- Begonias: $2.12 → rounds to $2  \n\n**Step 2: Multiply by the number of pots sold.**\n\n- Marigolds: 12 × $3 = $36  \n- Petunias: 9 × $2 = $18  \n- Begonias: 17 × $2 = $34  \n\n**Step 3: Add them up.**\n\n36 + 18 + 34 = 88  \n\n**Final answer:**\n\n\\[\n\\boxed{88}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-75",
+   "gold": "60",
+   "pred": "60",
+   "raw": "Let's go step by step.\n\nThe top level (level 4) has 16 square feet.  \nEach level below has **double** the square footage of the level above it (since each level has half the square footage of the level below it).\n\nSo:\n\n- Level 4 (top): 16  \n- Level 3: 16 × 2 = 32  \n- Level 2: 32 × 2 = 64  \n- Level 1 (bottom): 64 × 2 = 128  \n\nNow sum them:  \n16 + 32 + 64 + 128 = 240  \n\nThere are 4 levels, so the average is:  \n240 ÷ 4 = 60  \n\n**Final answer:**  \n\\[\n\\boxed{60}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-76",
+   "gold": "5",
+   "pred": "5",
+   "raw": "Let's go step by step.\n\n**Step 1: First 180 days**  \nThe puppy eats 1 cup per day for 180 days:  \n\\( 180 \\times 1 = 180 \\) cups.\n\n**Step 2: Remaining days in the first year**  \nA year has 365 days.  \nDays remaining after the first 180 days:  \n\\( 365 - 180 = 185 \\) days.\n\n**Step 3: Food for the remaining days**  \nThe puppy eats 2 cups per day for those 185 days:  \n\\( 185 \\times 2 = 370 \\) cups.\n\n**Step 4: Total food in the first year**  \n\\( 180 + 370 = 550 \\) cups.\n\n**Step 5: Number of bags needed**  \nEach bag has 110 cups:  \n\\( 550 \\div 110 = 5 \\) bags.\n\n**Final answer:**  \n\\[\n\\boxed{5}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-77",
+   "gold": "100",
+   "pred": "100",
+   "raw": "Let's go step by step.\n\nSarah does 400 pounds of laundry.  \nSarah does 4 times as much as David, so David does:  \n400 ÷ 4 = 100 pounds.\n\nRaymond does half as much as Sarah:  \n400 ÷ 2 = 200 pounds.\n\nDifference between Raymond and David:  \n200 − 100 = 100 pounds.\n\n**Answer:** 100",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-78",
+   "gold": "6",
+   "pred": "6",
+   "raw": "Let's compare the two options for buying 18 flowers.\n\n**Option 1: Packages of 3 for $2.50**  \nNumber of packages needed: \\( 18 \\div 3 = 6 \\)  \nTotal cost: \\( 6 \\times 2.50 = 15 \\) dollars.\n\n**Option 2: Packages of 2 for $1**  \nNumber of packages needed: \\( 18 \\div 2 = 9 \\)  \nTotal cost: \\( 9 \\times 1 = 9 \\) dollars.\n\n**Savings:**  \n\\( 15 - 9 = 6 \\) dollars.\n\nSo Vincent saves **$6** by buying at the better price.\n\n\\[\n\\boxed{6}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-79",
+   "gold": "70",
+   "pred": "70",
+   "raw": "The groomer gives him a discount of 30/100 * 100 = $<<30/100*100=30>>30.  \nSo the grooming costs 100 - 30 = $<<100-30=70>>70.  \n#### 70",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-80",
+   "gold": "10",
+   "pred": "10",
+   "raw": "Let's go step by step.\n\nTwo girls each got \\( \\frac{1}{6} \\) of 24 liters:\n\n\\[\n\\frac{1}{6} \\times 24 = 4 \\text{ liters each}\n\\]\n\nSo both girls together took:\n\n\\[\n4 + 4 = 8 \\text{ liters}\n\\]\n\nThen a boy got 6 liters:\n\n\\[\n8 + 6 = 14 \\text{ liters taken in total}\n\\]\n\nWater left:\n\n\\[\n24 - 14 = 10 \\text{ liters}\n\\]\n\n**Final answer:**\n\n\\[\n\\boxed{10}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-81",
+   "gold": "17",
+   "pred": "17",
+   "raw": "Let's go step by step.\n\nCharlie started with **10 stickers**.  \nHe bought **21** more:  \n10 + 21 = 31 stickers.\n\nThen he got **23** for his birthday:  \n31 + 23 = 54 stickers.\n\nHe gave **9** to his sister:  \n54 − 9 = 45 stickers.\n\nHe used **28** to decorate a greeting card:  \n45 − 28 = 17 stickers.\n\nSo Charlie has **17 stickers** left.\n\n\\[\n\\boxed{17}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-82",
+   "gold": "623",
+   "pred": "623",
+   "raw": "Alex weighs 4 * 125 - 2 = <<4*125-2=498>>498 pounds.\nTheir combined weight is 125 + 498 = <<125+498=623>>623 pounds.\n#### 623",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-83",
+   "gold": "600",
+   "pred": "600",
+   "raw": "There are 3 rose bushes * 25 roses = <<3*25=75>>75 roses.\nEach rose has 8 thorns, so there are 75 * 8 = <<75*8=600>>600 thorns total.\n#### 600",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-84",
+   "gold": "15",
+   "pred": "15",
+   "raw": "Let \\( W \\) be the number of games they won and \\( L \\) be the number they lost.  \nWe know:\n\n\\[\nW + L = 22\n\\]\n\\[\nW = L + 8\n\\]\n\nSubstitute \\( W = L + 8 \\) into the first equation:\n\n\\[\n(L + 8) + L = 22\n\\]\n\\[\n2L + 8 = 22\n\\]\n\\[\n2L = 14\n\\]\n\\[\nL = 7\n\\]\n\nThen:\n\n\\[\nW = 7 + 8 = 15\n\\]\n\nSo they won **15** games.\n\n\\[\n\\boxed{15}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-85",
+   "gold": "44",
+   "pred": "44",
+   "raw": "He has been on vacation for 34 - 23 = <<34-23=11>>11 years.  \nHe goes on 4 vacations a year, so he has 11 * 4 = <<11*4=44>>44 shirts.  \nEach shirt is one quilt block, so he has 44 quilt blocks in total.  \n#### 44",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-86",
+   "gold": "22",
+   "pred": "22",
+   "raw": "The first time the alarm rang 4 times.  \nThe second time it rang 3 times as long as the first: 4 × 3 = 12 times.  \nThe third time it rang half as long as the second: 12 ÷ 2 = 6 times.  \n\nTotal rings: 4 + 12 + 6 = 22 times.  \n\n**22**",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-87",
+   "gold": "9360",
+   "pred": "9360",
+   "raw": "Let’s go step by step.\n\nSylvie’s initial monthly salary is $600.  \nAfter 5 years, she gets a 10% increase of the **initial salary** each year.\n\n10% of $600 = $60.\n\nSo each year after the 5-year mark, her monthly salary increases by $60.\n\nShe just completed 5 years last December.  \nWe want her annual salary after **three more years** of service.\n\nAfter 1 more year: $600 + $60 = $660/month  \nAfter 2 more years: $660 + $60 = $720/month  \nAfter 3 more years: $720 + $60 = $780/month\n\nAnnual salary after 3 more years = $780 × 12 = $9,360.\n\n\\[\n\\boxed{9360}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-88",
+   "gold": "8000",
+   "pred": "8000",
+   "raw": "Let Marilyn's sales be \\( M \\) and Harald's sales be \\( H \\).  \nWe know \\( M = 10H \\) and \\( M + H = 88,000 \\).\n\nSubstitute \\( M = 10H \\):  \n\\( 10H + H = 88,000 \\)  \n\\( 11H = 88,000 \\)  \n\\( H = 8,000 \\)\n\nSo Harald sold **8,000 copies**.\n\n\\[\n\\boxed{8000}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-89",
+   "gold": "24",
+   "pred": "24",
+   "raw": "She needs .75 gift bags per invited guest because 1/4 don't show up, so she needs 16 * .75 = <<16*.75=12>>12 gift bags.\nEach gift bag is $2, so she will spend 12 * 2 = $<<12*2=24>>24.\n#### 24",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-90",
+   "gold": "225",
+   "pred": "225",
+   "raw": "Let's go step by step.\n\n- An adult dinosaur eats **10 lbs**.\n- A child eats half as much as an adult:  \n  \\( 10 / 2 = 5 \\) lbs per child.\n\nNow, total needed:\n\n- Adults: \\( 20 \\times 10 = 200 \\) lbs\n- Children: \\( 5 \\times 5 = 25 \\) lbs\n\nTotal:  \n\\( 200 + 25 = 225 \\) lbs\n\n**Final answer:**  \n\\[\n\\boxed{225}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-91",
+   "gold": "28",
+   "pred": "28",
+   "raw": "Let's go step by step.\n\n- Cindy has 4 pets.  \n- Marcia has 2 more than Cindy: 4 + 2 = 6 pets.  \n- Jan has three times Marcia's pets: 3 × 6 = 18 pets.  \n\nTotal pets: 4 + 6 + 18 = 28.\n\n**Answer:** 28",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-92",
+   "gold": "4",
+   "pred": "4",
+   "raw": "Let's go step by step.\n\n- James is 10 and is 1 year younger than Corey.  \n  So Corey is 10 + 1 = 11.\n\n- Amy is 2 years younger than Corey.  \n  So Amy is 11 − 2 = 9.\n\n- Amy is 5 years older than Jackson.  \n  So Jackson is 9 − 5 = 4.\n\n**Final answer:**  \nJackson is **4 years old**.",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-93",
+   "gold": "36",
+   "pred": "36",
+   "raw": "Let's go step by step.\n\n**Step 1: Find Gerald's old time.**  \nLee used to run 2 seconds faster than Gerald.  \nLee's time = 38 seconds.  \nSo Gerald's old time = 38 + 2 = 40 seconds.\n\n**Step 2: Gerald improved by 10%.**  \n10% of 40 = 4 seconds faster.  \nNew time = 40 − 4 = 36 seconds.\n\n**Final answer:**  \n\\[\n\\boxed{36}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-94",
+   "gold": "348",
+   "pred": "348",
+   "raw": "Let's go step by step.\n\n**Step 1: Find the number of cats.**  \nThe problem says there are two cats for every dog.  \nNumber of dogs = 60.  \nSo number of cats = 2 × 60 = 120.\n\n**Step 2: Combined number of dogs and cats.**  \nDogs + Cats = 60 + 120 = 180.\n\n**Step 3: Number of rabbits.**  \nRabbits = (dogs + cats) − 12 = 180 − 12 = 168.\n\n**Step 4: Total pets.**  \nTotal = dogs + cats + rabbits = 60 + 120 + 168 = 348.\n\n**Final answer:**  \n\\[\n\\boxed{348}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-95",
+   "gold": "40",
+   "pred": "40",
+   "raw": "Let's go step by step.\n\n**Step 1: Find the number of boys.**  \nTotal students = 200  \nBoys = \\( \\frac{2}{5} \\times 200 = 80 \\)\n\n**Step 2: Find the number of girls.**  \nGirls = \\( 200 - 80 = 120 \\)\n\n**Step 3: Find how many girls are in the Girl Scouts.**  \n\\( \\frac{2}{3} \\) of the girls are in Girl Scouts:  \n\\( \\frac{2}{3} \\times 120 = 80 \\)\n\n**Step 4: Find how many girls are not in Girl Scouts.**  \nGirls not in Girl Scouts = \\( 120 - 80 = 40 \\)\n\n**Final answer:**  \n\\[\n\\boxed{40}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-96",
+   "gold": "3",
+   "pred": "3",
+   "raw": "James slept 2/3 * 9 = <<2/3*9=6>>6 hours.\nHarry slept 9 - 6 = <<9-6=3>>3 hours more than James.\n#### 3",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-97",
+   "gold": "12",
+   "pred": "12",
+   "raw": "Let's go step by step.\n\n**Step 1: Determine the volume of tomatoes before cooking.**  \nFreda’s sauce lost half its volume during cooking, meaning the final sauce is half the original tomato volume.  \nIf the final sauce is 32 ounces, the original tomato volume was:\n\n\\[\n32 \\times 2 = 64 \\text{ ounces}\n\\]\n\n**Step 2: Find how many cans of tomatoes were used.**  \nEach can is 16 ounces:\n\n\\[\n64 \\div 16 = 4 \\text{ cans}\n\\]\n\n**Step 3: Find the number of tomatoes.**  \nEach can contains 3 tomatoes:\n\n\\[\n4 \\times 3 = 12 \\text{ tomatoes}\n\\]\n\n**Final answer:**\n\n\\[\n\\boxed{12}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-98",
+   "gold": "5",
+   "pred": "5",
+   "raw": "Let's go step by step.\n\nWe know:\n\n- Originally: 30 cars.\n- 5 cars took an exit, so they never drove through the jam.\n- That means 30 − 5 = 25 cars actually had to drive through the traffic jam.\n- In the last 15 minutes, 20 cars drove through.\n- So in the first 15 minutes, the number of cars that drove through is:\n\n25 − 20 = 5 cars.\n\n**Final answer:**  \n\\[\n\\boxed{5}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-99",
+   "gold": "58",
+   "pred": "58",
+   "raw": "Let's go step by step.\n\nMary already has 2 potted plants on each of the 40 window ledges.  \nThat means she has:  \n40 × 2 = 80 potted plants already.\n\nShe received 18 new ones yesterday, so now she has:  \n80 + 18 = 98 potted plants.\n\nShe plans to give 1 potted plant from each ledge to friends and family.  \nThere are 40 ledges, so she will give away:  \n40 × 1 = 40 plants.\n\nRemaining plants:  \n98 − 40 = 58.\n\n**Final answer:**  \n\\[\n\\boxed{58}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-100",
+   "gold": "175",
+   "pred": "175",
+   "raw": "Let's go step by step.\n\n**Step 1: First friend's rings**  \nThe first friend pressed 20 times.\n\n**Step 2: Second friend's rings**  \nThe second friend pressed 1/4 times more than the first friend.  \n1/4 of 20 = 5 more.  \nSo second friend pressed 20 + 5 = 25 times.\n\n**Step 3: Fourth friend's rings**  \nThe fourth friend pressed 60 times (given).\n\n**Step 4: Third friend's rings**  \nThe third friend pressed 10 times more than the fourth friend.  \nThat means 60 + 10 = 70 times.\n\n**Step 5: Total rings**  \nTotal = 20 + 25 + 70 + 60 = 175.\n\n**Final answer:**  \n\\[\n\\boxed{175}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-101",
+   "gold": "6",
+   "pred": "6",
+   "raw": "Let's go step by step.\n\n**Step 1: Find total pages Solo has to read.**  \nScience: 4  \nSocial Studies: 20  \nHistory: 7  \nGeography: 8  \n\nTotal = 4 + 20 + 7 + 8 = 39 pages.\n\n**Step 2: Subtract what he already read.**  \nHe read 15 pages on Monday.  \nRemaining = 39 − 15 = 24 pages.\n\n**Step 3: Divide remaining pages by the number of days left.**  \nHe has 4 more days.  \nAverage per day = 24 ÷ 4 = 6 pages.\n\n**Final answer:**  \n\\[\n\\boxed{6}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-102",
+   "gold": "26",
+   "pred": "26",
+   "raw": "Let’s break it down.\n\nJohn drinks water with:\n\n- Breakfast\n- Lunch\n- Dinner\n- Before bed\n\nThat’s **4 glasses per weekday**.\n\nThere are 5 weekdays:  \n\\( 4 \\times 5 = 20 \\) glasses.\n\nOn weekends (Saturday and Sunday), he has a soda with dinner instead of water, so he skips **1 glass of water** each of those days.  \nThat means on each weekend day he has \\(4 - 1 = 3\\) glasses of water.\n\nFor 2 weekend days:  \n\\( 3 \\times 2 = 6 \\) glasses.\n\nTotal for the week:  \n\\( 20 + 6 = 26 \\) glasses.\n\n**Final answer:**  \n\\[\n\\boxed{26}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-103",
+   "gold": "140",
+   "pred": "140",
+   "raw": "The fog bank covers 3 miles every 10 minutes.  \nThe city is 42 miles across, so the number of 3-mile sections is:\n\n42 ÷ 3 = 14 sections.\n\nEach section takes 10 minutes, so:\n\n14 × 10 = 140 minutes.\n\n**140**",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-104",
+   "gold": "500",
+   "pred": "500",
+   "raw": "Let's go step by step.\n\nPoppy places a quarter of the 1000 pieces:  \n1000 ÷ 4 = 250 pieces placed.  \nRemaining pieces: 1000 − 250 = 750.\n\nHer mom places a third of the remaining pieces:  \n750 ÷ 3 = 250 pieces placed by mom.  \nRemaining pieces: 750 − 250 = 500.\n\nSo, **500 pieces are left to be placed**.\n\n\\[\n\\boxed{500}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-105",
+   "gold": "20",
+   "pred": "20",
+   "raw": "Cody eats 3 * 5 = <<3*5=15>>15 cookies.  \nTogether, they eat 15 + 5 = <<15+5=20>>20 cookies.  \n#### 20",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-106",
+   "gold": "72",
+   "pred": "72",
+   "raw": "Let's go step by step.\n\n**Step 1: Understand the box dimensions and wall thickness**  \nEach box is 5 in × 6 in × 4 in on the outside.  \nThe walls are 1 inch thick. That means the inner dimensions are reduced by 2 inches in each direction (1 inch on each side).\n\n**Step 2: Find inner dimensions**  \n- Length: \\(5 - 2 = 3\\) inches  \n- Width: \\(6 - 2 = 4\\) inches  \n- Height: \\(4 - 2 = 2\\) inches  \n\n**Step 3: Inner volume of one box**  \n\\[\n3 \\times 4 \\times 2 = 24 \\ \\text{cubic inches}\n\\]\n\n**Step 4: Total inner volume for 3 boxes**  \n\\[\n24 \\times 3 = 72 \\ \\text{cubic inches}\n\\]\n\n**Final answer:**  \n\\[\n\\boxed{72}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-107",
+   "gold": "3",
+   "pred": "3",
+   "raw": "Let’s break it down step-by-step.\n\n**Monday and Tuesday:**  \n1 hour each night → \\(1 + 1 = 2\\) hours.\n\n**Wednesday:**  \nHe watched some 30-minute episodes. Let’s call that number \\(x\\).  \nTime = \\(0.5x\\) hours.\n\n**Thursday:**  \n1-hour episode + 30-minute show → \\(1 + 0.5 = 1.5\\) hours.\n\n**Friday:**  \nTwo 1-hour episodes → \\(2\\) hours.\n\n**Total time:**  \n\\[\n2 + 0.5x + 1.5 + 2 = 7\n\\]  \n\\[\n5.5 + 0.5x = 7\n\\]  \n\\[\n0.5x = 1.5\n\\]  \n\\[\nx = 3\n\\]\n\nSo he watched **3** 30-minute episodes on Wednesday.\n\n\\[\n\\boxed{3}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-108",
+   "gold": "50",
+   "pred": "50",
+   "raw": "Let's go step by step.\n\nHenry wanted to make twice as many cookies as last year.  \nLet \\( x \\) = number of cookies he made last year.  \nSo he wanted to make \\( 2x \\) cookies this year.\n\nBut he actually baked 15 more than he meant to:  \nActual baked = \\( 2x + 15 \\).\n\nHe dropped 5 cookies, so remaining = \\( 2x + 15 - 5 = 2x + 10 \\).\n\nWe are told the remaining total is 110:  \n\\( 2x + 10 = 110 \\).\n\nSubtract 10 from both sides:  \n\\( 2x = 100 \\).\n\nDivide by 2:  \n\\( x = 50 \\).\n\nSo Henry baked **50 cookies last year**.\n\n\\[\n\\boxed{50}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-109",
+   "gold": "28",
+   "pred": "28",
+   "raw": "The gas will be $3.00 * 10 = $<<3*10=30>>30 before cashback.  \nThe cashback is $0.20 * 10 = $<<0.20*10=2>>2.  \nSo the final cost is $30 - $2 = $<<30-2=28>>28.  \n#### 28",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-110",
+   "gold": "45",
+   "pred": "45",
+   "raw": "Beatrice ate 48 because 24 x 2 = <<24*2=48>>48.\nMarcell ate 42 because 14 x 3 = <<14*3=42>>42.\nTogether they ate 90 because 48 + 42 = <<48+42=90>>90.\nOn average they ate 45 because 90 / 2 = <<90/2=45>>45.\n#### 45",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-111",
+   "gold": "16",
+   "pred": "16",
+   "raw": "Let's go step by step.\n\n**Step 1: Find how far she rowed.**  \nIt took her 16 seconds to row 20 feet.  \nThe shore was 64 seconds away.  \nSo the total distance is:\n\n\\[\n\\frac{64}{16} \\times 20 = 4 \\times 20 = 80 \\text{ feet}\n\\]\n\n**Step 2: Find how many 10-foot segments she rowed.**  \n\\[\n80 \\div 10 = 8 \\text{ segments}\n\\]\n\n**Step 3: Find how much water came in.**  \nThe boat took on 2 liters for every 10 feet.  \nSo:\n\n\\[\n8 \\times 2 = 16 \\text{ liters}\n\\]\n\n**Final answer:**\n\n\\[\n\\boxed{16}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-112",
+   "gold": "24",
+   "pred": "24",
+   "raw": "Let's go step by step.\n\n- There are 4 teachers.\n- Each teacher has 2 lessons per day → total lessons per day = \\(4 \\times 2 = 8\\) lessons.\n- The whiteboard is cleaned 3 times per lesson → total cleanings per day = \\(8 \\times 3 = 24\\).\n\n\\[\n\\boxed{24}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-113",
+   "gold": "25",
+   "pred": "25",
+   "raw": "Ryan plants 2 flowers a day for 15 days, so he plants 2 × 15 = <<2*15=30>>30 flowers.  \nIf 5 did not grow, then he has 30 − 5 = <<30-5=25>>25 flowers.  \n#### 25",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-114",
+   "gold": "6",
+   "pred": "6",
+   "raw": "Let's go step by step.\n\n**Step 1: Find how many photographs Brittany's phone can hold.**  \nJamal's phone can hold 6 times more than Brittany's phone.  \nIf Jamal's phone holds 1800 photographs, then:\n\nBrittany's phone capacity = 1800 ÷ 6 = 300 photographs.\n\n**Step 2: Relate Brittany's phone capacity to the number of ducks.**  \nThe problem says: \"The maximum number of photographs that Brittany's phone can hold is 50 times more than the number of birds in Jamal's photograph of the ducks at the zoo.\"\n\nThat means Brittany's phone capacity = 50 × (number of ducks).\n\nSo:\n\n300 = 50 × (number of ducks)\n\nNumber of ducks = 300 ÷ 50 = 6.\n\n**Final answer:**  \n\\[\n\\boxed{6}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-115",
+   "gold": "90",
+   "pred": "90",
+   "raw": "Let's go step by step.\n\n**Step 1: Find the original total cost of the boards.**\n\n- Ten 2×4×10 boards at $10 each:  \n\\( 10 \\times 10 = 100 \\) dollars.\n\n- Five 4×4×10 boards at $16 each:  \n\\( 5 \\times 16 = 80 \\) dollars.\n\nTotal original cost:  \n\\( 100 + 80 = 180 \\) dollars.\n\n---\n\n**Step 2: Find the new selling price after a 50% price increase.**\n\nA 50% increase means the new price is \\( 1.5 \\) times the old price.\n\n- 2×4×10 boards:  \nOld price $10 → new price \\( 10 \\times 1.5 = 15 \\) dollars each.  \nTen of them: \\( 10 \\times 15 = 150 \\) dollars.\n\n- 4×4×10 boards:  \nOld price $16 → new price \\( 16 \\times 1.5 = 24 \\) dollars each.  \nFive of them: \\( 5 \\times 24 = 120 \\) dollars.\n\nTotal selling price:  \n\\( 150 + 120 = 270 \\) dollars.\n\n---\n\n**Step 3: Calculate profit.**\n\nProfit = selling price − original cost:  \n\\( 270 - 180 = 90 \\) dollars.\n\n---\n\n\\[\n\\boxed{90}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-116",
+   "gold": "42",
+   "pred": "42",
+   "raw": "The total ratio representing the ingredients she used to make the coffee is 7+13 = <<7+13=20>>20\nSince the fraction representing the number of teaspoons of sugar she used is 7/20, the number of teaspoons of sugar she used is 7/20*120 = <<7/20*120=42>>42\n#### 42",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-117",
+   "gold": "360",
+   "pred": "360",
+   "raw": "He bought 2*3=<<2*3=6>>6 pairs of shoes.\nSo he paid 6*60=$<<6*60=360>>360.\n#### 360",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-118",
+   "gold": "4",
+   "pred": "4",
+   "raw": "Let's go step by step.\n\n**Step 1: Vehicles on the first day**  \nThe officer counted 2 containers, each with 5 vehicles.  \nSo:  \n\\( 2 \\times 5 = 10 \\) vehicles on the first day.\n\n**Step 2: Total vehicles after the second day**  \nThe total became 30 vehicles.\n\n**Step 3: Vehicles added on the second day**  \n\\( 30 - 10 = 20 \\) vehicles were added on the second day.\n\n**Step 4: Containers on the second day**  \nEach container has 5 vehicles.  \nSo:  \n\\( 20 \\div 5 = 4 \\) containers.\n\n**Final answer:**  \n\\[\n\\boxed{4}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-119",
+   "gold": "95200",
+   "pred": "99076.92",
+   "raw": "Let's go step by step.\n\n**Step 1: Find Lylah's salary four years ago.**  \nAdrien's salary four years ago was $40,000, which was 30% higher than Lylah's.  \nThat means:  \nAdrien's salary = Lylah's salary × 1.30  \nSo Lylah's salary = 40,000 ÷ 1.30 = 30,769.23 (approximately).\n\n**Step 2: Find Adrien's salary four years later.**  \nAdrien's salary increased by 40% over four years:  \n40,000 × 1.40 = 56,000.\n\n**Step 3: Find Lylah's salary four years later.**  \nThe problem says their salaries increased simultaneously, but it doesn't give Lylah's rate of increase. However, \"increased simultaneously\" might mean the same percentage increase? But the problem only says Adrien's salary increased by 40%. If Lylah's also increased by 40%, then:  \nLylah's new salary = 30,769.23 × 1.40 = 43,076.92.\n\n**Step 4: Total salary four years later.**  \n56,000 + 43,076.92 = 99,076.92.\n\nBut that’s not a clean number. Let’s check if \"increased simultaneously\" means their salaries increased at the same time but possibly different rates. The problem doesn't give Lylah's increase rate, so maybe the intended meaning is that Lylah's salary also increased by 40% (same rate as Adrien's).  \n\nLet’s check with exact fractions:  \nAdrien 4 years ago = 40,000.  \nLylah 4 years ago = 40,000 / 1.3 = 400,000 / 13.  \nLylah 4 years later = (400,000 / 13) × 1.4 = 560,000 / 13 ≈ 43,076.92.  \nAdrien 4 years later = 56,000 = 728,000 / 13.  \nSum = (560,000 + 728,000) / 13 = 1,288,000 / 13 ≈ 99,076.92.\n\nThat’s not a neat integer, which is unusual for these problems. Maybe \"increased simultaneously\" means their salaries increased by the",
+   "ok": false,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-120",
+   "gold": "240",
+   "pred": "240",
+   "raw": "Let's go step by step.\n\n**Step 1: Sheets per week**  \nMiguel uses 2 pads per week.  \nEach pad has 30 sheets.  \nSo per week:  \n\\( 2 \\times 30 = 60 \\) sheets.\n\n**Step 2: Sheets per month**  \nAssuming 1 month = 4 weeks:  \n\\( 60 \\times 4 = 240 \\) sheets.\n\n**Final answer:**  \n\\[\n\\boxed{240}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-121",
+   "gold": "27",
+   "pred": "27",
+   "raw": "Kael brought 5 x 2 = <<5*2=10>>10 apples.  \nKael brought 8 / 2 = <<8/2=4>>4 oranges.  \nMorisette brought 5 + 8 = <<5+8=13>>13 fruits.  \nKael brought 10 + 4 = <<10+4=14>>14 fruits.  \nTogether they brought 13 + 14 = <<13+14=27>>27 fruits.  \n#### 27",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-122",
+   "gold": "48",
+   "pred": "48",
+   "raw": "Let's go step by step.\n\n- Monday: 8 hours.  \n- Next two days (Tuesday and Wednesday): 2 hours less each → 8 − 2 = 6 hours each.  \n  So Tuesday = 6, Wednesday = 6.  \n- Rest of the week (Thursday, Friday, Saturday, Sunday): 1 hour more than those two days → 6 + 1 = 7 hours each.  \n  That’s 4 days × 7 = 28 hours.\n\nNow sum:  \nMonday: 8  \nTuesday: 6  \nWednesday: 6  \nThursday–Sunday: 28  \n\nTotal = 8 + 6 + 6 + 28 = 48 hours.\n\n**Final answer:**  \n\\[\n\\boxed{48}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-123",
+   "gold": "50",
+   "pred": "50",
+   "raw": "Let's break it down:\n\n- For the first 3 hours, Rosie runs at 10 mph:  \n  \\( 10 \\times 3 = 30 \\) miles.\n\n- She has \\( 7 - 3 = 4 \\) hours left.\n\n- For those 4 hours, she runs at 5 mph:  \n  \\( 5 \\times 4 = 20 \\) miles.\n\n- Total distance:  \n  \\( 30 + 20 = 50 \\) miles.\n\n\\[\n\\boxed{50}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-124",
+   "gold": "10",
+   "pred": "10",
+   "raw": "Let's go step by step.\n\nJennie starts with:\n\n- 60 letters needing stamps.\n- Some unknown number of already-stamped letters, let's call it \\( x \\).\n\nShe stamps one-third of the 60 letters needing stamps:\n\n\\[\n\\frac{1}{3} \\times 60 = 20\n\\]\n\nSo she stamps 20 letters and moves them to the already-stamped pile.\n\nAfter this, the already-stamped pile has 30 letters.  \nThat means:\n\n\\[\nx + 20 = 30\n\\]\n\nSo:\n\n\\[\nx = 10\n\\]\n\nTherefore, there were **10** letters in the already-stamped pile when she began.\n\n\\[\n\\boxed{10}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-125",
+   "gold": "10",
+   "pred": "10",
+   "raw": "Let's break it down step by step.\n\nJulia’s husband bought 5 spoons.  \nShe used 3 spoons for sampling.  \nAt the table, she had 12 spoons total.\n\nLet \\( x \\) be the number of spoons in the package Julia bought.\n\nTotal spoons before using any:  \nJulia’s spoons + husband’s spoons = \\( x + 5 \\)\n\nShe used 3, so remaining:  \n\\( x + 5 - 3 = x + 2 \\)\n\nThat equals 12:  \n\\( x + 2 = 12 \\)  \n\\( x = 10 \\)\n\nSo Julia bought a package of **10 spoons**.\n\n\\[\n\\boxed{10}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-126",
+   "gold": "82",
+   "pred": "82",
+   "raw": "Dylan bought 38 + 6 = <<38+6=44>>44 fish sausages.  \nIn total, he bought 38 + 44 = <<38+44=82>>82 sausages.  \n#### 82",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-127",
+   "gold": "120",
+   "pred": "120",
+   "raw": "Amy made 20 more friends than Lily, so Amy made 50 + 20 = <<50+20=70>>70 friends.  \nTogether, Lily and Amy have 50 + 70 = <<50+70=120>>120 friends.  \n#### 120",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-128",
+   "gold": "880",
+   "pred": "880",
+   "raw": "Let's go step by step.\n\n**Step 1: Find the cost of a watermelon.**  \nA watermelon costs three times what a pepper costs.  \nPepper = $15  \nWatermelon = 3 × 15 = $45\n\n**Step 2: Find the cost of an orange.**  \nAn orange costs $5 less than a watermelon.  \nOrange = 45 − 5 = $40\n\n**Step 3: Find the total cost of each type of item.**  \n4 watermelons: 4 × 45 = $180  \n20 peppers: 20 × 15 = $300  \n10 oranges: 10 × 40 = $400\n\n**Step 4: Add them up.**  \nTotal = 180 + 300 + 400 = $880\n\n**Final answer:**  \n\\[\n\\boxed{880}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-129",
+   "gold": "10000",
+   "pred": "10000",
+   "raw": "Let's go step by step.\n\n**Step 1: Total patient-minutes per day**  \n500 patients × 24 minutes = 12,000 minutes.\n\n**Step 2: Convert to hours**  \n12,000 ÷ 60 = 200 hours.\n\n**Step 3: Hospital revenue**  \nHospital charges patients $200/hour:  \n200 × 200 = $40,000.\n\n**Step 4: Doctor cost to hospital**  \nDoctors charge hospital $150/hour:  \n200 × 150 = $30,000.\n\n**Step 5: Profit**  \n$40,000 − $30,000 = $10,000.\n\n**Final answer:**  \n\\[\n\\boxed{10000}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-130",
+   "gold": "30",
+   "pred": "30",
+   "raw": "Let's go step by step.\n\n- Nissa starts with 60 elves.\n- A third quit after children vomit on them:  \n  \\( \\frac{1}{3} \\times 60 = 20 \\) elves quit.  \n  Remaining: \\( 60 - 20 = 40 \\).\n\n- Then 10 of the remaining elves quit after kids kick their shins:  \n  \\( 40 - 10 = 30 \\).\n\nSo, **30 elves are left**.\n\n\\[\n\\boxed{30}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-131",
+   "gold": "940",
+   "pred": "940",
+   "raw": "His expenditure in June was $500 - $60 = $<<500-60=440>>440.\nHis total expenditure for May and June was $500 + $440 = $<<500+440=940>>940.\n#### 940",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-132",
+   "gold": "60",
+   "pred": "60",
+   "raw": "Let's break it down step by step.\n\n**Step 1: Roller coaster rides**  \nPam rode 2 times, Fred rode 4 times.  \nTotal roller coaster rides = 2 + 4 = 6 rides.\n\n**Step 2: Luge rides**  \nEach of them rode the luge 2 times.  \nTotal luge rides = 2 + 2 = 4 rides.\n\n**Step 3: Total rides**  \nTotal rides = 6 + 4 = 10 rides.\n\n**Step 4: Tickets used**  \nEach ride costs 6 tickets.  \nTotal tickets = 10 × 6 = 60 tickets.\n\n**Final answer:**  \n\\[\n\\boxed{60}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-133",
+   "gold": "13",
+   "pred": "13",
+   "raw": "Walt walked 4 * 6 = <<4*6=24>>24 miles on Tuesday.\nSo Monday and Tuesday he walked 4 + 24 = <<4+24=28>>28 miles.\nThus, on Wednesday he walked 41 - 28 = <<41-28=13>>13 miles.\n#### 13",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-134",
+   "gold": "720",
+   "pred": "720",
+   "raw": "Tom gets 4 car washes a month, so in a year he gets 4 * 12 = <<4*12=48>>48 car washes.  \nEach car wash costs $15, so he pays 48 * 15 = <<48*15=720>>720 dollars in a year.  \n#### 720",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-135",
+   "gold": "40",
+   "pred": "40",
+   "raw": "Let's go step by step.\n\nBrian originally had 20 video games, but he lost 5 before the comparison.  \nSo Brian has:  \n20 − 5 = 15 video games.\n\nBobby has 5 fewer than 3 times as many as Brian.  \n3 times Brian’s current number:  \n3 × 15 = 45.\n\n5 fewer than that:  \n45 − 5 = 40.\n\nSo Bobby has **40** video games.\n\n\\[\n\\boxed{40}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-136",
+   "gold": "6",
+   "pred": "6",
+   "raw": "Let's go step by step.\n\n- Total unicorns: 27  \n- One third in the Scottish Highlands: \\( 27 \\times \\frac{1}{3} = 9 \\)  \n- Two thirds of those are female: \\( 9 \\times \\frac{2}{3} = 6 \\)  \n\nSo there are **6** female Scottish unicorns.\n\n\\[\n\\boxed{6}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-137",
+   "gold": "29",
+   "pred": "29",
+   "raw": "Let's break it down step by step.\n\n**Step 1: Cost of subs**  \n2 subs × $7.50 = $15.00\n\n**Step 2: Cost of chips**  \n2 bags × $1.50 = $3.00\n\n**Step 3: Cost of cookies**  \n2 cookies × $1.00 = $2.00\n\n**Step 4: Subtotal before delivery fee and tip**  \n$15.00 + $3.00 + $2.00 = $20.00\n\n**Step 5: Delivery fee**  \n20% of $20.00 = 0.20 × 20 = $4.00\n\n**Step 6: Add delivery fee to subtotal**  \n$20.00 + $4.00 = $24.00\n\n**Step 7: Add tip**  \n$24.00 + $5.00 = $29.00\n\n**Final total:**  \n\\[\n\\boxed{29}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-138",
+   "gold": "105",
+   "pred": "105",
+   "raw": "Let’s go step by step.\n\n**Yesterday’s test:**\n- Total questions: 75  \n- Rate: 5 questions/hour  \n- Time given: 8 hours  \n- Questions he could complete: \\( 5 \\times 8 = 40 \\)  \n- Questions left incomplete: \\( 75 - 40 = 35 \\)\n\n**Today’s test:**\n- Total questions: 100  \n- Rate: 5 questions/hour  \n- Time given: 6 hours  \n- Questions he could complete: \\( 5 \\times 6 = 30 \\)  \n- Questions left incomplete: \\( 100 - 30 = 70 \\)\n\n**Total incomplete:**\n\\[\n35 + 70 = 105\n\\]\n\n**Final answer:**\n\\[\n\\boxed{105}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-139",
+   "gold": "70",
+   "pred": "70",
+   "raw": "Let's go step by step.\n\n**Step 1: Understand the problem.**  \nWe are told:  \n- There are 22 more than four times the number of pink gumballs as there are blue gumballs.  \n- There are 12 blue gumballs.\n\n**Step 2: Translate into an equation.**  \nLet \\( P \\) = number of pink gumballs.  \nThe statement \"22 more than four times the number of blue gumballs\" means:  \n\\( P = 4 \\times (\\text{blue gumballs}) + 22 \\).\n\n**Step 3: Substitute the known value.**  \nBlue gumballs = 12.  \nSo \\( P = 4 \\times 12 + 22 \\).\n\n**Step 4: Calculate.**  \n\\( 4 \\times 12 = 48 \\)  \n\\( 48 + 22 = 70 \\).\n\n**Step 5: Conclusion.**  \nThere are 70 pink gumballs.\n\n\\[\n\\boxed{70}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-140",
+   "gold": "20",
+   "pred": "20",
+   "raw": "Let's go step by step.\n\nTotal cars = 20  \nAutomatic = 12  \nManual = 4  \nSemi-automatic = 20 − (12 + 4) = 20 − 16 = 4  \n\nPercentage of semi-automatic cars = (4 / 20) × 100 = 20%\n\n**Answer:** 20%",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-141",
+   "gold": "400",
+   "pred": "400",
+   "raw": "Let's break it down step by step.\n\nLet the number of queens be \\( q \\).  \nThere are twice as many babies as queens, so babies = \\( 2q \\).  \nThere are twice as many worker bees as baby bees, so workers = \\( 2 \\times 2q = 4q \\).\n\nTotal bees:  \n\\( q + 2q + 4q = 7q \\)  \nWe know total bees = 700, so:  \n\\( 7q = 700 \\) → \\( q = 100 \\).\n\nWorkers = \\( 4q = 4 \\times 100 = 400 \\).\n\n**Answer:** 400 worker bees.\n\n\\[\n\\boxed{400}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-142",
+   "gold": "140",
+   "pred": "140",
+   "raw": "Let's go step-by-step.\n\nJordan plays video games for **2 hours every day**.  \nIf he worked instead, he would work those 2 hours daily.\n\nIn **one week (7 days)**, that would be:  \n2 × 7 = 14 hours of work.\n\nHe earns **$10 per hour**, so:  \n14 × 10 = $140.\n\n**Final answer:**  \n\\[\n\\boxed{140}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-143",
+   "gold": "16",
+   "pred": "16",
+   "raw": "The food items are milk and eggs, costing 2 + 3 = $<<2+3=5>>5.  \nThe nonfood items are light bulbs, cups, and roach traps, costing 3 + 3 + 4 = $<<3+3+4=10>>10.  \nThe tax on nonfood items is 10% of 10 = $<<10*0.1=1>>1.  \nSo the total cost is 5 + 10 + 1 = $<<5+10+1=16>>16.  \n#### 16",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-144",
+   "gold": "20",
+   "pred": "20",
+   "raw": "Let's go step by step.\n\n**Step 1: Determine total clients**  \nKim already has 3 clients and is confident about 5 more.  \nTotal clients = 3 + 5 = 8 clients.\n\n**Step 2: Determine supplies needed per client**  \nEach client needs:  \n- 2 bottles of bleach  \n- 1 pack of cloths  \n\n**Step 3: Cost per client**  \nBleach: 2 bottles × $2 = $4  \nCloths: 1 pack × $5 = $5  \nTotal per client = $4 + $5 = $9.\n\n**Step 4: Total expenses for all clients**  \n8 clients × $9 = $72.\n\n**Step 5: Calculate profit**  \nIncome = $92  \nExpenses = $72  \nProfit = $92 − $72 = $20.\n\n**Final answer:**  \n\\[\n\\boxed{20}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-145",
+   "gold": "4000",
+   "pred": "4000",
+   "raw": "John has 10 hectares, with 100 pineapples per hectare, so he has 10 * 100 = <<10*100=1000>>1000 pineapples per harvest.  \nHe can harvest every 3 months, so in a year (12 months) he can harvest 12 / 3 = <<12/3=4>>4 times.  \nTotal pineapples in a year = 1000 * 4 = <<1000*4=4000>>4000.  \n\n#### 4000",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-146",
+   "gold": "2125",
+   "pred": "2625",
+   "raw": "Let's go step by step.\n\n**Step 1: First lego set**  \nJohnny dumped a lego boxed set with 500 pieces.  \nSo, first set = 500 pieces.\n\n**Step 2: Second lego set**  \nThe second one had 3 times more pieces than the 500-piece one.  \n\"3 times more\" means 500 + 3×500 = 500 + 1500 = 2000 pieces.  \n(If interpreted as \"3 times as many\", it would be 1500, but the phrase \"3 times more\" usually means 4 times the original in some contexts. However, in many math problems, \"3 times more\" is taken as 3 times as many. Let's check: If it's \"3 times more pieces than the 500 piece one\", it could mean 500 × 3 = 1500. But \"3 times more\" literally means original + 3 times original = 4 times original. But in many word problems, they mean \"3 times as many\". Let's see the third set to decide.)\n\n**Step 3: Third lego set**  \nAnother one had 1/4 the number of pieces.  \n1/4 the number of pieces — of what? Likely of the 500-piece set.  \nSo 500 × 1/4 = 125 pieces.\n\n**Step 4: Interpret \"3 times more\"**  \nIf second set = 1500 (3 times as many), total = 500 + 1500 + 125 = 2125.  \nIf second set = 2000 (3 times more), total = 500 + 2000 + 125 = 2625.\n\nIn many math contest problems, \"3 times more\" is used loosely to mean \"3 times as many\". But let's check the third set: \"1/4 the number of pieces\" — number of pieces of what? Probably of the 500-piece set, because it's the only reference number given before. So 125.\n\nGiven the style of these problems, they often take \"3 times more\" as \"3 times as many\". So second set = 1500.\n\n**Step 5: Total**  \n500 + 1500 + 125 = 2125.\n\nBut let's double-check: If \"3 times more\" means 4 times as many, then second set = 2000, total = 2625.  \nWhich",
+   "ok": false,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-147",
+   "gold": "75",
+   "pred": "75",
+   "raw": "Let's go step by step.\n\n**Step 1: Bees that left in the first 6 hours**  \nDebra saw 30 bees leave.\n\n**Step 2: Bees that returned in the next 6 hours**  \nShe saw half that many return:  \n30 ÷ 2 = 15 bees returned.\n\n**Step 3: Bees that left in the next 6 hours**  \nShe saw two times as many bees as she saw first leave the hive fly from the hive and leave.  \nFirst leave = 30 bees, so:  \n2 × 30 = 60 bees left in this period.\n\n**Step 4: Bees that hadn’t already returned**  \nFrom the first 30 that left, 15 returned, so 30 − 15 = 15 bees still hadn’t returned.  \nFrom the 60 that left in the next period, none have returned yet (they just left).\n\nSo total bees still out = 15 + 60 = 75 bees.\n\n**Step 5: Last 6 hours**  \nEvery bee that left before that hadn’t already returned returns to the hive in the last 6 hours.  \nThat’s 75 bees.\n\n**Final answer:**  \n\\[\n\\boxed{75}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-148",
+   "gold": "30",
+   "pred": "30",
+   "raw": "Let's go step by step.\n\n- Cost of 1 child ticket = $10  \n- Cost of 1 adult ticket = $12  \n- Total cost = 10 + 12 = $22  \n\nShe received $8 in change, so the amount she gave the cashier was:\n\n22 + 8 = $30  \n\n**Final answer:**  \n\\[\n\\boxed{30}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-149",
+   "gold": "16",
+   "pred": "16",
+   "raw": "Let's break it down.\n\nCharlie has 3 times as many Facebook friends as Dorothy.  \nCharlie has 12 friends.  \nSo Dorothy has \\( 12 \\div 3 = 4 \\) friends.\n\nJames has 4 times as many friends as Dorothy.  \nSo James has \\( 4 \\times 4 = 16 \\) friends.\n\n**Answer:**  \nJames has 16 Facebook friends.\n\n\\[\n\\boxed{16}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-150",
+   "gold": "4",
+   "pred": "4",
+   "raw": "Let's go step by step.\n\n**Step 1: Convert distances to feet.**  \n1 mile = 5280 feet.  \n\n- Steve: \\( 3 \\times 5280 = 15840 \\) feet.  \n- Tim: \\( 2 \\times 5280 = 10560 \\) feet.\n\n**Step 2: Calculate Steve's time.**  \nSteve's speed = 440 ft/min.  \nTime = \\( 15840 \\div 440 = 36 \\) minutes.\n\n**Step 3: Calculate Tim's time.**  \nTim's speed = 264 ft/min.  \nTime = \\( 10560 \\div 264 = 40 \\) minutes.\n\n**Step 4: Find the difference.**  \nSteve arrives in 36 minutes, Tim in 40 minutes.  \nWinner (Steve) waits \\( 40 - 36 = 4 \\) minutes.\n\n\\[\n\\boxed{4}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-151",
+   "gold": "5",
+   "pred": "5",
+   "raw": "Let’s go step by step.\n\n- **Bicycles:** 5 people × 2 tires each = 10 tires.  \n- **Tricycles:** 3 people × 3 tires each = 9 tires.  \n- **Unicycle:** 1 person × 1 tire = 1 tire.  \n\nTotal tires inflated:  \n10 + 9 + 1 = 20 tires.\n\nEach tire costs 25 cents, so total money in cents:  \n20 × 25 = 500 cents.\n\nConvert to dollars:  \n500 ÷ 100 = 5 dollars.\n\n**Final answer:**  \n\\[\n\\boxed{5}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-152",
+   "gold": "4",
+   "pred": "4",
+   "raw": "A pack of cookies costs 6 * $0.10 = $<<6*0.10=0.60>>0.60.\nTen packs cost 10 * $0.60 = $<<10*0.60=6>>6.\nCarl receives $10 - $6 = $<<10-6=4>>4 in change.\n#### 4",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-153",
+   "gold": "48",
+   "pred": "48",
+   "raw": "Let's go step-by-step.\n\n---\n\n**Step 1: Dave ate 14 fries.**  \nAfter Dave ate, the seagull stole the pack.\n\n---\n\n**Step 2: The seagull ate half the amount Dave ate.**  \nDave ate 14, so the seagull ate \\( 14 / 2 = 7 \\) fries.\n\nFries eaten so far: \\( 14 + 7 = 21 \\).\n\n---\n\n**Step 3: Three pigeons each ate 3 fries.**  \nThat’s \\( 3 \\times 3 = 9 \\) fries.\n\nTotal eaten so far: \\( 21 + 9 = 30 \\).\n\n---\n\n**Step 4: A raccoon stole two-thirds of the remaining fries.**  \nLet \\( x \\) = fries remaining before the raccoon.  \nThe raccoon ate \\( \\frac{2}{3}x \\), leaving \\( \\frac{1}{3}x \\).\n\n---\n\n**Step 5: Ants carried off 1 fry, leaving 5 behind.**  \nSo before ants: \\( 5 + 1 = 6 \\) fries.  \nThat means \\( \\frac{1}{3}x = 6 \\), so \\( x = 18 \\).\n\n---\n\n**Step 6: Find original total.**  \nBefore raccoon: 18 fries remained.  \nBefore pigeons: \\( 18 + 9 = 27 \\) fries.  \nBefore seagull: \\( 27 + 7 = 34 \\) fries.  \nBefore Dave: \\( 34 + 14 = 48 \\) fries.\n\n---\n\n\\[\n\\boxed{48}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-154",
+   "gold": "272",
+   "pred": "272",
+   "raw": "Let's go step by step.\n\n**Step 1: Monday, Wednesday, Friday schedule**  \nKimo has 3 classes, each 1 hour long.  \nThat’s \\(3 \\times 1 = 3\\) hours per day.  \nThere are 3 such days per week (Mon, Wed, Fri).  \nSo per week: \\(3 \\times 3 = 9\\) hours.\n\n**Step 2: Tuesday and Thursday schedule**  \nHe has 2 classes, each 2 hours long.  \nThat’s \\(2 \\times 2 = 4\\) hours per day.  \nThere are 2 such days per week (Tue, Thu).  \nSo per week: \\(4 \\times 2 = 8\\) hours.\n\n**Step 3: Total per week**  \n\\(9 + 8 = 17\\) hours per week.\n\n**Step 4: One semester (16 weeks)**  \n\\(17 \\times 16 = 272\\) hours.\n\n**Final answer:**  \n\\[\n\\boxed{272}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-155",
+   "gold": "280",
+   "pred": "280",
+   "raw": "Let's go step by step.\n\n**Step 1: Convert lengths to the same unit (feet).**\n\n- Rolls: 300 rolls × 4 inches each = 1200 inches.  \n  1200 inches ÷ 12 = 100 feet.\n\n- Croissants: 120 croissants × 6 inches each = 720 inches.  \n  720 inches ÷ 12 = 60 feet.\n\n- Baguettes: 60 baguettes × 2 feet each = 120 feet.\n\n**Step 2: Add them all together.**\n\n100 + 60 + 120 = 280 feet.\n\n**Final answer:**  \n\\[\n\\boxed{280}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-156",
+   "gold": "1400",
+   "pred": "1400",
+   "raw": "The total number of bananas needed per month is 200 + 400 + 100 = <<200+400+100=700>>700 bananas.  \nOver 2 months, he needs 700 x 2 = <<700*2=1400>>1400 bananas.  \n#### 1400",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-157",
+   "gold": "80",
+   "pred": "80",
+   "raw": "Let's break this down step by step.\n\n**Blake's distance:**\n- A football field is 100 yards long.\n- Running \"back and forth\" once means going from one end to the other and back: \\(100 + 100 = 200\\) yards.\n- Blake does this 15 times:  \n\\(15 \\times 200 = 3000\\) yards.\n\n**Kelly's distance:**\n- First, she runs back and forth once: \\(200\\) yards.\n- Then she runs to the 40-yard line and back.  \nFrom one end (0-yard line) to the 40-yard line is 40 yards, and back is another 40 yards, so one trip is \\(40 + 40 = 80\\) yards.\n- She does this 34 times:  \n\\(34 \\times 80 = 2720\\) yards.\n- Add the first 200 yards:  \n\\(2720 + 200 = 2920\\) yards.\n\n**Comparison:**\n- Blake: 3000 yards\n- Kelly: 2920 yards\n- Blake is the winner.\n- Difference: \\(3000 - 2920 = 80\\) yards.\n\n**Final answer:**\n\\[\n\\boxed{80}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-158",
+   "gold": "34",
+   "pred": "34",
+   "raw": "Raphael spent 4 x $1.5 = $<<4*1.5=6>>6 on pens.  \nHe spent 2 x $4 = $<<2*4=8>>8 on notebooks.  \nAdding the bond paper, the total is $6 + $8 + $20 = $<<6+8+20=34>>34.  \n#### 34",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-159",
+   "gold": "15",
+   "pred": "15",
+   "raw": "Let's go through the problem step by step.\n\n1. **Start:** Finn sees 11 tadpoles swimming in the pond.  \n2. **6 come out of hiding** from under a lily pad → add 6.  \n   \\( 11 + 6 = 17 \\)  \n3. **2 hide under a rock** → subtract 2.  \n   \\( 17 - 2 = 15 \\)  \n\nSo Finn can now see **15** tadpoles.\n\n\\[\n\\boxed{15}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-160",
+   "gold": "16",
+   "pred": "16",
+   "raw": "On Tuesday, the tank had 17 + 7 = <<17+7=24>>24 feet of water.\nOn Wednesday, the depth is 2/3 * 24 = <<2/3*24=16>>16 feet.\n#### 16",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-161",
+   "gold": "32",
+   "pred": "32",
+   "raw": "Let's go step by step.\n\n**Anakin's catch:**\n- Starfish: 10  \n- Sea horses: 6  \n- Clownfish: 3  \n\n**Locsin's catch:**\n- Starfish: 5 fewer than Anakin → 10 − 5 = 5  \n- Sea horses: 3 fewer than Anakin → 6 − 3 = 3  \n- Clownfish: 2 more than Anakin → 3 + 2 = 5  \n\n**Total fish (starfish + sea horses + clownfish) for both:**\n- Anakin: 10 + 6 + 3 = 19  \n- Locsin: 5 + 3 + 5 = 13  \n\n**Combined total:** 19 + 13 = 32  \n\nSo they caught **32 fish** altogether.\n\n\\[\n\\boxed{32}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-162",
+   "gold": "92",
+   "pred": "92",
+   "raw": "Let's go step by step.\n\n**Step 1: Understand the price increase pattern**  \nThe original price is $20.  \nThe price increases by 20% of the **original price** every two months.  \n20% of $20 = \\( 0.20 \\times 20 = 4 \\) dollars.  \nSo every two months, the price goes up by $4.\n\n**Step 2: Determine how many increases occur in 36 months**  \n36 months ÷ 2 months per increase = 18 increases.\n\n**Step 3: Calculate total increase**  \n18 increases × $4 per increase = $72 total increase.\n\n**Step 4: Add increase to original price**  \n$20 + $72 = $92.\n\n**Final answer:**  \n\\[\n\\boxed{92}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-163",
+   "gold": "50",
+   "pred": "50",
+   "raw": "Let's break it down step by step.\n\n**Step 1: Find the cost of the action figures.**  \nWe know each action figure costs $5.  \nThere are 3 action figures, so:  \n3 × $5 = $15.\n\n**Step 2: Find the cost of the doll.**  \nThe doll costs as much as 3 action figures.  \n3 action figures cost $15, so the doll costs $15.\n\n**Step 3: Find the cost of the red cars.**  \nEach red car costs $4.  \nThere are 5 red cars, so:  \n5 × $4 = $20.\n\n**Step 4: Add up all the toys.**  \nRed cars: $20  \nAction figures: $15  \nDoll: $15  \n\nTotal = $20 + $15 + $15 = $50.\n\n**Final answer:**  \n\\[\n\\boxed{50}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-164",
+   "gold": "15",
+   "pred": "15",
+   "raw": "Let’s compare the two options.\n\nIf Jackie does her taxes herself:  \nShe loses 3 hours × $35/hour = $105 in missed income.\n\nIf she hires an accountant:  \nShe pays $90 but doesn’t lose the $105 in freelance income.\n\nDifference:  \nDoing it herself costs her $105.  \nHiring the accountant costs her $90.  \n\nSo hiring the accountant leaves her with:  \n$105 − $90 = $15 more.\n\n**Answer:**  \nShe will have $15 more if she hires the accountant.",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-165",
+   "gold": "77",
+   "pred": "77",
+   "raw": "Let's add up the cost of all the items Elvira chose:\n\n- Computer: €1090  \n- Scanner: €157  \n- CD burner: €74  \n- Printer: €102  \n\nTotal cost:  \n1090 + 157 = 1247  \n1247 + 74 = 1321  \n1321 + 102 = 1423  \n\nShe had a budget of €1500, so the money left is:  \n1500 − 1423 = 77  \n\n**Answer:** €77",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-166",
+   "gold": "5",
+   "pred": "5",
+   "raw": "Let's go step by step.\n\nSandra needs 3 eggs per flan, and she needs to make 15 flans.  \nTotal eggs needed = \\( 3 \\times 15 = 45 \\) eggs.\n\nEach babysitting session gives her 9 eggs.  \nNumber of times she must babysit = \\( 45 \\div 9 = 5 \\).\n\nSo Sandra has to babysit **5 times**.\n\n\\[\n\\boxed{5}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-167",
+   "gold": "16",
+   "pred": "16",
+   "raw": "Let's go step-by-step.\n\nLet Seth's current age be \\( S \\) and Brooke's current age be \\( B \\).\n\nWe know Seth is twice as old as Brooke:  \n\\[\nS = 2B\n\\]\n\nIn 2 years, Seth will be \\( S + 2 \\) and Brooke will be \\( B + 2 \\).  \nThe sum of their ages in 2 years will be 28:  \n\\[\n(S + 2) + (B + 2) = 28\n\\]\n\\[\nS + B + 4 = 28\n\\]\n\\[\nS + B = 24\n\\]\n\nSubstitute \\( S = 2B \\) into \\( S + B = 24 \\):  \n\\[\n2B + B = 24\n\\]\n\\[\n3B = 24\n\\]\n\\[\nB = 8\n\\]\n\nThen \\( S = 2B = 16 \\).\n\n**Final answer:**  \n\\[\n\\boxed{16}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-168",
+   "gold": "18",
+   "pred": "18",
+   "raw": "Let's go step by step.\n\nEthel has $8.  \nTwice the money Ethel has = 2 × 8 = 16.  \nJimmy has $2 more than that = 16 + 2 = 18.\n\nSo Jimmy has **$18**.\n\n\\[\n\\boxed{18}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-169",
+   "gold": "120",
+   "pred": "120",
+   "raw": "He walks 20 miles a day on 5 weekdays, so that's 5 * 20 = <<5*20=100>>100 miles.  \nOn weekends, he walks 10 miles a day for 2 days, so that's 2 * 10 = <<2*10=20>>20 miles.  \nIn total, he walks 100 + 20 = <<100+20=120>>120 miles in a week.  \n#### 120",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-170",
+   "gold": "150",
+   "pred": "150",
+   "raw": "Let's go step by step.\n\n- Hat: $25  \n- Jacket: three times the hat → \\( 3 \\times 25 = 75 \\) dollars  \n- Pants: average of hat and jacket → \\( (25 + 75) / 2 = 100 / 2 = 50 \\) dollars  \n\nTotal cost per uniform:  \n\\( 25 + 75 + 50 = 150 \\) dollars  \n\n**Final answer:**  \n\\[\n\\boxed{150}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-171",
+   "gold": "1210",
+   "pred": "1210",
+   "raw": "Let's go step by step.\n\n**Spiders:**  \n80 spiders × 8 legs each = 640 legs.\n\n**Insects:**  \n90 insects × 6 legs each = 540 legs.\n\n**Mutant invertebrates:**  \n3 × 10 legs each = 30 legs.\n\n**Total legs:**  \n640 + 540 + 30 = 1210 legs.\n\nSo Jake sees **1210 legs** total.\n\n\\[\n\\boxed{1210}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-172",
+   "gold": "51",
+   "pred": "51",
+   "raw": "Let's break it down step by step.\n\n- Sally Thirtytwo is 8 years old.\n- Sally Four is the same age as Sally Thirtytwo → Sally Four is 8 years old.\n- Granny Red is two times as old as Sally Four → Granny Red is \\( 2 \\times 8 = 16 \\) years old.\n- Sally Two is three years older than Granny Red → Sally Two is \\( 16 + 3 = 19 \\) years old.\n\nNow sum their ages:  \nSally Two (19) + Granny Red (16) + Sally Four (8) + Sally Thirtytwo (8) =  \n\\( 19 + 16 = 35 \\)  \n\\( 35 + 8 = 43 \\)  \n\\( 43 + 8 = 51 \\)\n\nThe total age is **51**.\n\n\\[\n\\boxed{51}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-173",
+   "gold": "18000",
+   "pred": "18000",
+   "raw": "Let’s go step by step.\n\nFirst, find the total minimum monthly payment:  \nStudent loans: $300  \nCredit card: $200  \nMortgage: $500  \n\nTotal minimum = 300 + 200 + 500 = $1000 per month.\n\nJessica wants to pay 50% more than the minimum:  \n50% of $1000 = $500  \nSo she pays $1000 + $500 = $1500 per month.\n\nNow, for a year:  \n$1500 × 12 = $18,000.\n\n**Final answer:**  \n\\[\n\\boxed{18000}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-174",
+   "gold": "95",
+   "pred": "95",
+   "raw": "Let's break it down:\n\n- Peeling: 60 potatoes × 1.5 minutes each = 90 minutes  \n- Cutting: 60 potatoes × 5 seconds each = 300 seconds = 5 minutes  \n\nTotal time = 90 + 5 = 95 minutes.\n\n**Answer:** 95 minutes.",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-175",
+   "gold": "15",
+   "pred": "15",
+   "raw": "Let's go step by step.\n\n**Step 1: Cost to make one gallon of lemonade**  \nLemons: $3  \nSugar: $2  \nTotal cost per gallon = $3 + $2 = $5\n\n**Step 2: Revenue per gallon**  \nThey sell each glass for $0.50 and get 20 glasses per gallon.  \nRevenue per gallon = 20 × $0.50 = $10\n\n**Step 3: Profit per gallon**  \nProfit per gallon = Revenue − Cost = $10 − $5 = $5\n\n**Step 4: Find number of gallons made**  \nTotal profit = $25  \nProfit per gallon = $5  \nGallons made = $25 ÷ $5 = 5 gallons\n\n**Step 5: Money spent on lemons**  \nCost of lemons per gallon = $3  \nTotal spent on lemons = 5 × $3 = $15\n\n**Final answer:**  \n\\[\n\\boxed{15}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-176",
+   "gold": "100",
+   "pred": "100",
+   "raw": "If there were 240 Asians in total and 80 were Japanese, then the number of Chinese was 240 - 80 = <<240-80=160>>160.  \nIf 60 of the Chinese were boys, then the number of Chinese girls was 160 - 60 = <<160-60=100>>100.  \n#### 100",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-177",
+   "gold": "350",
+   "pred": "350",
+   "raw": "Let's go step by step.\n\n1. **Rent**:  \nZaid spends \\( \\frac{1}{4} \\) of $6000 on rent.  \n\\[\n6000 \\times \\frac14 = 1500\n\\]  \nRemaining after rent:  \n\\[\n6000 - 1500 = 4500\n\\]\n\n2. **Car fuel**:  \nHe spends \\( \\frac{1}{3} \\) of his salary on car fuel.  \n\\[\n6000 \\times \\frac13 = 2000\n\\]  \nRemaining after rent and fuel:  \n\\[\n4500 - 2000 = 2500\n\\]\n\n3. **Donation**:  \nHe donates half of the remaining amount.  \n\\[\n2500 \\div 2 = 1250\n\\]  \nRemaining after donation:  \n\\[\n2500 - 1250 = 1250\n\\]\n\n4. **Daughter and wife expenses**:  \nHe gives $200 to his daughter and $700 to his wife.  \nTotal given:  \n\\[\n200 + 700 = 900\n\\]  \nRemaining after these:  \n\\[\n1250 - 900 = 350\n\\]\n\nSo, Zaid will have **$350** left.\n\n\\[\n\\boxed{350}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-178",
+   "gold": "122",
+   "pred": "122",
+   "raw": "Let's go step by step.\n\n1. **Bo has 40 crabs.**  \n2. **Monic has 4 fewer crabs than Bo:**  \n   Monic = 40 − 4 = 36 crabs.  \n3. **Rani has ten more crabs than Monic:**  \n   Rani = 36 + 10 = 46 crabs.  \n4. **Total crabs:**  \n   40 + 36 + 46 = 122 crabs.\n\n**Final answer:**  \n\\[\n\\boxed{122}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-179",
+   "gold": "130",
+   "pred": "130",
+   "raw": "Lloyd earned $10 x 5 = $<<10*5=50>>50 for the first week.  \nHe earned $10 x 8 = $<<10*8=80>>80 for the second week.  \nIn total, he earned $50 + $80 = $<<50+80=130>>130 for the first two weeks.  \n#### 130",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-180",
+   "gold": "20",
+   "pred": "20",
+   "raw": "The winner got \\( \\frac{3}{4} \\) of the votes, so the loser got \\( 1 - \\frac{3}{4} = \\frac{1}{4} \\) of the votes.  \nTotal votes = 80.  \nLoser's votes = \\( \\frac{1}{4} \\times 80 = 20 \\).\n\n\\[\n\\boxed{20}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-181",
+   "gold": "160",
+   "pred": "160",
+   "raw": "Let's go step by step.\n\nSandra ordered **200 pink calla lilies**, which were **five times the number of white carnations**.  \nSo white carnations = \\( 200 / 5 = 40 \\).\n\nShe ordered **four times as many red roses as white carnations**.  \nSo red roses = \\( 4 \\times 40 = 160 \\).\n\nFred must deliver **160 red roses** by 5 pm.\n\n\\[\n\\boxed{160}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-182",
+   "gold": "23",
+   "pred": "23",
+   "raw": "Let's go step by step.\n\n---\n\n**Step 1: Find Mark's age two years ago.**\n\nTwo years ago, Mark was 5 years older than half of Jan's age.  \nJan is 30 now, so two years ago Jan was \\(30 - 2 = 28\\).\n\nHalf of Jan's age two years ago:  \n\\(28 / 2 = 14\\).\n\nMark was 5 years older than that:  \n\\(14 + 5 = 19\\).\n\nSo two years ago, Mark was 19.\n\n---\n\n**Step 2: Find Mark's age now.**\n\nTwo years have passed since then:  \n\\(19 + 2 = 21\\).\n\nMark is 21 now.\n\n---\n\n**Step 3: Find Jean's age now.**\n\nJean is two years older than Mark:  \n\\(21 + 2 = 23\\).\n\n---\n\n**Final answer:**  \n\\[\n\\boxed{23}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-183",
+   "gold": "2",
+   "pred": "2",
+   "raw": "Let's go step-by-step.\n\n**Team 1 (well-rounded):**  \nEach runner: 55 seconds  \nTotal time = 4 × 55 = 220 seconds.\n\n**Team 2 (less well-rounded):**  \nRunner 1: 60 seconds  \nRunner 2: 60 − 3 = 57 seconds  \nRunner 3: 57 − 3 = 54 seconds  \nRunner 4: 54 − 3 = 51 seconds  \n\nTotal time = 60 + 57 + 54 + 51 = 222 seconds.\n\n**Difference:**  \n222 − 220 = 2 seconds.\n\nThe faster team wins by **2 seconds**.\n\n\\[\n\\boxed{2}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-184",
+   "gold": "25",
+   "pred": "100",
+   "raw": "Let's break this down step by step.\n\n---\n\n**Step 1: Probability of rolling a number greater than 3**\n\nA six-sided die has numbers 1 through 6.  \nNumbers greater than 3 are: 4, 5, 6 → 3 numbers.\n\nProbability = \\( \\frac{3}{6} = \\frac{1}{2} = 50\\% \\).\n\n---\n\n**Step 2: Probability of rolling two even numbers in a row**\n\nEven numbers on a die: 2, 4, 6 → 3 numbers.  \nProbability of rolling an even number once = \\( \\frac{3}{6} = \\frac{1}{2} \\).\n\nFor two in a row (independent events):  \n\\( \\frac{1}{2} \\times \\frac{1}{2} = \\frac{1}{4} = 25\\% \\).\n\n---\n\n**Step 3: Difference in likelihood (percentage points)**\n\nGreater than 3: 50%  \nTwo evens in a row: 25%\n\nDifference = \\( 50\\% - 25\\% = 25\\% \\).\n\n---\n\n**Step 4: Interpretation**\n\nThe question asks: \"How much more likely is it (expressed as a percentage)…\"  \nThis means we express the difference as a percentage of the smaller probability? Or just percentage points?\n\nUsually, \"how much more likely\" in probability comparisons means:\n\n\\[\n\\frac{\\text{larger probability} - \\text{smaller probability}}{\\text{smaller probability}} \\times 100\\%\n\\]\n\nThat is:\n\n\\[\n\\frac{0.5 - 0.25}{0.25} \\times 100\\% = \\frac{0.25}{0.25} \\times 100\\% = 100\\%\n\\]\n\nSo it's 100% more likely.\n\n---\n\nHowever, if they mean \"percentage points more likely\", it's 25 percentage points.  \nBut \"expressed as a percentage\" usually means relative increase → 100%.\n\nGiven the wording, the answer is:\n\n\\[\n\\boxed{100}\n\\]",
+   "ok": false,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-185",
+   "gold": "30",
+   "pred": "30",
+   "raw": "Jenna picked 20 / 2 = <<20/2=10>>10 apples.\nTogether, they picked 20 + 10 = <<20+10=30>>30 apples.\n#### 30",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-186",
+   "gold": "5",
+   "pred": "5",
+   "raw": "Let's break this down step by step.\n\n---\n\n**Step 1: Define variables**\n\nLet \\( r \\) = number of rats in each cage.  \nThere are 3 cages of rats, so total rats = \\( 3r \\).  \nEach rat gets 6 pieces of straw → straw for rats = \\( 6 \\times 3r = 18r \\).\n\n---\n\n**Step 2: Hamsters**\n\n10 cages of hamsters, each kept alone → 10 hamsters.  \nEach hamster gets 5 pieces → straw for hamsters = \\( 10 \\times 5 = 50 \\).\n\n---\n\n**Step 3: Rabbits**\n\n20 pieces of straw are distributed among the rabbits.\n\n---\n\n**Step 4: Total straw used**\n\nTotal straw = straw for rats + straw for hamsters + straw for rabbits  \nWe are told total straw = 160 pieces.\n\nSo:  \n\\( 18r + 50 + 20 = 160 \\)  \n\\( 18r + 70 = 160 \\)  \n\\( 18r = 90 \\)  \n\\( r = 5 \\).\n\n---\n\n**Step 5: Conclusion**\n\nThere are **5 rats in each cage**.\n\n\\[\n\\boxed{5}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-187",
+   "gold": "106",
+   "pred": "106",
+   "raw": "Mandy owes $100 with a monthly interest of 2%.  \nAfter 3 months, the interest is 2% × 3 = 6% of $100.  \n\n6% of $100 = 0.06 × 100 = $6.  \n\nSo the total amount she should give is $100 + $6 = $106.  \n\n#### 106",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-188",
+   "gold": "50",
+   "pred": "50",
+   "raw": "Let’s go step-by-step.\n\n---\n\n**Step 1: Determine cost per bag for the trader**  \nTrader buys each bag for $20.  \nTransportation cost is $2 per bag.  \nTotal cost per bag = $20 + $2 = $22.\n\n---\n\n**Step 2: Determine selling price per bag**  \nSelling price = $30 per bag.\n\n---\n\n**Step 3: Determine profit per bag**  \nProfit per bag = Selling price − Total cost = $30 − $22 = $8.\n\n---\n\n**Step 4: Use total profit to find number of bags**  \nTotal profit = $400.  \nProfit per bag = $8.  \nNumber of bags = 400 ÷ 8 = 50.\n\n---\n\n**Final answer:**  \n\\[\n\\boxed{50}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-189",
+   "gold": "34",
+   "pred": "34",
+   "raw": "Let's go step by step.\n\n**Step 1: Cost of tickets**  \nThey spent $20.25 on 3 tickets.\n\n**Step 2: Cost of food**  \nThey spent $4.50 less on food than on tickets.  \nFood cost = $20.25 − $4.50 = $15.75.\n\n**Step 3: Cost of rides**  \nThey went on 2 rides at $33 each.  \nRide cost = 2 × $33 = $66.\n\n**Step 4: Total cost**  \nTotal = tickets + food + rides  \nTotal = $20.25 + $15.75 + $66 = $102.\n\n**Step 5: Split evenly among 3 friends**  \nEach pays = $102 ÷ 3 = $34.\n\n**Final answer:**  \nEach friend paid $34.\n\n\\[\n\\boxed{34}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-190",
+   "gold": "360",
+   "pred": "360",
+   "raw": "He collects 2 peaches a minute for 3 hours, so 2 * 60 = <<2*60=120>>120 peaches an hour.\nIn 3 hours, he collects 120 * 3 = <<120*3=360>>360 peaches.\n#### 360",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-191",
+   "gold": "5",
+   "pred": "5",
+   "raw": "Ducks need 3.5 pounds of insects per week each.  \nFor 10 ducks, that’s \\( 3.5 \\times 10 = 35 \\) pounds per week.  \n\nThere are 7 days in a week, so per day they need:  \n\\( 35 \\div 7 = 5 \\) pounds.  \n\n**Answer:**  \nThey need **5 pounds** of insects per day.  \n\n\\[\n\\boxed{5}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-192",
+   "gold": "91",
+   "pred": "91",
+   "raw": "Let’s go step-by-step.\n\n**Step 1: Trees planted and chopped each year**  \nTom plants 10 trees per year and chops down 2 trees per year.  \nNet gain per year = 10 − 2 = 8 trees.\n\n**Step 2: Trees after 10 years (before dying)**  \nStarting with 50 trees:  \n50 + (8 × 10) = 50 + 80 = 130 trees.\n\n**Step 3: 30% die after 10 years**  \n30% of 130 = 0.30 × 130 = 39 trees die.  \nTrees remaining = 130 − 39 = 91.\n\n**Final answer:**  \n\\[\n\\boxed{91}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-193",
+   "gold": "24",
+   "pred": "24",
+   "raw": "Let's go step by step.\n\n**Friday morning:**  \n18 pink flamingos placed.\n\n**Saturday morning:**  \nThey took back one third of the flamingos:  \n\\( 18 \\times \\frac{1}{3} = 6 \\) flamingos taken back.  \nThese 6 were painted white and put back.  \nSo now:  \n- Pink flamingos: \\( 18 - 6 = 12 \\)  \n- White flamingos: 6\n\n**Sunday morning:**  \nThey added another 18 pink flamingos.  \nNow:  \n- Pink flamingos: \\( 12 + 18 = 30 \\)  \n- White flamingos: 6\n\n**At noon on Sunday:**  \nDifference = \\( 30 - 6 = 24 \\)\n\n\\[\n\\boxed{24}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-194",
+   "gold": "10",
+   "pred": "10",
+   "raw": "Violetta needs 5 crayons, and each costs $2, so the total cost is 5 * 2 = $<<5*2=10>>10.  \nShe prepared $20, so her change will be 20 - 10 = $<<20-10=10>>10.  \n#### 10",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-195",
+   "gold": "12",
+   "pred": "12",
+   "raw": "A pencil and eraser together cost $1.20 + $0.30 = $<<1.20+0.30=1.50>>1.50.  \nSo one pen costs $1.50.  \nEight pens cost 8 × $1.50 = $<<8*1.50=12>>12.  \n#### 12",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-196",
+   "gold": "120",
+   "pred": "120",
+   "raw": "Let's go step by step.\n\nTotal carrots: 200 pounds.  \nRestaurants: 40.  \nEach gets 2 pounds.\n\nCarrots used:  \n40 × 2 = 80 pounds.\n\nCarrots not used:  \n200 − 80 = 120 pounds.\n\nSo the answer is:\n\n**120 pounds** will not be used.",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-197",
+   "gold": "6277",
+   "pred": "6277",
+   "raw": "Let's solve it step by step.\n\nTotal inhabitants = 23,786  \nMen = 8,417  \nWomen = 9,092  \n\nFirst, add men and women:  \n8,417 + 9,092 = 17,509  \n\nNow subtract from total to find children:  \n23,786 − 17,509 = 6,277  \n\nSo, there are **6,277** kids in Soda.\n\n\\[\n\\boxed{6277}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-198",
+   "gold": "320",
+   "pred": "320",
+   "raw": "Let's go step by step.\n\n**Step 1: Initial cards**  \nElaine started with 20 cards.\n\n**Step 2: First month**  \nShe collected three times the initial number:  \n3 × 20 = 60 cards.  \nTotal after first month: 20 + 60 = 80 cards.\n\n**Step 3: Second month**  \nShe collected 20 fewer than the first month:  \n60 − 20 = 40 cards.  \nTotal after second month: 80 + 40 = 120 cards.\n\n**Step 4: Third month**  \nFirst + second month collected: 60 + 40 = 100 cards.  \nShe collected twice that: 2 × 100 = 200 cards.  \nTotal after third month: 120 + 200 = 320 cards.\n\n**Final total:**  \n320 cards.\n\n\\[\n\\boxed{320}\n\\]",
+   "ok": true,
+   "err": null
+  },
+  {
+   "idx": "gsm8k-199",
+   "gold": "7500",
+   "pred": "7500",
+   "raw": "Let's go step by step.\n\n**Step 1: Determine how many sentences Mark edits for each publisher.**  \nHe edits an equal number for both publishers, and the total is 1000 sentences per week.  \nSo for each publisher:  \n1000 ÷ 2 = 500 sentences.\n\n**Step 2: Find how much Publisher A pays.**  \nPublisher A pays 5 cents per sentence.  \n500 × 5 = 2500 cents.\n\n**Step 3: Find how much Publisher B pays.**  \nPublisher B pays twice what Publisher A pays per sentence:  \n5 × 2 = 10 cents per sentence.  \n500 × 10 = 5000 cents.\n\n**Step 4: Add both amounts.**  \n2500 + 5000 = 7500 cents.\n\n**Final answer:**  \n\\[\n\\boxed{7500}\n\\]",
+   "ok": true,
+   "err": null
+  }
+ ]
+}

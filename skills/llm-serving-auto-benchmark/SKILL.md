@@ -90,6 +90,25 @@ These may differ — that is the comparison:
 | Situation | What to say |
 |---|---|
 | Higher tok/s but SLA missed | not a win; the two are not the same measurement |
+
+## Recording the SLA — vocabulary matters
+
+`sla_ok` is the verdict, not the measurement. A row that can only say
+"met/missed" cannot explain *why* it missed or how close it was. Record the
+constraint metrics alongside (absorbed from the ecosystem —
+`vllm bench serve`'s auto-optimization vocabulary; see
+`../../references/ascend-ecosystem.md` §7):
+
+| Metric | What it constrains |
+|---|---|
+| `p99_ttft` | tail first-token latency — the constraint users feel |
+| `mean_tpot` | per-output-token time in steady decode |
+| `success_rate` | completed requests / total — errors are not latency |
+| `goodput_ratio` | requests meeting *all* constraints / total — the honest throughput |
+
+**goodput is the number that answers "how fast is it, really"**: throughput
+counting only requests that met the SLA. A service at 1000 tok/s aggregate
+with 0.7 goodput is a 700 tok/s service wearing a bigger number.
 | Two rows on different CANN | two machines; report both stacks or rerun |
 | Spec-decode on | state A and the tok/s basis, or the number means nothing |
 | One framework at conc=1, other at conc=8 | not a comparison; regroup |
