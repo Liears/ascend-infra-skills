@@ -46,6 +46,14 @@ first, then two-knob moves. Rationale: interactions are the exception; if
 one-knob moves explain the SLA, the search stops before paying for
 interactions.
 
+**Warm up a fresh service before probing it.** Found the hard way on the
+first live run: a freshly started service's first requests absorb graph
+capture and JIT warmup — the same probe that measured 0.94 s on a warm
+service returned 15.1 s / 6.7 s / 0.94 s on a cold one. Discard ~5 warmup
+requests, then probe; a baseline measured warm is not comparable to a trial
+measured cold. This is the config-layer echo of the runtime layer's
+"warmup as a sanity gate" phase below.
+
 Early-stop rules:
 
 - a trial misses SLA by a wide margin **and** every remaining trial

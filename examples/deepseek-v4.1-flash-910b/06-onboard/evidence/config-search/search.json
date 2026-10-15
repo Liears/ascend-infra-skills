@@ -1,0 +1,14 @@
+{
+  "base": {"GPU_UTIL": 0.92, "BAT_TOKENS": 8192, "MAX_SEQS": 4, "PREFIX": 0},
+  "axes": {"GPU_UTIL": [0.88, 0.90, 0.92, 0.94]},
+  "constraints": [
+    {"type": "forbidden", "when": {"GPU_UTIL": 0.94},
+     "reason": "activation headroom collapse: measured 8K prefill 8.0-8.6s vs 1.14s (6x) at 0.94 (port repo serve_a2.sh table)"}
+  ],
+  "calibration": {
+    "hbm_gib": 60.96, "non_kv_gib": 43.49, "base_util": 0.92,
+    "kv_gib": 13.6, "kv_tokens": 2942180
+  },
+  "sla": {"request_len": 131072, "min_concurrent": 16},
+  "restart_cost_min": 15
+}

@@ -1,0 +1,101 @@
+{
+  "baseline": {
+    "GPU_UTIL": 0.92,
+    "BAT_TOKENS": 8192,
+    "MAX_SEQS": 4,
+    "PREFIX": 0
+  },
+  "sla": {
+    "request_len": 131072,
+    "min_concurrent": 16
+  },
+  "restart_cost_min": 15.0,
+  "capacity_model": {
+    "tokens_per_gib": 216336,
+    "offset_gib": 1.01,
+    "uncalibrated": false
+  },
+  "planned_trials": 2,
+  "budget_min": 30.0,
+  "budget_hours": 0.5,
+  "trials": [
+    {
+      "config": {
+        "GPU_UTIL": 0.92,
+        "BAT_TOKENS": 8192,
+        "MAX_SEQS": 4,
+        "PREFIX": 0
+      },
+      "knobs_changed": [],
+      "order": 0,
+      "status": "baseline",
+      "prune_reason": "",
+      "accuracy_coupled": false,
+      "predicted": {
+        "kv_gib": 13.6,
+        "kv_tokens": 2942180,
+        "fits": true
+      }
+    },
+    {
+      "config": {
+        "GPU_UTIL": 0.9,
+        "BAT_TOKENS": 8192,
+        "MAX_SEQS": 4,
+        "PREFIX": 0
+      },
+      "knobs_changed": [
+        "GPU_UTIL"
+      ],
+      "order": 1,
+      "status": "run",
+      "prune_reason": "",
+      "accuracy_coupled": false,
+      "predicted": {
+        "kv_gib": 12.38,
+        "kv_tokens": 2678422,
+        "fits": true,
+        "concurrency": 20,
+        "request_len": 131072
+      }
+    },
+    {
+      "config": {
+        "GPU_UTIL": 0.88,
+        "BAT_TOKENS": 8192,
+        "MAX_SEQS": 4,
+        "PREFIX": 0
+      },
+      "knobs_changed": [
+        "GPU_UTIL"
+      ],
+      "order": 2,
+      "status": "run",
+      "prune_reason": "",
+      "accuracy_coupled": false,
+      "predicted": {
+        "kv_gib": 11.16,
+        "kv_tokens": 2414664,
+        "fits": true,
+        "concurrency": 18,
+        "request_len": 131072
+      }
+    },
+    {
+      "config": {
+        "GPU_UTIL": 0.94,
+        "BAT_TOKENS": 8192,
+        "MAX_SEQS": 4,
+        "PREFIX": 0
+      },
+      "knobs_changed": [
+        "GPU_UTIL"
+      ],
+      "order": 0,
+      "status": "pruned",
+      "prune_reason": "forbidden region: activation headroom collapse: measured 8K prefill 8.0-8.6s vs 1.14s (6x) at 0.94 (port repo serve_a2.sh table)",
+      "accuracy_coupled": false,
+      "predicted": {}
+    }
+  ]
+}
