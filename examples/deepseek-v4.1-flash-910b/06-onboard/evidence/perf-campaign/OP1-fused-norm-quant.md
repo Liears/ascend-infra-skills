@@ -60,3 +60,39 @@ Gate after wiring: GSM8K-100 quick, then 200, then end-to-end probe.
 2. 18,540 scalar `(6,)` INT32 casts — pure launch overhead, worth hunting
 3. SparseFlashMla (11%) and GEMM family (19%) — vendor kernels, only
    upstream-track improvements apply
+
+## Phase-1 addendum: the mHC complication (found during wiring analysis)
+
+V4.1's layer is NOT the standard `Add → norm → attn` residual structure. It
+uses **mHC (manifold-constrained hyper-connections)**:
+
+```
+residual = h
+x = hc_pre(h, fn, scale, base, pre_mix)     # stream mixing — not a plain add
+x = input_layernorm(x)
+x = self_attn(...)                           # quantizes x per-linear inside
+h = hc_post(x, residual, post, comb)         # mixing + residual here
+```
+
+The plain `Add(6,5120)` in the trace lives inside the hc mixing, NOT adjacent
+to the norm. Consequences for the fused-kernel wiring:
+
+- `npu_add_rms_norm_dynamic_quant` (validated, 4.97×) needs the add adjacent
+  to the norm — the mHC structure breaks that assumption
+- `npu_rms_norm_dynamic_quant` (norm + dynamic quant, no add — exactly what
+  the mHC flow needs) is **MISSING from this torch_npu build**
+- `npu_rms_norm_quant` / `_v2` exist but are static-scale variants (scale is
+  an input tensor) — wrong semantics for per-token dynamic quant
+
+## Two paths forward (next unit of work)
+
+1. **Write the Triton-Ascend kernel** `rms_norm_dynamic_quant(x, gamma, eps)
+   -> (q, s)`: row-parallel vector kernel (reduce for rms, then normalize +
+   per-token scale + int8 write). The t3a dev-kit's vector-kernel workflow
+   (04) covers exactly this class. Fully testable offline against the
+   aclnnDynamicQuantV2 reference before wiring.
+2. Check whether a newer torch_npu/CANN ships the missing op (it exists in
+   the API registry of newer builds).
+
+Path 1 is self-contained and is the genuine operator-layer work; path 2 is a
+version bump away. Both converge on the same wiring plan above.
