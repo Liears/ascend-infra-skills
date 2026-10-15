@@ -1,5 +1,7 @@
 # Runbook — bring DeepSeek-V4.1-Flash up on 8×910B3 (A2)
 
+English | [中文](RUNBOOK.zh.md)
+
 The second-level validation: actually serving the model, so the skills can be
 fed a real trace instead of a synthetic one.
 
@@ -8,8 +10,9 @@ This runbook is written against the public port
 every variable name and default read from that script — not from a README.
 Where a value is a default from the script, it is labelled as such.
 
-> **Status:** prepared, not yet executed end-to-end. The weight download
-> (304 GB) and base image pull are the gating steps.
+> **Status:** executed. Completed end-to-end on this machine on 2026-10-15:
+> the service came up, inference returned correct output, and a real trace was
+> captured. Artifacts in [`evidence/`](evidence/).
 
 ---
 
@@ -129,13 +132,28 @@ Then check the four things that matter, each with its artifact:
 
 ## 6. Capture the trace for the skills
 
-Once serving, capture with `torch_npu.profiler` at **Level1 + PipeUtilization**
-(see `skills/npu-profiler-analysis/references/ascend-trace-format.md` for the
-exact config), then feed the output to:
+Launch with `V41_PROFILE=1`, then:
 
 ```bash
-python3 skills/npu-profiler-analysis/scripts/analyze_profile.py <prof_dir>
-python3 skills/llm-serving-capacity-planner/scripts/capacity_analyzer.py <server.log>
+curl -s --noproxy '*' -X POST http://127.0.0.1:8100/start_profile
+# ...send a few requests...
+curl -s --noproxy '*' -X POST http://127.0.0.1:8100/stop_profile
+```
+
+Note: the prof lands at `/opt/dsv41/results/<run_id>/prof` **inside the
+container** (host-side `/tmp/dsv41-ascend/results/<run_id>/prof`). The API
+capture produces **raw** data; run the offline parse once inside the container
+to get `kernel_details.csv`:
+
+```bash
+python3 -c "import torch_npu.profiler.profiler as P; P.analyse('<rank dir>')"
+```
+
+Then feed it to the skills:
+
+```bash
+python3 skills/npu-profiler-analysis/scripts/analyze_profile.py <ASCEND_PROFILER_OUTPUT dir>
+python3 skills/llm-serving-capacity-planner/scripts/capacity_analyzer.py <serve.log>
 ```
 
 This closes the loop: the skills that were validated on synthetic and small

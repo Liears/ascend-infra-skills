@@ -1,5 +1,7 @@
 # Worked example — DeepSeek-V4.1-Flash on Ascend 910B (A2)
 
+English | [中文](README.zh.md)
+
 An end-to-end run of every skill against one real question:
 
 > "Bring DeepSeek-V4.1-Flash up on our 8×910B3 node. What do we actually need
@@ -134,6 +136,19 @@ Plus the analysis in
 **Result:** a task DAG that names, per task, the vLLM-Ascend file it touches
 and the evidence it needs — and the finding that **Engram is the schedule
 risk**, because its host-resident tables have no analogue in the runtime.
+
+---
+
+## 06 — Onboard: it actually ran
+
+See [`06-onboard/RUNBOOK.md`](06-onboard/RUNBOOK.md) (the procedure) and
+[`06-onboard/evidence/`](06-onboard/evidence/) (the real artifacts).
+
+**Result:** weights downloaded (304 GB, 72 shards) → Engram reassembled
+(sha256 verified) → patched image built (15 patches byte-verified) → served
+under TP8 (health 200, inference returns correct output) → KV 2,942,071
+tokens → a real trace captured. The full numbers and the red flags are in
+the evidence directory.
 
 ---
 

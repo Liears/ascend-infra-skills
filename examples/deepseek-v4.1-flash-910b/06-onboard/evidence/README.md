@@ -1,5 +1,7 @@
 # Onboarding evidence — DeepSeek-V4.1-Flash on 8×910B3
 
+English | [中文](README.zh.md)
+
 Real artifacts from a live run on this machine, 2026-10-15. Not synthetic.
 
 ## What was actually run
@@ -12,6 +14,7 @@ Real artifacts from a live run on this machine, 2026-10-15. Not synthetic.
 | Model dir self-check (`tools/check_model_dir.sh`) | pass, 1 warning (vision rotation unconfirmed) |
 | Service (`scripts/serve_a2.sh`, TP8, GPU_UTIL=0.92, bat=8192) | **up**, health HTTP 200 |
 | Real inference (`/v1/chat/completions`) | correct output |
+| Real trace captured (`/start_profile` → load → `/stop_profile` → offline `analyse()`) | **229,642 kernel rows, 486 MB trace** |
 
 ## The numbers from the live server
 
@@ -66,6 +69,10 @@ path being claimed.
   *suggestion*, and the parser was reporting it as an effective setting. Fixed:
   the parser now excludes suggestion lines. This is the second-level validation
   doing its job — a synthetic log would never have surfaced it.
+- `analyze_profile.py` on the 229,642-row trace **found a second bug**: the
+  analyzer emitted a canned host/device-ratio phrase that contradicted the
+  actual number, and buried the dominant fact of the trace (83% of device time
+  is collectives). Both fixed, with regression tests.
 
 ## What this does NOT establish
 
