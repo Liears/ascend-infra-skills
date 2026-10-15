@@ -93,11 +93,31 @@ The exact order, with the example's numbers:
 
 ## P5 — Upstream track
 
-The example's drift: pinned base 2026-09-10 vs upstream v0.31.0 five weeks
-later = **171 model-relevant commits**, including upstream's proper Triton
-fusion of the exact function we had hand-patched, a mixed-quant integration
-for our top compute kernel, and the graph-mode fix that blocked our E3.
+The example's drift: pinned base 2026-09-10 vs upstream **v0.30.0rc2**
+(2026-10-13, the newest tag — an earlier draft of this page said "v0.31.0",
+which does not exist; verify the tag, don't trust the campaign's memory) =
+**171 model-relevant commits**, including upstream's proper Triton fusion of
+the exact function we had hand-patched, a mixed-quant integration for our
+top compute kernel, and a config-only dynamic-spec (our abandoned E3 lever).
 
 `upstream_drift.py` quantifies this in one command. Then the pricing rule:
 **run upstream natively with your weights before rebasing** — the measured
 gap IS your patches' value; rebase only what the gap proves necessary.
+
+The example's priced verdict (full data:
+`examples/deepseek-v4.1-flash-910b/06-onboard/evidence/perf-campaign/P5-UPSTREAM-PRICING.md`):
+
+| | tok/s | accuracy |
+|---|---:|---|
+| our patched stack | 174.3 | 99/100 |
+| upstream doc-faithful | 94.5 | — |
+| upstream + our knobs | 96.3 | 99/100 |
+| upstream + dynamic K | 90.2 | — |
+
+→ upstream absorbed everything except the draft-graph patch (still **1.81×**
+ours); rebase and carry exactly that one patch. Two pricing-session traps
+worth naming: the quick hand-rolled accuracy gate scored ~30/100 on BOTH
+stacks (protocol artifact — concurrent prefills drift the output format;
+the original gate serializes prefill and extracts with fallback), and the
+restored service was noisier than the morning anchor (graph-cache state) —
+always re-anchor the baseline in the same session you measure the trial.
