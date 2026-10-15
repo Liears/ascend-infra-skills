@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "description": "Agent-ready skills for AI-infrastructure work on Ascend NPUs: open-source port discovery, cross-framework serving benchmarks, NPU profiler analysis, KV/HBM capacity planning, and model Day-0 support programs, under a strict evidence discipline.",
   "author": {
-    "name": "ascend-infra-skills contributors"
+    "name": "Liears"
   },
-  "homepage": "https://github.com/<owner>/ascend-infra-skills",
-  "repository": "https://github.com/<owner>/ascend-infra-skills",
+  "homepage": "https://github.com/Liears/ascend-infra-skills",
+  "repository": "https://github.com/Liears/ascend-infra-skills",
   "license": "Apache-2.0",
   "keywords": [
     "ascend", "npu", "cann", "vllm-ascend", "mindie", "sglang",

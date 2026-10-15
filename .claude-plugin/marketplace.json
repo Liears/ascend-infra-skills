@@ -2,7 +2,7 @@
   "name": "ascend-infra-skills",
   "description": "Skills for AI-infrastructure work on Ascend NPUs: open-source port discovery, cross-framework benchmarks, NPU profiler analysis, capacity planning, and model Day-0 support.",
   "owner": {
-    "name": "ascend-infra-skills contributors"
+    "name": "Liears"
   },
   "plugins": [
     {

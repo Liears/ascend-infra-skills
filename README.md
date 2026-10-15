@@ -3,7 +3,7 @@ name: ascend-infra-skills
 version: 0.1.0
 description: Agent-ready skills for AI-infrastructure work on Ascend NPUs — open-source port discovery, cross-framework serving benchmarks, NPU profiler analysis, KV/HBM capacity planning, and model Day-0 support programs, all under a strict evidence discipline.
 author:
-  name: ascend-infra-skills contributors
+  name: Liears
 license: Apache-2.0
 keywords:
   - ascend
@@ -19,6 +19,8 @@ keywords:
 ---
 
 # ascend-infra-skills
+
+English | [中文](README.zh.md)
 
 Skills that give a coding agent the operational memory for AI-infrastructure
 work on **Ascend NPUs**, adapted from the methodology of
