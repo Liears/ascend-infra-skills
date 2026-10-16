@@ -100,3 +100,37 @@ weeks later; perf PRs accumulate against your frozen base.
 **Cause**: 5 weeks of drift in the example = 171 model-relevant commits.
 **Rule**: P5 — quantify drift (`upstream_drift.py`), price the rebase by
 running upstream natively, rebase only what the measured gap justifies.
+
+## 11. Blind text surgery on code passes the compiler
+
+**Symptom**: `py_compile` green after mechanical block removal, engine crashes
+at runtime with `AttributeError`/`NameError` — or worse, runs with subtly
+wrong structure.
+**Cause**: regex/line-based cuts can delete a `def` line while leaving its
+body, or orphan statements; the result is still valid Python.
+**Rule**: after every cut pass run pyflakes (undefined names) AND an AST
+function-inventory diff against the reference (`ast.walk` collecting
+`FunctionDef` names) — the inventory must differ only by intended changes.
+**Worked example**: one over-eager cut removed `_run_merged_draft`'s `def`
+line entirely; the compile passed and only the inventory diff caught it.
+
+## 12. vLLM workers are renamed by setproctitle — pkill can't see them
+
+**Symptom**: `pkill -f vllm` reports success, npu-smi still shows
+`VLLMWorker_TP` holding 50+ GB per card; the next engine launch dies with
+"Free memory on device ... less than desired GPU memory utilization".
+**Rule**: kill by the PIDs npu-smi reports. Parse with
+`npu-smi info | grep VLLMWorker | awk -F'|' '{gsub(/ /,"",$3); print $3}'`
+(the PID column is `$3` after the bar split, not the first number you see).
+Also beware your own `pkill PATTERN` matching the invoking shell (prefix the
+pattern or kill by PID).
+
+## 13. Same tool version, different behavior — apply CI's patch verbatim
+
+**Symptom**: local `ruff format` (0.14.0) says "already formatted"; CI's
+ruff-format (nominally the same pinned rev) still reformats one file.
+**Cause**: build-level drift between the pip wheel and the pre-commit
+mirrored binary.
+**Rule**: once CI shows you its diff, stop reproducing locally — copy the
+patch from the CI log byte-for-byte. Budget your loop for the checks you
+CAN reproduce (ruff check, mypy overrides) and treat format as CI-authority.

@@ -121,3 +121,22 @@ stacks (protocol artifact — concurrent prefills drift the output format;
 the original gate serializes prefill and extracts with fallback), and the
 restored service was noisier than the morning anchor (graph-cache state) —
 always re-anchor the baseline in the same session you measure the trial.
+
+## P5b — Contribute back (after the rebase verdict)
+
+When pricing proves your asset is real and upstream lacks it, the loop is:
+minimal port onto **today's main** → single opt-in switch (default-off is
+bit-identical) → strip every diagnostic → re-verify the CLEAN code on
+hardware → PR with the re-verified numbers. The worked example:
+
+| | tok/s | accuracy |
+|---|---:|---|
+| upstream main (eager draft) | 96.3 | 99/100 |
+| clean port, one switch (PR code) | **116.9 (+21%)** | **100/100** |
+| full internal stack (reference) | 174.3 | 99/100 |
+
+The PR's number is the CLEAN port's number — never cite the internal stack.
+Expect upstream's own unit tests to encode the old contract (they are the
+behavior spec); update them with the change. The whole contribution
+discipline (branch base, DCO, the CI fix loop, the maintainer label gate)
+is its own skill: `upstream-pr-contribution`.
