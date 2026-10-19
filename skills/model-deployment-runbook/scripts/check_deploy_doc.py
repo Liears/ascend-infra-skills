@@ -9,6 +9,7 @@ classes that actually forced rewrites in practice:
 Usage: check_deploy_doc.py <doc.md> [--min-sections N]
 Exit 0 = PASS, 1 = FAIL (findings listed with line numbers).
 """
+from __future__ import annotations
 import argparse
 import re
 import sys

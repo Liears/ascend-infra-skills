@@ -1,6 +1,6 @@
 ---
 name: ascend-infra-skills
-version: 0.1.0
+version: 0.2.0
 description: 面向昇腾 NPU 的 AI-Infra 工作技能集——开源移植检索、跨框架推理基准测试、NPU profiler 分析、KV/HBM 容量规划、模型 Day-0 支持程序，全部执行统一的证据纪律。
 author:
   name: Liears

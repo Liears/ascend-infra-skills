@@ -9,6 +9,7 @@ Usage:
     check_touch.py <repo-root> vllm_ascend/spec_decode/dspark_proposer.py ...
     check_touch.py <repo-root> --diff upstream/main   # touch = files changed vs ref
 """
+from __future__ import annotations
 import argparse
 import re
 import subprocess

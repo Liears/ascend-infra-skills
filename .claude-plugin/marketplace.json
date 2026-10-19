@@ -8,12 +8,19 @@
     {
       "name": "ascend-infra-skills",
       "source": "./",
-      "description": "Ascend NPU infrastructure skills under an evidence discipline.",
-      "version": "0.1.0",
+      "description": "12 Ascend NPU infrastructure skills under an evidence discipline — from port discovery to deployment runbook.",
+      "version": "0.2.0",
       "category": "ai-infra",
       "tags": [
-        "ascend", "npu", "cann", "vllm-ascend", "mindie",
-        "profiler", "benchmark", "day0", "llm-serving"
+        "ascend",
+        "npu",
+        "cann",
+        "vllm-ascend",
+        "mindie",
+        "profiler",
+        "benchmark",
+        "day0",
+        "llm-serving"
       ]
     }
   ]

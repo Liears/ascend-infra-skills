@@ -1,6 +1,6 @@
 ---
 name: ascend-infra-skills
-version: 0.1.0
+version: 0.2.0
 description: Agent-ready skills for AI-infrastructure work on Ascend NPUs — open-source port discovery, cross-framework serving benchmarks, NPU profiler analysis, KV/HBM capacity planning, and model Day-0 support programs, all under a strict evidence discipline.
 author:
   name: Liears
@@ -60,14 +60,14 @@ evidence is not there.
 ### Claude Code plugin
 
 ```
-/plugin marketplace add <this repo>
+/plugin marketplace add Liears/ascend-infra-skills
 /plugin install ascend-infra-skills@ascend-infra-skills
 ```
 
 ### Any skill runtime (Claude Code, Codex, Kimi, …)
 
 ```bash
-git clone <this repo> ascend-infra-skills
+git clone https://github.com/Liears/ascend-infra-skills.git
 cd ascend-infra-skills
 SKILL_DIR=~/.claude/skills          # or ${CODEX_HOME:-~/.codex}/skills
 mkdir -p "$SKILL_DIR"
