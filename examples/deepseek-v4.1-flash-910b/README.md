@@ -150,6 +150,19 @@ under TP8 (health 200, inference returns correct output) → KV 2,942,071
 tokens → a real trace captured. The full numbers and the red flags are in
 the evidence directory.
 
+
+
+## 07 — Deliverable: the 1017-weights deployment runbook (worked example)
+
+Once the campaign is complete, the [`model-deployment-runbook`](../../skills/model-deployment-runbook/)
+skill emits a doc someone else can follow on a fresh machine:
+[`06-onboard/DEPLOY-1017.md`](06-onboard/DEPLOY-1017.md) —
+weights acquisition with sha256 verification, engram shard concatenation,
+from-scratch image build, a verbatim 61-flag serve command, acceptance
+gates (**GSM8K-100 = 100/100**), and a greppable pitfalls table.
+Measured on the 1017 weights: A=5.89/6, AISBench (8K/256/3/conc1)
+E2E 78.25 tok/s. The hardcoding linter passes on it.
+
 ---
 
 ## What this example demonstrates

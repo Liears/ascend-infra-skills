@@ -144,6 +144,18 @@ evidence 里。
 
 ---
 
+## 07 — 交付：1017 权重部署指导书（model-deployment-runbook 的 worked example）
+
+战役全部结束后，用 [`model-deployment-runbook`](../../skills/model-deployment-runbook/)
+skill 产出可直接交给别人的部署文档：
+[`06-onboard/DEPLOY-1017.md`](06-onboard/DEPLOY-1017.md) ——
+权重获取与 sha256 校验、engram 分片拼接、从零构建镜像、逐字可用的
+61 参数起服命令、验收门禁（**GSM8K-100 = 100/100**）、已知坑表。
+1017 权重实测：A=5.89/6，AISBench(8K/256/3/并发1) E2E 78.25 tok/s。
+硬编码检查器对该文档 PASS。
+
+---
+
 ## 这个案例证明了什么
 
 | 技能 | 在这里贡献了什么 |
