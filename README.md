@@ -52,6 +52,7 @@ evidence is not there.
 | [`llm-serving-accuracy-gate`](skills/llm-serving-accuracy-gate/) | After serving, verdict accuracy with three gates (determinism/smoke, AIME-class detector, coverage); refuses protocol-mismatched comparisons |
 | [`extreme-perf-campaign`](skills/extreme-perf-campaign/) | Orchestrate the whole optimization campaign — theory-ranked levers, gated experiments, honest headroom arithmetic, upstream-drift pricing; the discipline layer over the others |
 | [`upstream-pr-contribution`](skills/upstream-pr-contribution/) | After the pricing experiment proves your local optimization is worth keeping: turn it into a mergeable upstream PR — branch-base discipline, minimal diff, DCO, the CI fix loop, and the maintainer label gate |
+| [`model-deployment-runbook`](skills/model-deployment-runbook/) | After adaptation/optimization is complete: emit the deployment runbook someone else can follow on a fresh machine — weights acquisition, one-time processing, image build, verbatim serve command, acceptance gates, pitfalls; ships a hardcoding linter |
 | [`serving-config-search`](skills/serving-config-search/) | Find the best launch config under an SLA: offline-pruned, ordered trials instead of a grid sweep; flags accuracy-coupled knobs |
 
 ## Install
