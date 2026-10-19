@@ -16,6 +16,9 @@ keywords:
   - benchmark
   - day0
   - llm-serving
+  - spec-decode
+  - perf-campaign
+  - deployment-runbook
 ---
 
 # ascend-infra-skills
@@ -102,6 +105,26 @@ version:
   open-source-port discovery.
 - **BBuf/AI-Infra-Auto-Driven-SKILLS** is the methodological ancestor; the
   evidence rules and skill shapes are ported from it.
+
+## Verified end-to-end case study
+
+[`examples/deepseek-v4.1-flash-910b/`](examples/deepseek-v4.1-flash-910b/)
+records the full journey of DeepSeek-V4.1-Flash (W4A8) on 8×910B3 (A2):
+open-source port discovery → audit → weight download and reassembly →
+patched image build → TP8 serving → a 229,642-row real trace (83% of device
+time is communication — the normal shape of a large MoE under EP/TP on
+Ascend, and the opposite of what a GPU-minded analyzer would expect) → an
+extreme-performance campaign → contributing back upstream → a deployment
+runbook.
+
+Campaign results (one probe basis, traceable end to end): single-stream
+decode **27.2 → 174.3 tok/s (6.4×)**, 1.33× on real workload, GSM8K
+accuracy in band throughout. The P5 pricing experiment showed upstream had
+absorbed 11 of 12 private patches; the remaining 1.81× is condensed into
+[vllm-ascend PR #18967](https://github.com/vllm-project/vllm-ascend/pull/18967)
+(CI green, awaiting maintainer label). The 1017 weights shipped as
+[`DEPLOY-1017.md`](examples/deepseek-v4.1-flash-910b/06-onboard/DEPLOY-1017.md):
+GSM8K-100 **100/100**, AISBench (8K/256/3/conc1) E2E 78.25 tok/s.
 
 ## License
 

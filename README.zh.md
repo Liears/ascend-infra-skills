@@ -16,6 +16,9 @@ keywords:
   - benchmark
   - day0
   - llm-serving
+  - spec-decode
+  - perf-campaign
+  - deployment-runbook
 ---
 
 # ascend-infra-skills
@@ -99,10 +102,17 @@ benchmark 需要，读它们不需要。
 ## 已验证的端到端案例
 
 [`examples/deepseek-v4.1-flash-910b/`](examples/deepseek-v4.1-flash-910b/)
-记录了 DeepSeek-V4.1-Flash（W4A8）在 8×910B3（A2）上的完整流程：检索开源
+记录了 DeepSeek-V4.1-Flash（W4A8）在 8×910B3（A2）上的完整旅程：检索开源
 实现 → 审计 → 下载重组权重 → 构建补丁镜像 → TP8 起服 → 采集 229,642 行
-真实 trace → 分析。其中 83% 的设备时间是通信算子——这是大 MoE 在昇腾上
-EP/TP 并行的正常形态，也是 GPU 思路的分析器会看反的结论。
+真实 trace（83% 设备时间是通信——大 MoE 在昇腾 EP/TP 下的正常形态，
+GPU 思路的分析器会看反）→ 极致性能战役 → 上游反哺 → 交付部署文档。
+
+战役结果（同一探针口径全程可溯）：单流解码 **27.2 → 174.3 tok/s（6.4×）**，
+真实负载 1.33×，GSM8K 精度全程同带；P5 定价实验判定 11/12 个私有补丁的
+价值已被上游吸收，剩余 1.81× 凝结为 [vllm-ascend PR #18967](https://github.com/vllm-project/vllm-ascend/pull/18967)
+（CI 全绿，等维护者标签）。1017 新权重以
+[`DEPLOY-1017.md`](examples/deepseek-v4.1-flash-910b/06-onboard/DEPLOY-1017.md)
+交付：GSM8K-100 **100/100**、AISBench(8K/256/3/并发1) E2E 78.25 tok/s。
 
 这个案例同时抓出了两个技能自身的 bug（合成数据抓不到的那种），已修复并
 加了回归测试。
