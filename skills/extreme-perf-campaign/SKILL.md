@@ -43,10 +43,12 @@ P5 upstream    → drift quantification; price the rebase before doing it
 
 **`step(n) = F + n·c`, and F and c need opposite fixes.** Measure both with a
 concurrency sweep (1/2/4 concurrent requests, no restart needed). In the worked
-example F = 31.3 ms of a 35.5 ms step (**88%**) — that is weight streaming, not
-compute: `35.8 GB/rank/step ÷ 31.3 ms = 1143 GB/s` against a **measured** HBM
-peak of 1763 GB/s ⇒ **65% duty**, while AICore sat at 89–99%. High AICore with
-low bandwidth duty means "waiting for weights", not "computing slowly".
+example F = 31.3 ms of a 35.5 ms step (**88%**), and F stayed at 30.9–31.8 ms
+across MoE comm layouts and context lengths — so it is structural, not
+configuration. What F *is* could not be settled, because the only counters at
+hand were unusable (see the pitfall below). **Do not invent a duty-cycle
+explanation to fill that gap** — that is exactly the mistake this reference
+now warns about.
 
 Also check whether "read every local expert" is a mathematical consequence of
 the comm layout before trying to make it sparse: under AllGather MoE,
