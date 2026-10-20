@@ -2,7 +2,9 @@
 
 > 适用：一台 **8×Ascend 910B3（A2，8×64GB HBM）**，从零部署 1017 版权重并以已验证配置运行。
 > 正文给出**两条部署路径**，都实测过：A = 端口仓优化栈（快，但要自建镜像）；B = 上游镜像 + 一个 PR（慢一些，但全部来自公开来源）。
-> 数字来自 2026-10-18/19（A 路径门禁）与 2026-10-20（同机同权重 A/B）：**GSM8K-100 = 99-100/100**、单流 decode **A 路径 163 tok/s / B 路径 119 tok/s**。
+> 数字来自 2026-10-18/19（A 路径门禁）与 2026-10-20（同机同权重 A/B）：**GSM8K-100 = 99-100/100**、单流 decode **A 路径 163-171 tok/s / B 路径 119 tok/s**。
+> 路径 A 的区间是**同一配置在多次起服的散布**（实测 158.5 / 163.3 / 168.4 / 170.6 都出现过），
+> 不是多个优化档位；报数字时请连同工况一起写，单点数字不可比。
 > 文中 `<占位符>` 需按你的机器替换；除特别注明外命令均以 root 执行。
 
 ---
@@ -18,7 +20,7 @@
 | vllm-ascend 版本 | `0.1.dev5097+ge43cf1e9f`（vllm `0.27.1+empty`，CANN 9.1.0） | `0.30.0rc2`（vllm `0.30.0+empty`，CANN 9.2.0） |
 | 要合入 PR 吗 | **不需要**（补丁全部烘焙进自建镜像） | **需要**：PR #18967 尚未合入，从 fork 分支 cherry-pick |
 | 起服开关 | `DRAFT_GRAPH=1` + 45 个 `V41_*`（镜像内已设）+ `additional-config` 里的 engram 键 | `VLLM_ASCEND_ENABLE_DSPARK_DRAFT_GRAPH=1` + **`--engram-config`**（新接口） |
-| 单流 decode | **163.3 tok/s**（A=5.89） | **119.1 tok/s**（A=5.89） |
+| 单流 decode | **163–171 tok/s**（A=5.89，同配置散布） | **119.1 tok/s**（A=5.89） |
 | 精度 | GSM8K-100 = 100/100 | GSM8K-100 = 99/100 |
 | 起服命令 | §5.2 | §5.3 |
 
@@ -138,9 +140,45 @@ cd <PORT_REPO> && bash scripts/build_image.sh
 版本事实（镜像内实测）：vllm-ascend `0.1.dev5097+ge43cf1e9f`、vllm `0.27.1+empty`、
 CANN 9.1.0、transformers 5.20.1、torch 2.10.0+cpu、python 3.12.13。
 
-> **路径 A 的 163 tok/s 依赖 15 项补丁 + 45 个 `V41_*` 运行开关**，其中多项是端口仓私有实现
+> **路径 A 的 163–171 tok/s 依赖 15 项补丁 + 45 个 `V41_*` 运行开关**（非默认的 19 个逐项见 §3.2.1），其中多项是端口仓私有实现
 > （engram host 常驻/JIT、MoE AllGather、o_proj 2D、rope idxsel、QLI no-candidate……）。
 > 这些**不在** PR #18967 里——PR 只覆盖 draft 图捕获，实测单独给到 119 tok/s。
+
+#### 3.2.1 路径 A 依赖的 19 个非默认开关（缺一个就掉性能）
+
+端口仓镜像已把这些写进 ENV，但**读者自建镜像后必须逐项核对**——
+少设一个不会报错，只会变慢。这是本路径最容易踩的坑。
+
+```bash
+# 核对：起服后比对容器内实际生效值
+docker exec <NAME> bash -c 'tr "\0" "\n" < /proc/$(pgrep -f "vllm serve" | head -1)/environ \
+  | grep -E "^V41_|^DRAFT_GRAPH" | sort'
+```
+
+| 开关 | 值 | 作用 | 实测收益 |
+|---|---|---|---|
+| `DRAFT_GRAPH` | `1` | draft 模型入 ACL 图 | 本路径的大头（单流 ~1.8×） |
+| `V41_ENGRAM_JIT` | `1` | engram hash/plan 走 numba JIT | hash 0.427→0.076 ms/步 |
+| `V41_ENGRAM_HOST_RESIDENT` | `1` | engram 表 host 常驻 + local-owner fast | route 少一次 all_gather + all_to_all |
+| `V41_ENGRAM_WKV_TP` | `1` | wkv 投影按输出维分片 | −0.57 ms/步，KV 容量 +5.9% |
+| `V41_ENGRAM_PAD_SKIP` | `1` | 只清零会被读到的行 | 消 1.86 次 ZerosLike/步（−58 µs） |
+| `V41_ENGRAM_REUSE_EP_GROUP` | `1` | 复用 EP 通信组 | 省组创建 |
+| `V41_ENGRAM_DEVICE_INDEX` | `auto` | A3 开启 / A2 自动回退 host 路径 | A2 上必须允许回退，否则 `ret=207001` |
+| `V41_ENGRAM_GATE_MAX_TOKENS` | `8192` | 分块 gate 上界（须 ≥ BAT） | 防广播失败 |
+| `V41_MOE_COMM_ALLGATHER` | `1` | MoE 走 AllGather | 128K −4.25 ms、32K −1.35、8K −1.23 |
+| `V41_MOE_MASK_RANGE` | `1` | 范围比较替代掩码链 | −0.51 ms，且去掉 80 次/步 Cast |
+| `V41_O_PROJ_2D` | `1` | `wo_a` 2D matmul | −0.31~0.76 ms/步 |
+| `V41_ROPE_IDXSEL` | `1` | cos/sin 取表 6 kernel→2 | −0.45~0.62 ms/pass |
+| `V41_QLI_NO_CANDIDATE` | `1` | QLI 无候选快速路径 | 99.3→50.3 µs（−0.49 ms） |
+| `V41_CED_SWA_CLIP` | `1` | CED 滑窗裁剪 | 见端口仓 `docs/` |
+| `V41_DECODE_API_GUARD` | `1` | decode 期 API 守卫 | 稳定性 |
+| `V41_GATE_MAX_PREFILL` | `8` | prefill gate 上界 | — |
+| `VLLM_ADMISSION_GATE` | `1` | prefill 独占步门 | 长文精度门要求 |
+| `V41_MOE_ZERO_INVALID_FILE` | `/tmp/v41_moe_zero_file` | 非法值置零标记文件 | 诊断 |
+| `V41_MOE_ZERO_NONFINITE_FILE` | `/tmp/v41_moe_nf` | 非有限值置零标记文件 | 诊断 |
+
+> 其余 26 个 `V41_CED_*` / `V41_FORCE_*` / `V41_IDS64_*` 等默认关，是排障与实验用的，
+> 生产不需要动。完整的默认值清单见端口仓 `patches/README.md`。
 
 ### 3.3 两条路径的版本对照（防止混用）
 
@@ -151,7 +189,7 @@ CANN 9.1.0、transformers 5.20.1、torch 2.10.0+cpu、python 3.12.13。
 | CANN | 9.1.0 | 9.2.0 |
 | engram 配置接口 | `additional-config` 里的 `enable_engram`/`engram_storage` | 独立的 `--engram-config` |
 | 投机开关 | `DRAFT_GRAPH=1` | `VLLM_ASCEND_ENABLE_DSPARK_DRAFT_GRAPH=1` |
-| 单流 decode（8K/512） | 163.3 tok/s | 119.1 tok/s |
+| 单流 decode（8K/512） | 163–171 tok/s（同配置多次测量） | 119.1 tok/s |
 | GSM8K-100 | 100/100 | 99/100 |
 
 **两者不能混用**：`--engram-config` 在 0.27.x 上不存在；`DRAFT_GRAPH` 在 0.30.x 上是无效变量。
@@ -195,7 +233,7 @@ source /usr/local/Ascend/nnal/atb/set_env.sh --cxx_abi=${ATB_CXX_ABI:-1}
 source /usr/local/Ascend/cann-9.1.0/share/info/ascendnpu-ir/bin/set_env.sh
 ```
 
-### 5.2 路径 A 起服命令（163.3 tok/s，逐字可用）
+### 5.2 路径 A 起服命令（163–171 tok/s，逐字可用）
 
 ```bash
 export DRAFT_GRAPH=1        # 必须：draft 模型入 ACL 图（这条路径的大头收益）
@@ -278,7 +316,7 @@ python3 acc_eval.py --task gsm8k --limit 100 --mode chat \
 
 | 路径 | tok/s（中位） | A | TTFT | GSM8K-100 |
 |---|---:|---:|---:|---:|
-| A 端口仓优化栈 | **163.3** | 5.89 | 1.30 s | 100/100 |
+| A 端口仓优化栈 | **163–171**（实测 158.5/163.3/168.4/170.6） | 5.89 | 1.29–1.31 s | 100/100 |
 | B rc2 + PR #18967 | 119.1 | 5.89 | 1.17 s | 99/100 |
 
 AISBench 口径（`--input_len 8000 --output_len 256 --data_num 3 --concurrency 1`，含 prefill 的 E2E）：
@@ -302,7 +340,7 @@ AISBench 口径（`--input_len 8000 --output_len 256 --data_num 3 --concurrency 
 
 - **路径 A**（端口仓栈）= 15 项补丁烘焙，**零上游 PR 依赖**；抬速来源是补丁 + 45 个 `V41_*` 开关。
 - **路径 B** = 上游 `v0.30.0rc2` + **仅一个 PR（#18967）**；抬速来源只有 draft 图捕获。
-- 两条线的差距（163.3 vs 119.1）**不能**归给 PR：PR 单独只把上游从 96.3 抬到 119.1（1.24×），
+- 两条线的差距（163–171 vs 119.1）**不能**归给 PR：PR 单独只把上游从 96.3 抬到 119.1（1.24×），
   剩下的 1.37× 在路径 A 的私有补丁与开关里。测量依据：
   `evidence/perf-campaign/ab-2026-10-20/README.md`（同机同权重同时段）。
 - PR #18967 合入后，路径 B 可退化为"直接用含该功能的上游 release"：
