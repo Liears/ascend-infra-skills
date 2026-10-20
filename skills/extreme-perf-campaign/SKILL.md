@@ -39,6 +39,22 @@ P5 upstream    → drift quantification; price the rebase before doing it
   an unranked campaign burns restarts on the visible lever instead of the
   binding one.
 
+### P0.5 — Decompose the step time before touching any knob
+
+**`step(n) = F + n·c`, and F and c need opposite fixes.** Measure both with a
+concurrency sweep (1/2/4 concurrent requests, no restart needed). In the worked
+example F = 31.3 ms of a 35.5 ms step (**88%**) — that is weight streaming, not
+compute: `35.8 GB/rank/step ÷ 31.3 ms = 1143 GB/s` against a **measured** HBM
+peak of 1763 GB/s ⇒ **65% duty**, while AICore sat at 89–99%. High AICore with
+low bandwidth duty means "waiting for weights", not "computing slowly".
+
+Also check whether "read every local expert" is a mathematical consequence of
+the comm layout before trying to make it sparse: under AllGather MoE,
+`EP × tokens × topk / local_experts` tokens land on each expert — at
+48×6/48 = 6.0 that means **all of them are hit every step**.
+
+Full recipe and the arithmetic: `references/steptime-decomposition.md`.
+
 ### P1 — Framework-layer experiments
 
 Rules (each one earned its place by saving a restart):
@@ -118,6 +134,7 @@ hand-patched). Before rebasing:
 |---|---|
 | `scripts/fusion_headroom.py` | The should-I-wire calculator: eager gain → in-graph end-to-end % with the arithmetic shown |
 | `scripts/upstream_drift.py` | Base-vs-upstream drift: commit counts, perf subset, local-patch overlap check |
+| `references/steptime-decomposition.md` | F-vs-c decomposition, bandwidth duty arithmetic, why "read all experts" may be structural |
 
 ## References
 
