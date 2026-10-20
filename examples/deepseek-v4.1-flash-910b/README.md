@@ -156,12 +156,23 @@ the evidence directory.
 
 Once the campaign is complete, the [`model-deployment-runbook`](../../skills/model-deployment-runbook/)
 skill emits a doc someone else can follow on a fresh machine:
-[`06-onboard/DEPLOY-1017.md`](06-onboard/DEPLOY-1017.md) —
-weights acquisition with sha256 verification, engram shard concatenation,
-from-scratch image build, a verbatim 61-flag serve command, acceptance
-gates (**GSM8K-100 = 100/100**), and a greppable pitfalls table.
-Measured on the 1017 weights: A=5.89/6, AISBench (8K/256/3/conc1)
-E2E 78.25 tok/s. The hardcoding linter passes on it.
+[`06-onboard/DEPLOY-1017.md`](06-onboard/DEPLOY-1017.md).
+
+It documents **two measured deployment paths**, because the trade-off is real:
+
+| | Path A: port-repo optimized stack | Path B: upstream image + one PR |
+|---|---|---|
+| Base image | official base + 15 baked patches | `quay.io/ascend/vllm-ascend:v0.30.0rc2` |
+| Extra step | `docker commit` | `cherry-pick` PR #18967 (not merged; fetch command given) |
+| Serve switch | `DRAFT_GRAPH=1` + 45 `V41_*` | `VLLM_ASCEND_ENABLE_DSPARK_DRAFT_GRAPH=1` + `--engram-config` |
+| Single-stream decode | **163.3 tok/s** | 119.1 tok/s |
+| GSM8K-100 | 100/100 | 99/100 |
+
+The 163.3 vs 119.1 numbers were measured on the same box, same weights, same
+session; section 8 states explicitly that the gap is *not* attributable to the
+PR (the PR alone takes upstream from 96.3 to 119.1). The hardcoding linter
+passes; two new gates were added — "a PR named with no way to obtain its code"
+and "an image reference without an exact tag".
 
 ---
 

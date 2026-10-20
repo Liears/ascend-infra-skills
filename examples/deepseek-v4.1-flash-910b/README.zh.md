@@ -148,11 +148,21 @@ evidence 里。
 
 战役全部结束后，用 [`model-deployment-runbook`](../../skills/model-deployment-runbook/)
 skill 产出可直接交给别人的部署文档：
-[`06-onboard/DEPLOY-1017.md`](06-onboard/DEPLOY-1017.md) ——
-权重获取与 sha256 校验、engram 分片拼接、从零构建镜像、逐字可用的
-61 参数起服命令、验收门禁（**GSM8K-100 = 100/100**）、已知坑表。
-1017 权重实测：A=5.89/6，AISBench(8K/256/3/并发1) E2E 78.25 tok/s。
-硬编码检查器对该文档 PASS。
+[`06-onboard/DEPLOY-1017.md`](06-onboard/DEPLOY-1017.md)。
+
+文档给**两条都实测过的部署路径**，因为它们的取舍不同：
+
+| | 路径 A：端口仓优化栈 | 路径 B：上游镜像 + 一个 PR |
+|---|---|---|
+| 基础镜像 | 官方基底 + 烘焙 15 项补丁 | `quay.io/ascend/vllm-ascend:v0.30.0rc2` |
+| 额外动作 | `docker commit` | `cherry-pick` PR #18967（未合入，给 fetch 命令） |
+| 起服开关 | `DRAFT_GRAPH=1` + 45 个 `V41_*` | `VLLM_ASCEND_ENABLE_DSPARK_DRAFT_GRAPH=1` + `--engram-config` |
+| 单流 decode | **163.3 tok/s** | 119.1 tok/s |
+| GSM8K-100 | 100/100 | 99/100 |
+
+两条路径的 163.3 vs 119.1 是**同机、同权重、同时段**测的，文档 §8 明确写了
+差距不能归给 PR（PR 单独只把上游从 96.3 抬到 119.1）。
+硬编码检查器 PASS；新增的两条门禁是"点了 PR 却没给拿代码的命令"和"镜像没有精确 tag"。
 
 ---
 
