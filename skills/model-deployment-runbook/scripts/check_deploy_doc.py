@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """Deployment-runbook linter: catch machine-specific hardcoding and missing structure.
 
-A deploy doc is written for SOMEONE ELSE'S machine. This checks the two failure
+A deploy doc is written for SOMEONE ELSE'S machine. This checks the failure
 classes that actually forced rewrites in practice:
   1. hardcoded local paths / image names / container names / IPs (127.0.0.1 ok)
   2. missing sections or unverifiable claims (TBD leftovers, bare numbers)
+  3. a PR named without the command that gets its code (reader cannot act on
+     "use PR #1234" when the PR is not merged)
+  4. an image reference with no exact tag / digest (reader cannot reproduce)
 
-Usage: check_deploy_doc.py <doc.md> [--min-sections N]
+Usage: check_deploy_doc.py <doc.md>
 Exit 0 = PASS, 1 = FAIL (findings listed with line numbers).
 """
 from __future__ import annotations
@@ -35,10 +38,40 @@ HARDCODE_PATTERNS = [
 
 PLACEHOLDER_HINT = re.compile(r"<[A-Z_]+>")
 
+# A PR reference only counts as actionable if the doc also says HOW to get the
+# code (cherry-pick / fetch / git am / rebase), or states it is already merged.
+PR_REF = re.compile(r"\bPR\s*#?\d+|\bpull/\d+\b|/pull/\d+\b")
+PR_ACTION = re.compile(r"cherry-pick|git\s+am\b|git\s+fetch|pull/\d+/head|已合入|already merged|merged in")
+
+# Image mentions must carry an exact tag or a digest. `repo:latest` and bare
+# `repo` are not reproducible: the reader cannot tell what they will get.
+IMAGE_REF = re.compile(
+    r"\b((?:quay\.io|quay\.nju\.edu\.cn|quay\.dockerproxy\.net|docker\.io|swr\.[\w.]+)"
+    r"/[\w./-]+)(:[\w.-]+)?(@sha256:[0-9a-f]{64})?"
+)
+FLOATING_TAGS = {"latest", "main", "master", "dev", "stable", "nightly"}
+
 
 def check(doc: str) -> list[tuple[int, str, str]]:
     findings: list[tuple[int, str, str]] = []
     lines = doc.splitlines()
+
+    has_pr_action = bool(PR_ACTION.search(doc))
+    for i, line in enumerate(lines, 1):
+        if PR_REF.search(line) and not PR_ACTION.search(line) and not has_pr_action:
+            findings.append((i, "PR referenced but no way to obtain its code "
+                                "(add cherry-pick/fetch command, or state it is merged)",
+                             line.strip()[:70]))
+        for m in IMAGE_REF.finditer(line):
+            tag, digest = m.group(2), m.group(3)
+            if digest:
+                continue
+            if not tag:
+                findings.append((i, "image reference without a tag or digest "
+                                    "(pin the exact version)", m.group(0)[:60]))
+            elif tag.lstrip(":") in FLOATING_TAGS:
+                findings.append((i, "floating image tag (use an exact version or digest)",
+                                 m.group(0)[:60]))
 
     for i, line in enumerate(lines, 1):
         # inline code spans are the legitimate place for literal commands; but a

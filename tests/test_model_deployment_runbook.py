@@ -13,7 +13,7 @@ GOOD = """# 部署书
 ## 权重获取
 下载到 <WEIGHTS> 后 sha256 校验。
 ## 镜像
-从官方基底构建 <IMAGE_TAG>。
+从官方基底 quay.io/ascend/vllm-ascend:v0.30.0rc2 构建 <IMAGE_TAG>。
 ## 起容器
 docker run ... <NAME> ... -v $C/vllm:/root/.cache/vllm ...
 ## 起服
@@ -63,6 +63,40 @@ class TestCheckDeployDoc(unittest.TestCase):
         r = self._run(doc)
         self.assertEqual(r.returncode, 1)
         self.assertIn("192.168.1.5", r.stdout)
+
+    def test_pr_without_action_fails(self):
+        """'Use PR #1234' is not actionable when the PR is not merged."""
+        doc = GOOD + "\n镜像上加 PR #1234 即可。\n"
+        r = self._run(doc)
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("no way to obtain its code", r.stdout)
+
+    def test_pr_with_cherry_pick_passes(self):
+        doc = GOOD + "\n镜像上加 PR #1234：\ngit fetch https://example/repo.git pull/1234/head && git cherry-pick -n FETCH_HEAD\n"
+        r = self._run(doc)
+        self.assertEqual(r.returncode, 0, r.stdout)
+
+    def test_pr_stated_merged_passes(self):
+        doc = GOOD + "\nPR #1234 已合入上游 main，直接 pull 即可。\n"
+        r = self._run(doc)
+        self.assertEqual(r.returncode, 0, r.stdout)
+
+    def test_untagged_image_fails(self):
+        doc = GOOD + "\ndocker pull quay.io/ascend/vllm-ascend\n"
+        r = self._run(doc)
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("without a tag or digest", r.stdout)
+
+    def test_floating_tag_fails(self):
+        doc = GOOD + "\ndocker pull quay.io/ascend/vllm-ascend:latest\n"
+        r = self._run(doc)
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("floating image tag", r.stdout)
+
+    def test_pinned_digest_passes(self):
+        doc = GOOD + "\nquay.io/ascend/vllm-ascend@sha256:" + "a" * 64 + "\n"
+        r = self._run(doc)
+        self.assertEqual(r.returncode, 0, r.stdout)
 
     def test_worked_example_passes(self):
         ex = os.path.join(ROOT, "examples/deepseek-v4.1-flash-910b/06-onboard/DEPLOY-1017.md")
