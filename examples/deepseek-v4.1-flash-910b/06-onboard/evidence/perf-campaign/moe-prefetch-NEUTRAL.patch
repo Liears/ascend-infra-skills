@@ -1,0 +1,48 @@
+# MoE 权重预取补丁（运行时开关版）——实测中性，存档备查
+#
+# 用途：在 DeepseekV4MoE.forward 里，router 算完后、experts 调用前，
+#       对 w13_weight 做 torch_npu.npu_prefetch。
+# 开关：写文件 /tmp/v41_moe_prefetch，内容 "1"（开）或 "1,<bytes>"（指定大小），
+#       删除文件 = 关。0.25s 轮询，可在同一次引擎会话内切换做交替 A/B。
+# 判决：交替 A/B（off/on 各 2x8 次，充分预热）off=142.3 vs on=143.9 tok/s，
+#       差异 +1.1% 在噪声内 ⇒ 中性。详见同目录 P7-OPERATOR-ATTRIBUTION.md §3。
+# 结论：AIC 空闲不是在等权重数据（否则预取会加速）——与 SCALAR/FIXPIPE 主导的
+#       算子归因互相印证。此方向不必再试。
+
+# ---- 补丁内容（应用到 vllm_ascend/models/deepseek_v4/model.py）----
+# 1. import 区加：
+#    import os as _os_pf
+#    import torch_npu
+#
+# 2. class DeepseekV4MoE 前加：
+_MOE_PF_PATH = "/tmp/v41_moe_prefetch"
+_MOE_PF_CACHE = {"on": False, "size": 0, "mtime": -1.0, "checked": 0.0}
+
+def _moe_prefetch_on():
+    import time as _t
+    now = _t.monotonic()
+    c = _MOE_PF_CACHE
+    if now - c["checked"] < 0.25:
+        return c
+    c["checked"] = now
+    try:
+        st = _os_pf.stat(_MOE_PF_PATH)
+        if st.st_mtime != c["mtime"]:
+            c["mtime"] = st.st_mtime
+            with open(_MOE_PF_PATH) as fh:
+                raw = fh.read().strip()
+            on, _, sz = raw.partition(",")
+            c["on"] = on == "1"
+            c["size"] = int(sz) if sz.isdigit() else 0
+    except OSError:
+        c.update({"on": False, "size": 0, "mtime": -1.0})
+    return c
+
+# 3. DeepseekV4MoE.forward 里，router_logits = F.linear(...) 之后、
+#    fused_moe_out = self.experts(...) 之前插入：
+_pf = _moe_prefetch_on()
+if _pf["on"]:
+    _w13 = getattr(self.experts, "w13_weight", None)
+    if _w13 is not None and isinstance(_w13, torch.Tensor):
+        _sz = _pf["size"] or _w13.numel() * _w13.element_size() // 2
+        torch_npu.npu_prefetch(_w13, router_logits, _sz, 0)
