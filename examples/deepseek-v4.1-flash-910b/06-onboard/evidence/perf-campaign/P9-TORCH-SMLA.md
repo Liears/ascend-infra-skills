@@ -117,3 +117,32 @@ def torch_sparse_mla(q, kv_cache, sparse_indices, req_to_token,
 `aclnnSparseFlashMla` 单 kernel 170 µs。
 HCA 兼容路径的固定开销（SCALAR/FIXPIPE 流水排空）比"多 kernel 无融合"还贵 3.4×，
 说明该路径在 A2 上存在 ≥3.4× 的优化空间——这与 P8 §5 的"A2 锁进 HCA 路径"互为印证。
+## 8. 接入验证：draft 路径已上线实测（2026-10-23，里程碑）
+
+按 §5 的推荐顺序，把 PyTorch 版接进了 `dsa_v1.py` 的 attention 调用点：
+
+- **接入方式**：`attn_op(q, **attn_kwargs)` 之前加分支，条件 =
+  运行时开关（`/tmp/v41_smla_torch`，0.25 s 轮询）**且** `ori_sparse_indices` 非空。
+  后一个条件天然把生效范围限制在 draft/vision 路径——
+  **target 正常 decode 不传该参数，零影响**。
+- **实现细节比微基准多一条**：无效列用 `-1e4` 而非 `-inf`——draft 的 padded 行
+  （`per_token_lens=0`）整行 -1，`-inf` 会 softmax 成 NaN；有限值保证这些
+  （本就被丢弃的）行不向下游传播 NaN。
+
+**三项验收全过**（引擎内、交替 A/B、充分预热）：
+
+| 项 | 结果 |
+|---|---|
+| 接受长度 A | **5.89（与官方内核完全一致）** |
+| **GSM8K-100 门禁** | **100/100（满分）** |
+| 端到端 tok/s | off 146.1 vs on 149.4（**+2.3%**） |
+
+其中 +2.3% 的大头是噪声：draft 只有 3 层/步 × 省 65 µs ≈ 0.2 ms/步 ≈ **0.6% 真实收益**。
+这与预期一致——本路径的定位就是**门禁试验田**，证明：
+1. 替换实现在引擎的真实图捕获/重放里工作正常；
+2. 数值与官方内核等价（A 逐位一致、门禁满分）；
+3. 运行时开关机制可靠（图内地址稳定，切换无重启）。
+
+**真正的大头（target 36 层，预期 3.8–6.4%）仍在 §5 的 sas_metadata 逆向之后。**
+
+补丁存档：`smla-torch-hook.patch`（含 hook 与 `_torch_sparse_mla` 实现，默认关）。
