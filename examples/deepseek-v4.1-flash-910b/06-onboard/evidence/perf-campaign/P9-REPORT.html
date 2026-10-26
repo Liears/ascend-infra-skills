@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyTorch 组合算子击败 aclnnSparseFlashMla 38% · 实验报告</title>
+<style>
+:root{
+  color-scheme:light;
+  --page:#f9f9f7; --surface:#fcfcfb;
+  --ink-1:#0b0b0b; --ink-2:#52514e; --ink-3:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s1-soft:#9ec5f4;
+  --deemph:#898781; --deemph-soft:#c3c2b7;
+  --good-text:#006300;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --page:#0d0d0d; --surface:#1a1a19;
+    --ink-1:#f0efec; --ink-2:#c3c2b7; --ink-3:#898781;
+    --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
+    --s1:#3987e5; --s1-soft:#5598e7;
+    --deemph:#898781; --deemph-soft:#52514e;
+    --good-text:#0ca30c;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --page:#0d0d0d; --surface:#1a1a19;
+  --ink-1:#f0efec; --ink-2:#c3c2b7; --ink-3:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
+  --s1:#3987e5; --s1-soft:#5598e7;
+  --deemph:#898781; --deemph-soft:#52514e;
+  --good-text:#0ca30c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--page); color:var(--ink-1);
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:15px; line-height:1.65;
+}
+.wrap{max-width:1060px; margin:0 auto; padding:40px 28px 72px}
+.theme-btn{
+  position:fixed; top:14px; right:16px; z-index:9;
+  background:var(--surface); color:var(--ink-2);
+  border:1px solid var(--ring); border-radius:8px;
+  padding:6px 12px; font-size:13px; cursor:pointer;
+}
+/* ---------- 报告头 ---------- */
+header h1{font-size:27px; line-height:1.35; margin:0 0 6px; letter-spacing:-.01em}
+header .sub{color:var(--ink-2); font-size:14.5px; margin:0}
+.meta{display:flex; flex-wrap:wrap; gap:8px 22px; margin:20px 0 0; padding:12px 16px;
+  background:var(--surface); border:1px solid var(--ring); border-radius:10px; font-size:13px; color:var(--ink-2)}
+.meta b{color:var(--ink-1); font-weight:600}
+/* ---------- KPI 行 ---------- */
+.kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin:26px 0 8px}
+.tile{background:var(--surface); border:1px solid var(--ring); border-radius:12px; padding:16px 18px}
+.tile .lab{font-size:13px; color:var(--ink-2)}
+.tile .val{font-size:40px; font-weight:600; letter-spacing:-.02em; margin-top:2px; line-height:1.1}
+.tile .delta{font-size:13px; margin-top:4px}
+.tile .delta.good{color:var(--good-text)}
+.tile .delta .muted{color:var(--ink-3)}
+/* ---------- 章节 ---------- */
+section{margin-top:44px}
+h2{font-size:19px; margin:0 0 4px; letter-spacing:-.01em}
+h2 .no{color:var(--ink-3); font-weight:600; margin-right:8px; font-size:15px}
+.lead{color:var(--ink-2); margin:0 0 18px; max-width:74ch}
+/* ---------- 图卡片 ---------- */
+figure.card{margin:20px 0 0; background:var(--surface); border:1px solid var(--ring); border-radius:12px; padding:18px 20px 14px}
+figure.card figcaption .t{font-weight:600; font-size:14.5px}
+figure.card figcaption .d{color:var(--ink-2); font-size:13px; margin-top:2px}
+.chart-tools{margin-top:10px; display:flex; justify-content:flex-end}
+.chart-tools button{
+  background:none; border:1px solid var(--ring); color:var(--ink-2);
+  border-radius:6px; padding:3px 10px; font-size:12.5px; cursor:pointer}
+.chart-tools button:hover{color:var(--ink-1)}
+.tbl{display:none; margin-top:10px; overflow-x:auto}
+.tbl table{border-collapse:collapse; width:100%; font-size:13px}
+.tbl th{color:var(--ink-2); font-weight:600; text-align:left; padding:6px 10px; border-bottom:1px solid var(--axis); white-space:nowrap}
+.tbl td{padding:6px 10px; border-bottom:1px solid var(--grid); font-variant-numeric:tabular-nums; white-space:nowrap}
+.tbl tr:last-child td{border-bottom:none}
+/* SVG 图 */
+.bar-row{cursor:default}
+.bar-row:hover .bar{filter:brightness(1.08)}
+.bar-label{font-size:12.5px; fill:var(--ink-2)}
+.bar-val{font-size:12.5px; font-weight:600; fill:var(--ink-1)}
+.bar-note{font-size:11px; fill:var(--ink-3)}
+.axis-tick{font-size:11px; fill:var(--ink-3)}
+/* tooltip */
+#tip{
+  position:fixed; z-index:99; pointer-events:none; display:none;
+  background:var(--surface); border:1px solid var(--ring); border-radius:8px;
+  padding:8px 11px; font-size:12.5px; color:var(--ink-1); max-width:290px;
+  box-shadow:0 4px 16px rgba(0,0,0,.14);
+}
+#tip .tv{font-weight:600; font-size:13.5px}
+#tip .tk{display:inline-block; width:14px; height:3px; border-radius:2px; vertical-align:middle; margin-right:6px}
+#tip .tn{color:var(--ink-2); display:block; margin-top:2px}
+/* ---------- 表格 / 代码 ---------- */
+table.data{border-collapse:collapse; width:100%; font-size:13.5px; margin-top:14px}
+table.data th{background:var(--surface); color:var(--ink-2); font-weight:600; text-align:left; padding:8px 12px; border-bottom:2px solid var(--axis); white-space:nowrap}
+table.data td{padding:8px 12px; border-bottom:1px solid var(--grid); vertical-align:top}
+table.data tr:last-child td{border-bottom:none}
+table.data td.num{font-variant-numeric:tabular-nums; text-align:right}
+.win{color:var(--good-text); font-weight:600}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+code{background:var(--surface); border:1px solid var(--ring); border-radius:4px; padding:1px 5px; font-size:12.8px}
+pre{background:var(--surface); border:1px solid var(--ring); border-radius:10px; padding:14px 16px; overflow-x:auto; font-size:12.8px; line-height:1.55; color:var(--ink-2)}
+pre b{color:var(--ink-1); font-weight:600}
+/* ---------- 教训卡 ---------- */
+.lessons{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; margin-top:16px}
+.lesson{background:var(--surface); border:1px solid var(--ring); border-radius:12px; padding:16px 18px}
+.lesson .n{font-size:12px; color:var(--ink-3); font-weight:600; letter-spacing:.06em}
+.lesson h3{font-size:15px; margin:4px 0 8px}
+.lesson p{margin:0; font-size:13.5px; color:var(--ink-2)}
+.callout{background:var(--surface); border-left:3px solid var(--s1); border-radius:0 10px 10px 0; padding:14px 18px; margin-top:18px; font-size:14px; color:var(--ink-2)}
+.callout b{color:var(--ink-1)}
+footer{margin-top:56px; padding-top:18px; border-top:1px solid var(--grid); color:var(--ink-3); font-size:12.5px}
+.err-quote{background:var(--surface); border:1px solid var(--ring); border-radius:10px; padding:12px 16px; font-size:12.8px; color:var(--ink-2); margin-top:12px; overflow-x:auto}
+.err-quote b{color:var(--ink-1)}
+@media (max-width:640px){ .tile .val{font-size:32px} header h1{font-size:22px} }
+</style>
+</head>
+<body>
+<button class="theme-btn" id="themeBtn" onclick="toggleTheme()">夜间</button>
+<div id="tip"></div>
+<div class="wrap">
+
+<header>
+  <h1>PyTorch 组合算子击败官方稀疏注意力内核 38%</h1>
+  <p class="sub">aclnnSparseFlashMla → gather + bmm + softmax + bmm：一次算子级替换的完整实验记录</p>
+  <div class="meta">
+    <span><b>设备</b> 8×Ascend 910B3（A2，每卡 20 cube + 40 vector）</span>
+    <span><b>负载</b> DeepSeek-V4.1-Flash · 1017 权重（W4A8）· TP8+EP8 · DSpark S=5</span>
+    <span><b>软件</b> CANN 9.1.0 · vllm-ascend dev5097 私有栈</span>
+    <span><b>日期</b> 2026-10-23</span>
+  </div>
+</header>
+
+<div class="kpis">
+  <div class="tile">
+    <div class="lab">图内设备耗时降幅（同口径）</div>
+    <div class="val">−38%</div>
+    <div class="delta good">170 µs → 105.2 µs</div>
+  </div>
+  <div class="tile">
+    <div class="lab">数值偏差</div>
+    <div class="val">bf16 级</div>
+    <div class="delta"><span class="muted">median |Δ| 0.0002 · max 0.0046</span></div>
+  </div>
+  <div class="tile">
+    <div class="lab">GSM8K-100 门禁（接入后）</div>
+    <div class="val">100/100</div>
+    <div class="delta good">满分 · A=5.89 逐位一致</div>
+  </div>
+  <div class="tile">
+    <div class="lab">骨架版图内耗时（4 kernel）</div>
+    <div class="val">50.7 µs</div>
+    <div class="delta"><span class="muted">官方的 30% · 上限所在</span></div>
+  </div>
+</div>
+
+<!-- ============ 01 靶子 ============ -->
+<section>
+  <h2><span class="no">01</span>靶子：为什么打 SparseFlashMla</h2>
+  <p class="lead">对引擎 393 个稳态 decode 步做算子级 profile（kernel_details.csv），逐算子拆解 SCALAR / FIXPIPE / MAC 占比后，<code>aclnnSparseFlashMla</code> 是全模型最大的单项固定开销来源：每步调用 18.6 次、合计 3.17 ms，占整步 31.6 ms 的 8.3%——且它的矩阵核时间中真正做乘加（MAC）的只有 12.7%。</p>
+
+  <figure class="card">
+    <figcaption>
+      <div class="t">官方内核单次调用的资源分解（占其自身 aicore 时间）</div>
+      <div class="d">SCALAR（标量指令）43.4% 与 FIXPIPE（量化回写流水）56.4% 合计吞掉了它几乎全部时间；乘加只占 12.7%。数据：393 步稳态 profile，各项在内核内可部分重叠，故总和 &gt;100%。</div>
+    </figcaption>
+    <div id="chartA"></div>
+    <div class="chart-tools"><button onclick="toggleTable('tblA',this)">表格视图</button></div>
+    <div class="tbl" id="tblA"></div>
+  </figure>
+
+  <div class="callout">
+    <b>第一笔账：170 µs 里约 99% 是固定开销。</b>它每次调用只需搬运
+    <b>0.65 MB</b>（640 条选中 KV × 512 维 × 2B，全速带宽下 &lt;1 µs）、计算
+    <b>63 MFLOP</b>（6 token × 8 head × 640 × 512 × 2，&lt;1 µs）。
+    需求合计不足 2 µs，实测 170 µs——开销不在数据量，在路径本身。
+  </div>
+
+  <div class="err-quote">
+    构造独立微基准时，aclnn 参数校验逐条暴露了 A2/A3 的专属限制（EZ1001 原文）：
+    <b>ori_topk 只能为 0</b> · <b>cmp_ratio 必须为 128</b>（"HCA without cmp_sparse_indices"）·
+    <b>cmp_mask_mode 必须为 3</b> · <b>cmp_residual_kv 必须提供</b>。
+    —— 该算子按 A5 的通用稀疏路径设计，A2 被锁进参数面更窄的 HCA 兼容路径。这与其 43%/56% 的 SCALAR/FIXPIPE 形态互相印证。
+  </div>
+</section>
+
+<!-- ============ 02 实验时间线 ============ -->
+<section>
+  <h2><span class="no">02</span>六轮实验：从 493 µs 的失败到 105.2 µs 的胜出</h2>
+  <p class="lead">所有实验同一形状：<b>T=6 query token · H=8 head（TP8 分片）· D=512 · 选中 640 条 KV（top-512 + 滑窗 128）· paged block 128</b>，同机同卡。两次口径都测：<b>图外墙钟</b>（含 host 派发）与<b>图内</b>（NPU graph 捕获后重放，只计设备执行——与引擎 ACL 图内 profile 同口径）。</p>
+
+  <table class="data">
+    <thead><tr>
+      <th>#</th><th>实现</th><th>kernel 数</th>
+      <th class="num">图外墙钟</th><th class="num">图内（graph 重放）</th><th>判决</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>0</td><td><b>aclnnSparseFlashMla</b>（官方，引擎内 profile）</td><td>1</td><td class="num">—</td><td class="num"><b>170 µs</b></td><td>基线</td></tr>
+      <tr><td>1</td><td>PyTorch 朴素版（einsum + fp32 广播）</td><td>~12</td><td class="num">493 µs</td><td class="num">—</td><td>❌ 失败：einsum 把共享 KV 按 fp32 广播复制了 8 份</td></tr>
+      <tr><td>2</td><td>PyTorch 精简版（gather + bmm×2 + softmax）</td><td>4</td><td class="num">144.6 µs</td><td class="num"><b>50.7 µs</b></td><td>✅ 骨架验证：形状选对即 3.4×</td></tr>
+      <tr><td>3</td><td>Triton 单内核（flash-decoding 在线 softmax）</td><td>1</td><td class="num">183.5 µs</td><td class="num">未测</td><td>❌ 数值精确，但被 launch 开销否决</td></tr>
+      <tr><td>4</td><td>Triton split-KV 两阶段</td><td>2</td><td class="num">391 µs</td><td class="num">未测</td><td>❌ ≈ 2× 单内核——实锤 launch ≈ 150 µs/次</td></tr>
+      <tr><td>5</td><td><b>PyTorch 完整语义版</b>（+ paged 索引 / −1 无效列 / sinks）</td><td>~10</td><td class="num">481.9 µs</td><td class="num"><b>105.2 µs</b></td><td class="win">✅ 胜出：比官方快 38%，数值 bf16 级</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ 03 主图 ============ -->
+<section>
+  <h2><span class="no">03</span>同口径对决：NPU graph 内的设备时间</h2>
+  <p class="lead">这是唯一有效的比较口径——引擎里这些调用运行在 ACL 图内，host 派发早已被摊掉。官方内核的 170 µs 是<b>设备执行时间</b>，不是派发开销；把它和 PyTorch 组合放进同一张 NPU graph 里重放，才是同类相搏。</p>
+
+  <figure class="card">
+    <figcaption>
+      <div class="t">图内设备耗时（µs，越短越好，零基线）</div>
+      <div class="d">蓝色 = 本次工作的实现，灰色 = 官方内核（去强调）。“完整语义” 即接入引擎的候选；“精简骨架” 只有核心四算子，是继续压缩 kernel 数后的上限参照。</div>
+    </figcaption>
+    <div id="chartMain"></div>
+    <div class="chart-tools"><button onclick="toggleTable('tblMain',this)">表格视图</button></div>
+    <div class="tbl" id="tblMain"></div>
+  </figure>
+
+  <figure class="card">
+    <figcaption>
+      <div class="t">图外墙钟（µs）——为什么这个口径会骗人</div>
+      <div class="d">同批实现在图外的墙钟。Triton 两版图外全部落败（183.5 / 391 µs），但那 ~150 µs/次的 Triton-Ascend 派发开销在引擎图内并不存在——若只看此图，会错杀单内核路线、也会高估朴素版与精简版之间的真实差距。</div>
+    </figcaption>
+    <div id="chartWall"></div>
+    <div class="chart-tools"><button onclick="toggleTable('tblWall',this)">表格视图</button></div>
+    <div class="tbl" id="tblWall"></div>
+  </figure>
+</section>
+
+<!-- ============ 04 实现 ============ -->
+<section>
+  <h2><span class="no">04</span>胜出的实现：29 行，无自定义内核</h2>
+  <p class="lead">完整语义覆盖：paged KV 按全局行号 gather、−1 无效列掩码、attention sink、逐请求索引映射。胜负手只有一个——<code>bmm</code> 的形状 <code>[T,H,D] @ [T,D,W]</code> 让 8 个 head 共享同一份已 gather 的 KV 而<b>零复制</b>；朴素 einsum 的 fp32 广播复制 8 份 KV，就是 493 µs 与 144 µs 的全部差别。</p>
+<pre><b>def</b> torch_sparse_mla(q, kv_cache, sparse_indices, req_to_token, sinks=None, scale=None):
+    <span style="color:var(--ink-3)"># q: [T,H,D] TND · kv_cache: [NB,BLOCK,1,D] paged · sparse_indices: [R,W] 全局行号（-1 无效）</span>
+    T, H, D = q.shape
+    flat = kv_cache.reshape(-1, D)
+    idx  = sparse_indices.index_select(0, req_to_token)      <span style="color:var(--ink-3)"># [T,W]</span>
+    valid = idx &gt;= 0
+    kvs  = flat.index_select(0, idx.clamp(min=0).reshape(-1)).reshape(T, -1, D)
+    s    = torch.bmm(q, kvs.transpose(1, 2)) * scale         <span style="color:var(--ink-3)"># [T,H,D]@[T,D,W] → [T,H,W]，无复制</span>
+    s    = s.masked_fill(~valid[:, None, :], -1e4)           <span style="color:var(--ink-3)"># -inf 会使全 -1 的 padded 行 softmax 成 NaN</span>
+    <b>if</b> sinks <b>is not</b> <b>None</b>: s = s + sinks[None, :, None]
+    a    = torch.softmax(s, dim=-1)
+    <b>return</b> torch.bmm(a, kvs)                            <span style="color:var(--ink-3)"># [T,H,W]@[T,W,D] → [T,H,D]</span></pre>
+</section>
+
+<!-- ============ 05 验证 ============ -->
+<section>
+  <h2><span class="no">05</span>两层验证：数值等价 + 引擎接入</h2>
+  <p class="lead">数值层对照逐 token 手工参考（含无效列与 sinks）；接入层把实现挂进 <code>dsa_v1.py</code> 的 draft 路径（<code>ori_sparse_indices</code> 非空才生效，target 正常 decode 不传该参数、构造上即零影响），运行时文件开关支持同会话交替 A/B。</p>
+
+  <table class="data">
+    <thead><tr><th>验证项</th><th>方法</th><th>结果</th></tr></thead>
+    <tbody>
+      <tr><td>数值偏差</td><td>vs 逐 token float 参考实现</td><td class="win">median |Δ| 0.0002 · max 0.0046（bf16 舍入级）；Triton 版同样精确</td></tr>
+      <tr><td>接受长度 A</td><td>512-token 探针 × 4，引擎内</td><td class="win">5.89 —— 与官方内核逐位一致</td></tr>
+      <tr><td>GSM8K-100 门禁</td><td>官方 encoder + /v1/completions + 串行 prefill</td><td class="win">100/100 满分</td></tr>
+      <tr><td>端到端 tok/s</td><td>预热 15 轮后 off→on→off→on 交替，各 8 次取中位</td><td>146.1 → 149.4（+2.3%；其中真实成分 ~0.6%）</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <b>为什么端到端只有 0.6%：</b>draft 路径每步只跑 3 层（3 次调用），而 SparseFlashMla 每步共 18.6 次——36 层 target 路径才是大头。
+    draft 这一步的价值是<b>把替换在真实图捕获/重放下验证到门禁满分</b>；预期 3.8–6.4% 的收益要等 target 路径接入（见 §07）。
+  </div>
+</section>
+
+<!-- ============ 06 教训 ============ -->
+<section>
+  <h2><span class="no">06</span>三条教训（每条都有实验背书）</h2>
+  <div class="lessons">
+    <div class="lesson">
+      <div class="n">教训 01</div>
+      <h3>图外测耗时是陷阱</h3>
+      <p>Triton-Ascend 单次派发 ≈ 150 µs：split-KV 两阶段版 391 µs ≈ 2× 单内核 183.5 µs，差值正好是第二次派发。任何候选必须在 NPU graph 重放里评估——那才是引擎的口径。</p>
+    </div>
+    <div class="lesson">
+      <div class="n">教训 02</div>
+      <h3>官方内核慢的不是派发，是路径</h3>
+      <p>170 µs 产生于引擎 ACL 图内（派发已摊掉），是 HCA 兼容路径本身的设备执行成本。十个各自高效通用 kernel，胜过一个跑在坏路径上的融合内核。</p>
+    </div>
+    <div class="lesson">
+      <div class="n">教训 03</div>
+      <h3>形状选择值 3.4 倍</h3>
+      <p>einsum 的 fp32 广播把共享 KV 复制 8 份（493 µs）；bmm 形状 [T,H,D]@[T,D,W] 零复制（144 µs）。一行形状改动，3.4×——先审形状，再写内核。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 下一步 ============ -->
+<section>
+  <h2><span class="no">07</span>剩余空间与阻塞点</h2>
+  <table class="data">
+    <thead><tr><th>路径</th><th class="num">每步调用</th><th>状态</th><th>预期</th></tr></thead>
+    <tbody>
+      <tr><td>draft（3 层，indices 现成）</td><td class="num">3</td><td class="win">✅ 已接入，门禁满分</td><td>~0.6%（已兑现）</td></tr>
+      <tr><td>target（36 层，compress_ratio 1/2）</td><td class="num">~16</td><td>⛔ 阻塞：top-512 索引藏于 1024×int32 不透明 <code>sas_metadata</code> buffer</td><td><b>3.8%（完整版）～ 6.4%（压到 4 kernel）</b></td></tr>
+    </tbody>
+  </table>
+  <p class="lead" style="margin-top:14px">解锁 target 路径的方法已定位：用已知的 LightningIndexer top-k 输出对拍 <code>sas_metadata</code> buffer 内容，定位索引段布局；或从 QLI 输出直接分叉。补丁与六个基准脚本已存档于 <code>evidence/perf-campaign/</code>（<code>smla-torch-hook.patch</code> 默认关）。</p>
+</section>
+
+<footer>
+  数据来源：kernel_details.csv（393 步稳态，rank0）· 六个基准脚本（tools/mqa_*.py、smla_torch.py）· 引擎交替 A/B（2026-10-23）。
+  证据文件：P7-OPERATOR-ATTRIBUTION.md · P8-KERNEL-BOUNDARY.md · P9-TORCH-SMLA.md · Liears/ascend-infra-skills。
+</footer>
+
+</div>
+
+<script>
+/* ================= 主题 ================= */
+function toggleTheme(){
+  const r=document.documentElement;
+  const dark = r.getAttribute('data-theme')==='dark' ||
+    (!r.getAttribute('data-theme') && matchMedia('(prefers-color-scheme:dark)').matches);
+  r.setAttribute('data-theme', dark?'light':'dark');
+  document.getElementById('themeBtn').textContent = dark?'日间':'夜间';
+  renderAll();
+}
+/* ================= 表格视图 ================= */
+function toggleTable(id,btn){
+  const el=document.getElementById(id);
+  const show = el.style.display!=='block';
+  el.style.display = show?'block':'none';
+  btn.textContent = show?'图表视图':'表格视图';
+}
+/* ================= 条形图渲染 ================= */
+function cssVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+function barPath(x,y,w,h){ /* 右端 4px 圆角、左端方角 */
+  const r=Math.min(4,h/2,w);
+  if(w<=0) return '';
+  return `M${x},${y} h${Math.max(0,w-r)} a${r},${r} 0 0 1 ${r},${r} v${h-2*r} a${r},${r} 0 0 1 ${-r},${r} h${-Math.max(0,w-r)} z`;
+}
+const tip=document.getElementById('tip');
+function bindTip(svg,rows){
+  svg.querySelectorAll('.bar-row').forEach((g,i)=>{
+    const d=rows[i];
+    g.addEventListener('pointermove',e=>{
+      tip.style.display='block';
+      tip.innerHTML='';
+      const tv=document.createElement('div');tv.className='tv';tv.textContent=d.tipVal;
+      const k=document.createElement('span');k.className='tk';k.style.background=d.color;
+      const nm=document.createElement('span');nm.textContent=d.name;
+      tv.prepend(k);tip.append(tv,nm);
+      const tn=document.createElement('span');tn.className='tn';tn.textContent=d.note;tip.append(tn);
+      tip.style.left=Math.min(e.clientX+14,innerWidth-310)+'px';
+      tip.style.top=(e.clientY+14)+'px';
+    });
+    g.addEventListener('pointerleave',()=>{tip.style.display='none';});
+  });
+}
+function hbarChart(el,tbl,data,opts){
+  const o=Object.assign({w:860,rowH:44,padL:236,padR:96,padT:8},opts||{});
+  const H=data.length*o.rowH+o.padT+34;
+  const max=Math.ceil(o.vmax/50)*50;
+  const bw=o.w-o.padL-o.padR;
+  const svgNS='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(svgNS,'svg');
+  svg.setAttribute('viewBox',`0 0 ${o.w} ${H}`);svg.setAttribute('width','100%');
+  svg.style.height=H+'px';svg.style.display='block';
+  // 网格 + 刻度
+  for(let v=0;v<=max;v+=50){
+    const x=o.padL+v/max*bw;
+    const ln=document.createElementNS(svgNS,'line');
+    ln.setAttribute('x1',x);ln.setAttribute('x2',x);ln.setAttribute('y1',o.padT);ln.setAttribute('y2',H-30);
+    ln.setAttribute('stroke',v===0?'var(--axis)':'var(--grid)');ln.setAttribute('stroke-width','1');
+    svg.append(ln);
+    if(v%100===0||v===max){
+      const t=document.createElementNS(svgNS,'text');
+      t.setAttribute('x',x);t.setAttribute('y',H-12);t.setAttribute('text-anchor','middle');
+      t.setAttribute('class','axis-tick');t.textContent=v;
+      svg.append(t);
+    }
+  }
+  const unit=document.createElementNS(svgNS,'text');
+  unit.setAttribute('x',o.w-o.padR+10);unit.setAttribute('y',H-12);
+  unit.setAttribute('class','axis-tick');unit.textContent=o.unit||'µs';
+  svg.append(unit);
+  // 行
+  data.forEach((d,i)=>{
+    const y=o.padT+i*o.rowH+Math.round((o.rowH-20)/2);
+    const g=document.createElementNS(svgNS,'g');g.setAttribute('class','bar-row');
+    const lab=document.createElementNS(svgNS,'text');
+    lab.setAttribute('x',o.padL-12);lab.setAttribute('y',y+14);lab.setAttribute('text-anchor','end');
+    lab.setAttribute('class','bar-label');lab.textContent=d.name;svg.append(lab);
+    const w=Math.max(0,d.v/max*bw);
+    const bar=document.createElementNS(svgNS,'path');
+    bar.setAttribute('d',barPath(o.padL,y,w,20));
+    bar.setAttribute('fill',d.color);bar.setAttribute('class','bar');
+    g.append(bar);
+    const val=document.createElementNS(svgNS,'text');
+    val.setAttribute('x',o.padL+w+8);val.setAttribute('y',y+14);
+    val.setAttribute('class','bar-val');val.textContent=d.valText;
+    g.append(val);
+    if(d.noteShort){
+      const nt=document.createElementNS(svgNS,'text');
+      nt.setAttribute('x',o.padL+w+8);nt.setAttribute('y',y+14+12);
+      nt.setAttribute('class','bar-note');nt.textContent=d.noteShort;
+      g.append(nt);
+    }
+    svg.append(g);
+  });
+  el.innerHTML='';el.append(svg);
+  bindTip(svg,data);
+  // 表格孪生
+  const t=document.getElementById(tbl);t.innerHTML='';
+  const tb=document.createElement('table');
+  tb.innerHTML='<tr><th>'+o.cols.join('</th><th>')+'</th></tr>'+
+    data.map(d=>'<tr><td>'+d.name+'</td><td class="num">'+d.v+(d.valText&&d.valText!==d.v+' µs'?' ('+d.valText+')':'')+'</td><td>'+(d.tnote||d.note||'')+'</td></tr>').join('');
+  t.append(tb);
+}
+function renderAll(){
+  const S1=cssVar('--s1'),S1S=cssVar('--s1-soft'),DM=cssVar('--deemph'),DMS=cssVar('--deemph-soft');
+  // 图A：官方内核资源分解（横向，%占比）
+  hbarChart(document.getElementById('chartA'),'tblA',[
+    {name:'FIXPIPE 量化回写',v:56.4,color:DM,valText:'56.4%',tipVal:'56.4% of aicore',note:'输出回写/量化流水。cannbot 案例：该值过高是地址未 512B 对齐的直接信号',tnote:'cannbot: 过高↔地址未 512B 对齐'},
+    {name:'SCALAR 标量指令',v:43.4,color:DMS,valText:'43.4%',tipVal:'43.4% of aicore',note:'非计算、非搬运的标量开销；单次调用 6 token 仍有 ~74 µs',tnote:'小 batch 固定开销主体'},
+    {name:'MTE2 HBM→L1 搬运',v:53.3,color:S1S,valText:'53.3%',tipVal:'53.3% of aicore',note:'含权重与 KV 搬运；总需求仅 0.65 MB',tnote:'实际数据量 0.65MB'},
+    {name:'MAC 乘加（真正计算）',v:12.7,color:S1,valText:'12.7%',tipVal:'12.7% of aicore',note:'63 MFLOP/次 —— 内核时间的真实工作占比',tnote:'真实计算仅八分之一'},
+  ],{vmax:60,unit:'%',cols:['构成项','占 aicore 时间 %','注']});
+  // 主图：图内对决
+  hbarChart(document.getElementById('chartMain'),'tblMain',[
+    {name:'官方 aclnnSparseFlashMla',v:170,color:DM,valText:'170 µs',tipVal:'170 µs · 基线',note:'引擎 ACL 图内实测（kernel_details.csv），单 kernel；A2 走 HCA 兼容路径',tnote:'基线 · HCA 兼容路径'},
+    {name:'PyTorch 完整语义版（接入候选）',v:105.2,color:S1,valText:'105.2 µs · −38%',tipVal:'105.2 µs · 比官方快 38%',note:'~10 个通用 kernel：gather + 掩码 + bmm + softmax + bmm + sinks；数值 bf16 级等价，GSM8K 100/100',tnote:'~10 kernel · 已过全部门禁'},
+    {name:'PyTorch 精简骨架（4 kernel）',v:50.7,color:S1S,valText:'50.7 µs · −70%',tipVal:'50.7 µs · 官方的 30%',note:'核心四算子，无 sinks/掩码语义 —— 继续合并 kernel 后的可达到上限参照',tnote:'上限参照 · 官方的 30%'},
+  ],{vmax:200,cols:['实现','图内耗时 (µs)','注']});
+  // 图外陷阱
+  hbarChart(document.getElementById('chartWall'),'tblWall',[
+    {name:'PyTorch 朴素（einsum+fp32 广播）',v:493,color:DMS,valText:'493 µs',tipVal:'493 µs',note:'共享 KV 被按 fp32 广播复制 8 份 —— 教训 03',tnote:'KV 复制 8 份'},
+    {name:'Triton split-KV 两阶段',v:391,color:DMS,valText:'391 µs',tipVal:'391 µs ≈ 2× 单内核',note:'两次 launch ≈ 2×150 µs —— 实锤派发开销，教训 01',tnote:'2× launch 实锤'},
+    {name:'Triton 单内核（flash-decoding）',v:183.5,color:DM,valText:'183.5 µs',tipVal:'183.5 µs',note:'数值精确（max Δ 0.002），但 ~150 µs 是 Triton-Ascend 派发',tnote:'数值精确 · 被 launch 否决'},
+    {name:'PyTorch 精简（4 kernel）',v:144.6,color:S1,valText:'144.6 µs',tipVal:'144.6 µs',note:'同一实现图内仅 50.7 µs —— 图外差值全是 host 派发',tnote:'图内其实 50.7 µs'},
+  ],{vmax:500,cols:['实现','图外墙钟 (µs)','注']});
+}
+renderAll();
+</script>
+</body>
+</html>
