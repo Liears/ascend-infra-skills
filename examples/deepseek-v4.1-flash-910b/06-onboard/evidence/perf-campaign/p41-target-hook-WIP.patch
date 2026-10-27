@@ -1,0 +1,149 @@
+diff --git a/vllm_ascend/attention/dsa_v41.py b/vllm_ascend/attention/dsa_v41.py
+index 16f17c04c..a4259e045 100644
+--- a/vllm_ascend/attention/dsa_v41.py
++++ b/vllm_ascend/attention/dsa_v41.py
+@@ -226,6 +226,82 @@ def scatter_cache_sk(
+     torch.ops._C_ascend.npu_scatter_nd_update_sk(cache, indices, updates)
+ 
+ 
++
++# ==== [V41-PARITY41] target 路径 PyTorch 替换 + 对拍模式 ====
++# 文件 /tmp/v41_smla41 内容 "1"=仅 torch 版; "parity"=双算对拍(前N次打印diff,返回官方值)
++_P41_STATE = {"mode": "", "mtime": -1.0, "checked": 0.0, "n": 0, "max": 8}
++
++
++def _p41_mode():
++    import os as _o
++    import time as _t
++    now = _t.monotonic()
++    c = _P41_STATE
++    if now - c["checked"] < 0.25:
++        return c["mode"]
++    c["checked"] = now
++    try:
++        st = _o.stat("/tmp/v41_smla41")
++        if st.st_mtime != c["mtime"]:
++            c["mtime"] = st.st_mtime
++            with open("/tmp/v41_smla41") as fh:
++                c["mode"] = fh.read().strip()
++            c["n"] = 0
++    except OSError:
++        c.update({"mode": "", "mtime": -1.0})
++    return c["mode"]
++
++
++def _torch_smla41(q, ori_kv, cmp_kv, ori_bt, cmp_bt, cu_q, seq_lens,
++                  cmp_seq_lens, cmp_idx, sinks, scale, win_left, ratio, block_size=128):
++    """PyTorch composition: ori causal sliding window + cmp top-k two-source attention."""
++    T, H, D = q.shape
++    R = seq_lens.shape[0]
++    q_lens = cu_q[1:] - cu_q[:R]
++    req = torch.repeat_interleave(torch.arange(R, device=q.device), q_lens)
++    base = (seq_lens - q_lens).long()
++    inreq = torch.arange(T, device=q.device) - cu_q[:R].long()[req]
++    pos = base[req] + inreq                                   # [T]
++
++    # --- ori causal sliding window [T, W] ---
++    Wd = win_left + 1
++    cols = pos[:, None] - win_left + torch.arange(Wd, device=q.device)[None, :]
++    ovalid = cols >= 0
++    cc = cols.clamp(min=0)
++    oblk = torch.div(cc, block_size, rounding_mode="floor").clamp(max=ori_bt.shape[1] - 1)
++    ooff = cc % block_size
++    oslot = torch.gather(ori_bt[req].long(), 1, oblk) * block_size + ooff
++    oflat = ori_kv.reshape(-1, D)
++    kv_o = oflat.index_select(0, oslot.reshape(-1)).reshape(T, Wd, D)
++
++    # --- cmp top-k [T, K]: idx = cmp pool logical pos -> cmp_bt map ---
++    K = cmp_idx.shape[-1]
++    cidx = cmp_idx.reshape(T, K).long()
++    cvalid = cidx >= 0
++    csafe = cidx.clamp(min=0)
++    cblk = torch.div(csafe, block_size, rounding_mode="floor").clamp(max=cmp_bt.shape[1] - 1)
++    coff = csafe % block_size
++    cslot = torch.gather(cmp_bt[req].long(), 1, cblk) * block_size + coff
++    # cmp causal: cmp pos c covers original tokens [c*ratio, c*ratio+ratio)
++    cpos0 = csafe * ratio
++    cvalid = cvalid & (cpos0 <= pos[:, None])
++    cflat = cmp_kv.reshape(-1, D)
++    kv_c = cflat.index_select(0, cslot.reshape(-1)).reshape(T, K, D)
++
++    # --- two-source concatenated attention ---
++    s_o = torch.bmm(q, kv_o.transpose(1, 2)) * scale
++    s_c = torch.bmm(q, kv_c.transpose(1, 2)) * scale
++    s = torch.cat([s_o, s_c], dim=2)
++    val = torch.cat([ovalid[:, None, :], cvalid[:, None, :]], dim=2)
++    s = s.masked_fill(~val, -1e4)
++    if sinks is not None:
++        s = s + sinks[None, :, None].to(s.dtype)
++    a = torch.softmax(s, dim=-1)
++    kv = torch.cat([kv_o, kv_c], dim=1)
++    return torch.bmm(a, kv)
++# ==== [/V41-PARITY41] ====
++
++
+ def pad_sparse_indices(indices: torch.Tensor, topk: int) -> torch.Tensor:
+     """Convert V4.1's compact [T, K] selection into SMLA [T, 1, topk]."""
+     if indices.ndim != 2:
+@@ -541,30 +617,38 @@ class DeepseekV41EagerAttentionImpl:
+             DeviceMetadataStage.ATTENTION,
+             id(op_metadata),
+         )
+-        output, _ = torch.ops._C_ascend.npu_sparse_flash_mla(
+-            q,
+-            ori_kv=attn.dsa_attn.swa_cache_layer.kv_cache[0],
+-            cmp_kv=source_cache,
+-            cmp_sparse_indices=cmp_indices,
+-            ori_block_table=ori_block_table,
+-            cmp_block_table=cmp_block_table,
+-            cu_seqlens_q=query_start_loc,
+-            seqused_ori_kv=seq_lens,
+-            seqused_cmp_kv=cmp_seq_lens,
+-            cmp_residual_kv=cmp_residual,
+-            sinks=attn.attn_sink,
+-            metadata=op_metadata,
+-            softmax_scale=attn.softmax_scale,
+-            cmp_ratio=ratio,
+-            ori_mask_mode=4,
+-            cmp_mask_mode=3 if has_compressed else 0,
+-            ori_win_left=attn.window_size - 1,
+-            ori_win_right=0,
+-            layout_q="TND",
+-            layout_kv="PA_BBND",
+-            topk_value_mode=1,
+-            return_softmax_lse=False,
++        _p41args = dict(
++            q=q, ori_kv=attn.dsa_attn.swa_cache_layer.kv_cache[0], cmp_kv=source_cache,
++            cmp_sparse_indices=cmp_indices, ori_block_table=ori_block_table,
++            cmp_block_table=cmp_block_table, cu_seqlens_q=query_start_loc,
++            seqused_ori_kv=seq_lens, seqused_cmp_kv=cmp_seq_lens,
++            cmp_residual_kv=cmp_residual, sinks=attn.attn_sink,
++            metadata=op_metadata, softmax_scale=attn.softmax_scale, cmp_ratio=ratio,
++            ori_mask_mode=4, cmp_mask_mode=3 if has_compressed else 0,
++            ori_win_left=attn.window_size - 1, ori_win_right=0,
++            layout_q="TND", layout_kv="PA_BBND", topk_value_mode=1,
+         )
++        _p41m = _p41_mode()
++        if _p41m:
++            _t41 = _torch_smla41(
++                q, _p41args["ori_kv"], source_cache, ori_block_table,
++                cmp_block_table, query_start_loc, seq_lens, cmp_seq_lens,
++                cmp_indices, attn.attn_sink, attn.softmax_scale,
++                attn.window_size - 1, ratio,
++            )
++            _capt = torch.npu.is_current_stream_capturing()
++            if _p41m == "parity" and not _capt and _P41_STATE["n"] < _P41_STATE["max"]:
++                _P41_STATE["n"] += 1
++                _o41 = torch.ops._C_ascend.npu_sparse_flash_mla(**_p41args)[0]
++                d = (_t41.float() - _o41.float()).abs()
++                rel = (d / (_o41.float().abs() + 1e-3)).median().item()
++                pct = (d < 0.01).float().mean().item() * 100
++                print(f"[P41] n={_P41_STATE['n']} ratio={ratio} T={q.shape[0]} "
++                      f"median_d={d.median().item():.5f} max_d={d.max().item():.4f} "
++                      f"rel={rel:.5f} match_pct={pct:.1f}", flush=True)
++                return _o41
++            return _t41
++        output, _ = torch.ops._C_ascend.npu_sparse_flash_mla(**_p41args)
+         return output
+ 
+     @staticmethod
