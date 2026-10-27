@@ -154,3 +154,31 @@ dummy 数据形状合法所以能过，真数据暴露语义错位。
 ### v8 补丁存档
 `p41-target-hook-WIP.patch` 已更新为 v8（LOGICAL-POS 实证注释 + 全界钳制 +
 decode-only 门 + 异常回退）。生产已恢复干净源码（A=5.89 基线不受影响）。
+## 10. 对拍判决（2026-10-27 收官）：算法逐位正确，bug 在 decode 图内特有条件
+
+对拍设置：v9 的 parity 模式——短 prompt（~200 tok）触发小 T eager prefill，
+T=24、ratio=2、R=1，`_torch_smla41` 与官方算子同输入双算。
+
+**判决：`med=0.00000 max=0.0000 match=100%`——逐位一致。**
+
+算法本体（滑窗因果 + LOGICAL-POS 的 cmp 映射 + 因果掩码 + sinks + softmax）
+**全部正确**。§9 列的四个语义候选（cmp 边界/ratio 取整/滑窗 off-by-one/
+topk_value_mode）全部排除。
+
+**A 掉（5.69/5.82）与周期性崩坏请求的根因因此收窄到 decode 图内特有的条件**：
+
+| 候选 | 机理 |
+|---|---|
+| 1（首位） | **R 不一致**：图捕获按 bucket 最大 R（如 4）固化 shape；replay 时实际
+  R=1~4 变化。我的 `R = seq_lens.shape[0]` 与 `cu_q[:R]` 若在图内被 padding
+  （cu_q 固定 4 行、seq_lens 只填 1 行），`req` 广播比较会算出错误请求归属
+  → gather 错行 |
+| 2 | 图内 `pad_sparse_indices` 每次 replay 的地址/内容刷新时序（官方算子
+  可能有专门的 buffer 同步约定） |
+| 3 | draft verify 块（q_len=6/请求）与对拍 prefill（q_len=24 单请求）的
+  `pos` 网格差异——但数学同构，嫌疑低 |
+
+**下一轮入口**：在 parity 模式里放开 `is_current_stream_capturing` 限制改为
+"捕获期算 diff 存 device buffer，replay 后外部读"（或直接对比图内 R 的
+padding 约定——查 `_build_qli_metadata` 的 `cu_seqlens_q` 在捕获期如何 padding）。
+一次修对即三件套验收 → 3.8–6.4%。
