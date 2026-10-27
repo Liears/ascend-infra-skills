@@ -1,8 +1,8 @@
 diff --git a/vllm_ascend/attention/dsa_v41.py b/vllm_ascend/attention/dsa_v41.py
-index 16f17c04c..a4259e045 100644
+index 16f17c04c..7e8fa9b31 100644
 --- a/vllm_ascend/attention/dsa_v41.py
 +++ b/vllm_ascend/attention/dsa_v41.py
-@@ -226,6 +226,82 @@ def scatter_cache_sk(
+@@ -226,6 +226,98 @@ def scatter_cache_sk(
      torch.ops._C_ascend.npu_scatter_nd_update_sk(cache, indices, updates)
  
  
@@ -34,58 +34,74 @@ index 16f17c04c..a4259e045 100644
 +
 +def _torch_smla41(q, ori_kv, cmp_kv, ori_bt, cmp_bt, cu_q, seq_lens,
 +                  cmp_seq_lens, cmp_idx, sinks, scale, win_left, ratio, block_size=128):
-+    """PyTorch composition: ori causal sliding window + cmp top-k two-source attention."""
++    """PyTorch composition (capture-friendly): ori causal sliding window +
++    optional cmp top-k source. Static-shape index math only; cmp_idx may be
++    None on compress_ratio-0 layers (sliding window only).
++    """
 +    T, H, D = q.shape
 +    R = seq_lens.shape[0]
-+    q_lens = cu_q[1:] - cu_q[:R]
-+    req = torch.repeat_interleave(torch.arange(R, device=q.device), q_lens)
-+    base = (seq_lens - q_lens).long()
-+    inreq = torch.arange(T, device=q.device) - cu_q[:R].long()[req]
-+    pos = base[req] + inreq                                   # [T]
++    dev = q.device
++
++    toks = torch.arange(T, device=dev)                          # [T]
++    cu_start = cu_q[:R].long()
++    cu_end = cu_q[1:R + 1].long()
++    # req-of-token via broadcast compare-sum (R x T, static) -- no repeat_interleave
++    req = (((toks[None, :] >= cu_start[:, None]) &
++            (toks[None, :] < cu_end[:, None])).to(torch.int64).sum(0) - 1).clamp(0, R - 1)
++    q_lens = cu_end - cu_start
++    base = (seq_lens.long() - q_lens)
++    pos = torch.gather(base, 0, req) + (toks - torch.gather(cu_start, 0, req))  # [T]
 +
 +    # --- ori causal sliding window [T, W] ---
 +    Wd = win_left + 1
-+    cols = pos[:, None] - win_left + torch.arange(Wd, device=q.device)[None, :]
++    cols = pos[:, None] - win_left + torch.arange(Wd, device=dev)[None, :]
 +    ovalid = cols >= 0
 +    cc = cols.clamp(min=0)
 +    oblk = torch.div(cc, block_size, rounding_mode="floor").clamp(max=ori_bt.shape[1] - 1)
-+    ooff = cc % block_size
-+    oslot = torch.gather(ori_bt[req].long(), 1, oblk) * block_size + ooff
-+    oflat = ori_kv.reshape(-1, D)
-+    kv_o = oflat.index_select(0, oslot.reshape(-1)).reshape(T, Wd, D)
++    ooff = cc - oblk * block_size
++    obt_v = torch.gather(torch.index_select(ori_bt.long(), 0, req), 1, oblk)   # [T, W]
++    ovalid = ovalid & (obt_v >= 0)
++    oslot = (obt_v * block_size + ooff).clamp(min=0)
++    kv_o = ori_kv.reshape(-1, D).index_select(
++        0, oslot.reshape(-1)).reshape(T, Wd, D)
 +
-+    # --- cmp top-k [T, K]: idx = cmp pool logical pos -> cmp_bt map ---
-+    K = cmp_idx.shape[-1]
-+    cidx = cmp_idx.reshape(T, K).long()
-+    cvalid = cidx >= 0
-+    csafe = cidx.clamp(min=0)
-+    cblk = torch.div(csafe, block_size, rounding_mode="floor").clamp(max=cmp_bt.shape[1] - 1)
-+    coff = csafe % block_size
-+    cslot = torch.gather(cmp_bt[req].long(), 1, cblk) * block_size + coff
-+    # cmp causal: cmp pos c covers original tokens [c*ratio, c*ratio+ratio)
-+    cpos0 = csafe * ratio
-+    cvalid = cvalid & (cpos0 <= pos[:, None])
-+    cflat = cmp_kv.reshape(-1, D)
-+    kv_c = cflat.index_select(0, cslot.reshape(-1)).reshape(T, K, D)
++    s_o = torch.bmm(q, kv_o.transpose(1, 2)) * scale            # [T, H, W]
 +
-+    # --- two-source concatenated attention ---
-+    s_o = torch.bmm(q, kv_o.transpose(1, 2)) * scale
-+    s_c = torch.bmm(q, kv_c.transpose(1, 2)) * scale
-+    s = torch.cat([s_o, s_c], dim=2)
-+    val = torch.cat([ovalid[:, None, :], cvalid[:, None, :]], dim=2)
++    if cmp_idx is None:                                          # ratio-0 layers
++        s, val, kv_cat = s_o, ovalid[:, None, :], kv_o
++    else:
++        K = cmp_idx.shape[-1]
++        cidx = cmp_idx.reshape(T, K).long()
++        cvalid = cidx >= 0
++        csafe = cidx.clamp(min=0)
++        cblk = torch.div(csafe, block_size, rounding_mode="floor").clamp(max=cmp_bt.shape[1] - 1)
++        coff = csafe - cblk * block_size
++        cbt_v = torch.gather(torch.index_select(cmp_bt.long(), 0, req), 1, cblk)  # [T, K]
++        cvalid = cvalid & (cbt_v >= 0)
++        cslot = (cbt_v * block_size + coff).clamp(min=0)
++        # cmp causal: cmp pos c covers original tokens [c*ratio, c*ratio+ratio)
++        cvalid = cvalid & (csafe * ratio <= pos[:, None])
++        kv_c = cmp_kv.reshape(-1, D).index_select(
++            0, cslot.reshape(-1)).reshape(T, K, D)
++        s_c = torch.bmm(q, kv_c.transpose(1, 2)) * scale
++        s = torch.cat([s_o, s_c], dim=2)
++        val = torch.cat([ovalid[:, None, :], cvalid[:, None, :]], dim=2)
++        kv_cat = torch.cat([kv_o, kv_c], dim=1)
++
 +    s = s.masked_fill(~val, -1e4)
 +    if sinks is not None:
 +        s = s + sinks[None, :, None].to(s.dtype)
 +    a = torch.softmax(s, dim=-1)
-+    kv = torch.cat([kv_o, kv_c], dim=1)
-+    return torch.bmm(a, kv)
++    return torch.bmm(a, kv_cat)
++
++
 +# ==== [/V41-PARITY41] ====
 +
 +
  def pad_sparse_indices(indices: torch.Tensor, topk: int) -> torch.Tensor:
      """Convert V4.1's compact [T, K] selection into SMLA [T, 1, topk]."""
      if indices.ndim != 2:
-@@ -541,30 +617,38 @@ class DeepseekV41EagerAttentionImpl:
+@@ -541,30 +633,51 @@ class DeepseekV41EagerAttentionImpl:
              DeviceMetadataStage.ATTENTION,
              id(op_metadata),
          )
@@ -124,13 +140,26 @@ index 16f17c04c..a4259e045 100644
 +            layout_q="TND", layout_kv="PA_BBND", topk_value_mode=1,
          )
 +        _p41m = _p41_mode()
++        # decode 图（小 T）才物化 gathered KV；prefill 大 T 会 OOM，走官方算子
++        if q.shape[0] > 64:
++            _p41m = ""
++        _t41 = None
 +        if _p41m:
-+            _t41 = _torch_smla41(
-+                q, _p41args["ori_kv"], source_cache, ori_block_table,
-+                cmp_block_table, query_start_loc, seq_lens, cmp_seq_lens,
-+                cmp_indices, attn.attn_sink, attn.softmax_scale,
-+                attn.window_size - 1, ratio,
-+            )
++            try:
++                _t41 = _torch_smla41(
++                    q, _p41args["ori_kv"], source_cache, ori_block_table,
++                    cmp_block_table, query_start_loc, seq_lens, cmp_seq_lens,
++                    cmp_indices, attn.attn_sink, attn.softmax_scale,
++                    attn.window_size - 1, ratio,
++                )
++            except Exception as _e41:
++                if _P41_STATE.get("err", 0) < 3:
++                    print(f"[P41-DBG] T={q.shape[0]} K={cmp_indices.shape[-1] if cmp_indices is not None else None} ratio={ratio}", flush=True)
++                    _P41_STATE["err"] = _P41_STATE.get("err", 0) + 1
++                    import traceback
++                    print("[P41-ERR]", repr(_e41)[:300], flush=True)
++                    traceback.print_exc()
++                _t41 = None
 +            _capt = torch.npu.is_current_stream_capturing()
 +            if _p41m == "parity" and not _capt and _P41_STATE["n"] < _P41_STATE["max"]:
 +                _P41_STATE["n"] += 1

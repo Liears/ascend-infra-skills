@@ -80,3 +80,37 @@ P9 §5 的"索引不可及"结论写进了 PR #19852 的 Scope note——**该�
 target 路径打通后一并更正**（在新 PR 里说明 cmp_sparse_indices 路径已覆盖）。
 教训：**"我没找到传入点" ≠ "没有传入点"**；下结论前先确认自己看的是不是
 模型实际执行的那条实现（V4.1 专属文件 vs 通用文件）。
+## 7. 攻坚日志（v1→v7，每轮失败都有定位与修复）
+
+| 版本 | 卡点 | 定位手段 | 修复 |
+|---|---|---|---|
+| v1 | worker 静默退出（无 traceback） | — | v3 加异常回退后才看见错误 |
+| v2(未装) | 补丁复制被 kill 打断，静默装回 v1 | 读文件实际内容核对 | 整函数替换（final_fn.py），杜绝碎片 patch |
+| v3 | `AttributeError: cmp_idx.shape`——**compress_ratio=0 的层无 cmp 源**（cmp_indices=None） | 异常回退 + traceback 打印 | 支持 None 单源路径 |
+| v4 | OOM 3.3GiB：物化 `[T,512,512]` gathered KV，prefill T=8176 时 4.3GB/层 | OOM 分配量反推 | **decode-only 门**（T≤64 才替换） |
+| v5 | 同 OOM：T=18 仍爆——**warmup 捕获期显存余量仅 3.16GB**（56.37/60.96 已预留），官方融合算子零中间张量、我的有 | P41-DBG 打印 T/K + OOM 上下文 | `--gpu-memory-utilization 0.86` 腾 3.7GB |
+| v6(=v5+DBG) | **引擎完整启动、零 P41-ERR**，捕获通过 | — | ✅ 图捕获问题全部解决 |
+| v7(=v6 真数据) | 第一个真实请求触发 **AI Core Error 507011**（设备侧 fault，Python 层无异常）；warmup dummy 数据可过 | npu-smi core dump（待分析） | ⛔ 下一轮起点 |
+
+**v6 是里程碑**：PyTorch 替换在全部 36 层 target 路径上通过了 ACL 图捕获——
+捕获友好化（静态形状索引数学）+ 边界防护 + None 支持 + decode-only 门 + 显存余量
+五项修复全部到位。剩余最后一个问题在**数值/索引语义**：真实数据下某个 gather
+的索引越界或 cmp 索引空间假设错误（逻辑位置 vs 池 slot），导致设备侧 fault。
+dummy 数据形状合法所以能过，真数据暴露语义错位。
+
+下一轮入口：
+1. 从 npu-smi / plog 取 core dump，定位 fault 的具体算子与索引值
+2. 或在 hook 里 dump 一次真请求的 cmp_idx/oslot 统计（min/max/负值比例），
+   与 cmp 池行数对比，直接验证"逻辑位置 vs 池 slot"假设
+3. 修对后按三件套验收（A=5.89 / GSM8K-100 / 交替 A/B），预期 3.8–6.4%
+
+## 8. 工程教训（本轮新增）
+
+- **异常回退是调试图捕获的必备基建**：`try/except + print + traceback` 三行，
+  把"worker 静默退出"变成可读错误。没有它，v3 的 None 坑永远看不见。
+- **碎片 patch 必须核对落盘内容**：kill 打断 `cp` 后 install 用了旧 helper，
+  两轮"修复"其实没装上。整函数/整块替换 + `grep` 验证关键字。
+- **OOM 要看"already allocated"**：T=18 时 3.3GB 分配失败不是我的张量大，
+  是捕获期总余量只剩 3GB。修复杠杆在 gmu，不在实现。
+- **dummy 过 ≠ 真数据过**：warmup dummy 的 block table/索引形状合法，
+  语义错误（索引空间假设）只有真数据暴露。
