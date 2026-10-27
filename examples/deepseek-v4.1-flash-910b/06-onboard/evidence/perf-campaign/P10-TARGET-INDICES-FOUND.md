@@ -114,3 +114,43 @@ dummy 数据形状合法所以能过，真数据暴露语义错位。
   是捕获期总余量只剩 3GB。修复杠杆在 gmu，不在实现。
 - **dummy 过 ≠ 真数据过**：warmup dummy 的 block table/索引形状合法，
   语义错误（索引空间假设）只有真数据暴露。
+## 9. v8 战况（2026-10-27 深夜轮）：替换已真实运行，剩一个纯数值语义 bug
+
+两项决定性实证（本轮新增）：
+
+1. **索引空间判定（prefill dump，真数据）**：
+   `cmp_idx min=0 max=4077 uniq=4078`，`cmp_seq_lens=[4078]`，`cmp_pool_rows=1,728,384`，
+   `cmp_bt_max=64` ⇒ **cmp_idx = 压缩池逻辑位置**（max == cmp_seq-1），
+   经 cmp_bt 映射到池 slot。v7 的映射方向本来正确。
+2. **AI fault 根因（v8 修复并验证）**：v7 只对 gather slot 钳了**下界**；
+   捕获期 dummy block table 可含垃圾大值 → `bt_value*128+off` 超出池行数 →
+   index_select 设备侧越界 → AI Core Error 507011。
+   v8 对 oslot/cslot 补了 **max=pool_rows-1 上界** → fault 消失。
+
+**v8 运行结果**（gmu=0.86，异常回退兜住捕获期一次 OOM）：
+
+| 观测 | 值 | 含义 |
+|---|---|---|
+| 服务 | 启动成功、200 OK、T41-ERR 仅捕获期 1 次 | 图捕获 + decode 替换路径**真正在跑** |
+| 接受长度 A | **5.69 / 5.82（应 5.89）** | attention 输出数值有偏 → 接受率受损 |
+| 吞吐 | 129–133 tok-s 交替 **2.6 tok-s 崩坏请求** | 周期性输出崩坏 |
+
+⇒ **结构性问题全部解决（捕获/映射/越界），剩一个纯数值语义 bug。**
+
+### 候选（按嫌疑排序，下一轮逐个二分，每轮一次重启）
+
+1. **cmp 因果边界**：`cpos0 = c*ratio` vs `(c+1)*ratio - 1`（压缩 token 覆盖区间的
+   起点还是终点），以及 `cpos0 <= pos` 的比较方向（cmp token 是否对"未来"可见）
+2. **ratio 取整**：dump 显示 seq=8157 → cmp_seq=4078（向上取整），而
+   `cmp_residual=seq%2`——最后一个不满 ratio 的 cmp 位置的覆盖区间处理
+3. **ori 滑窗 off-by-one**：`win_left=127` 的窗口是 [pos-127, pos] 还是 [pos-128, pos-1]
+4. **topk_value_mode=1**（v1 语义）在我实现里被忽略——值域模式可能影响 cmp 分数的
+   缩放或 residual 的分数贡献
+
+对拍定位法（比二分快）：把 v8 的 gate 放宽到 T≤256 并在 prefill 尾块对拍一次
+官方输出 diff——prefill 尾块小且 eager，物化安全。一次对拍直接给出数值偏差的
+结构（整体偏移 vs 局部坏列 vs 幅度错误）。
+
+### v8 补丁存档
+`p41-target-hook-WIP.patch` 已更新为 v8（LOGICAL-POS 实证注释 + 全界钳制 +
+decode-only 门 + 异常回退）。生产已恢复干净源码（A=5.89 基线不受影响）。
