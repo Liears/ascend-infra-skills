@@ -98,6 +98,44 @@ eager 237µs 印证图外测量的 launch 税。）
   （tools/ubench_decode.py）+ 数值参考（tools/smla_decode_v4.py 的 torch
   合并版可当独立验证器）全部就绪。
 
+## 2026-10-29 补充：重新归因推翻 M1 的悲观锚——奖金额回到 10%+
+
+用 vLLM profiler（`--profiler-config '{"profiler":"torch"}'` +
+`/start_profile`）对**当前生产栈**跑 384-token decode 窗口，rank0 的
+`op_statistic`（msprof 导出，CSV 归档 `op_statistic_20261028_current_stack.csv`）：
+
+| 排名 | 算子 | 占设备时间 | 次数 | avg |
+|---|---|---|---|---|
+| 1 | **SparseFlashMla** | **14.6%** | 2560 | **144.3µs** |
+| 2 | HcPre | 11.4% | 5498 | 52.5µs |
+| 3 | GroupedMatmulSwigluQuantV2 | 8.7% | 2749 | 80.2µs |
+| 4-9 | QuantBMMV3/MatMulV2/aiv_all_reduce/TBMM/HcPost/GMM | 各 4-6% | | |
+| — | QuantLightningIndexerV2 | 1.9% | 512 | 92.9µs |
+| — | SparseFlashMlaMetadata | 1.1% | 192 | 144.4µs |
+
+**关键修正：引擎内 SparseFlashMla 实测 144.3µs/次**——M1 离线 µbench 的
+42µs 低估了 3.4×（MIX_ 型算子的 profiler 计口径含子核流水占用，和/或引擎
+调度条件比 µbench 重）。P7 的 170µs 归因反而是准的。
+
+**奖金额重估**：若 AscendC 专核把 144µs 压到 25-30µs（需求仅 0.65MB/63MFLOP，
+带宽下限 ~5µs），可省设备时间 369→~75ms / 2529ms 总量 ≈ **10-12%**。
+路线 2 的多天投入完全正当。
+
+其余榜单情报：
+- 通信机器（HcPre/HcPost/aiv_all_reduce）合计 22.5%——P2 理论地板之上的
+  每次调用开销（52µs×5498）可能是另一个杠杆
+- MoE grouped matmul 链 19.2%
+- TransposeBatchMatMul 5.8%（2749 次 53.5µs）——上游布局问题？
+
+### 路线 2 开工清单（下一会话）
+
+1. csrc 构建链打通：复制 SparseFlashMla 为 decode 专用 op（改名
+   `SparseFlashMlaDecode`），CMake 注册，ninja 编译，装进
+   ASCEND_CUSTOM_OPP_PATH vendor 目录，离线 µbench 复测（先不改代码，
+   确认副本与官方逐位一致 + 计时同口径）
+2. 特化剥离：固定 T≤32/W+K=640/单趟调度，去掉 metadata 驱动的多核分派
+3. 数值验收：拟合台（bf16 级）→ µbench（对官方 ≥3× 快）→ 引擎三件套
+
 ## 风险
 
 - ~~Triton tl.dot 小块效率~~（已实证：69µs 上限）
