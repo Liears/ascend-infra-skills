@@ -182,3 +182,168 @@ topk_value_mode）全部排除。
 "捕获期算 diff 存 device buffer，replay 后外部读"（或直接对比图内 R 的
 padding 约定——查 `_build_qli_metadata` 的 `cu_seqlens_q` 在捕获期如何 padding）。
 一次修对即三件套验收 → 3.8–6.4%。
+
+## 11. 真凶落网（2026-10-28 凌晨三轮仪器）：decode 索引在"原始 token 空间"
+
+§10 的 R-padding 假设被证伪，随后三轮"图内仪器"（每轮一次重启）把真凶
+逼到铁证：
+
+### 三轮仪器与判决
+
+| 轮 | 仪器 | 判决 |
+|---|---|---|
+| v10 graphparity | 图内 mine+official 双算、diff 全 device 侧累计进持久 buffer（max/sum/计数/分层 one-hot），返回 official（行为=基线）；eager prefill 处打印+清零 | 真实 decode 流量 **45% 元素偏差**（big=42.2万/93.4万，max≈2.3）；捕获期 dummy eager 对拍反而逐位一致（含 T=24 R=4） |
+| v11 gp2z | diff 按"真实/padding 行"分路（`toks < cu_q[R]`，cu_q[R]=实际总 token 数，buffer 内平 padding 值 device 侧可读） | **maxr=2.56 全在真实行；nelemp=0——根本没有 padding 行**（探针流量 R=1 走 T=6 bucket，nreal=6/调用）。padding 假设死 |
+| v12 chk | 图内**输入校验和**（cu_q/seq_lens/bt/idx/q/sinks 的 max/sum/NaN 计数）+ **official 跑两次自检** | offself=0（无显存池污染，我的算子存在不影响官方）；cu_q=[0,6]、seq_lens≈8673、bt/q/sinks 全部合理——输入全是新鲜的。**唯独 idx_max=8667 ≈ seq_lens-6，远超 cmp_seq_lens≈4337** |
+
+### 根因
+
+**cmp_sparse_indices 的索引空间在 prefill 和 decode 是两套约定**：
+
+- prefill（v9 对拍实证）：压缩池逻辑位置，`max = cmp_seq_lens-1`，直接经
+  cmp_bt 映射。逐位一致。
+- decode（本轮 checksum 实证）：**原始 token 位置**（max≈seq，含奇数值
+  8667，压缩空间不可能），需先 `c = idx // ratio` 再映射。
+
+我的组合把 decode 索引当压缩位置 → `idx//128` 块号超出 cmp_bt 列数 →
+被 clamp 到错误块 → gather 错 KV → 真实行 45% 偏差 → v8 的 A 掉
+（5.69/5.82）与周期性崩坏请求。官方算子两种空间都认（内部按
+cmp_ratio/metadata 换算）。
+
+### v13 修复
+
+调用级 device 侧空间检测（全静态形状，捕获安全）：
+
+```python
+_vmax = torch.where(cvalid, csafe, -1).max()      # 有效索引最大值
+is_orig = _vmax >= cmp_seq_lens.max()             # ≥ cmp_seq ⇒ 原始空间
+c    = torch.where(is_orig, csafe // ratio, csafe)         # 压缩池逻辑位置
+cov0 = torch.where(is_orig, csafe,     csafe * ratio)      # 覆盖区间起点
+cvalid = cvalid & (cov0 <= pos) & (c < cseq_row)
+```
+
+检测边界：decode 索引 max≈seq 恒 ≥ cmp_seq=ceil(seq/2)（seq≥2 时）；
+prefill max=cmp_seq-1 恒 < cmp_seq。seq≤1 时两种解释等价。
+
+模式 `1mv`：返回修复版 mine，同时图内双算 official 累计 diff——一次重启
+同时验证修复（A 值）与测量残差（maxr）。原语空间重复条目（同一组的两个
+原始 token 都被选中 → 同一 cmp 行两次）是否需去重的语义问题，由 v13 的
+maxr 残差直接裁决。
+
+### 仪器工程（可复用）
+
+- **图内累计器模式**：replay 里 Python 不跑，但 diff/max/计数可全用
+  device 侧算子（`torch.maximum`、`+=`、one-hot 加权）录进捕获期分配的
+  持久 buffer（vllm 图输出同款模式，host 随时可读）；**打印窗口选 eager
+  prefill**（FULL_DECODE_ONLY 下 prefill 永远 eager，每个请求开头必经）。
+- **official-official 自检**：同一图内把官方算子跑两遍 diff——一行判据
+  分辨"我的算子污染共享状态"与"我的算子算错"。offself=0 排除了显存池
+  重叠类整族假设。
+- **输入校验和**：与其继续猜哪个 buffer 陈旧，直接在图内对每个输入记
+  max/sum/NaN，一次拿到全部输入的健康画像。
+- 补丁防叠加教训：installer 的 `assert` 关键字要选安装后必然出现的标识
+  （如 `_torch_smla41`），`_TORCH41` 这类连字符标记永不匹配，三轮 patch
+  会顺序叠加（碰巧模式字符串互斥、惰性跳过，未出错）。
+
+## 12. 语义破解（2026-10-28 上午）：离线拟合台 bf16 级复现官方算子
+
+v13（÷ratio 映射）/v14（cseq 单位检测+÷ratio）先后失败后，v15 idxab
+（图内官方算子 ×3：原索引/÷2 索引/全-1 索引）给出关键排除：**索引被
+大量使用（dac 98.6%），且不是 ÷2 语义（dab 44%）**。
+
+随即停止引擎内试错，转**离线逆向**——csrc 源码 + `cann_ops_transformer`
+命名空间离线调用（`ASCEND_CUSTOM_OPP_PATH` + pip 包注册的
+`torch.ops.cann_ops_transformer.sparse_flash_mla`，与引擎 `_C_ascend.npu_*`
+同 schema 同内核），搭出秒级迭代拟合台（`tools/smla_semantics_fit.py`）。
+
+### 阶梯实验与判决
+
+| 实验 | 设置 | 判决 |
+|---|---|---|
+| E0a | 全 -1 索引（无 cmp） | **med=0.0005 big=0%**：ori 窗+sinks 数学全对 |
+| E0c/E0d | 单条目 / 双重复条目 | **逐位一致**：每条目数学正确，重复条目独立计权重 |
+| E0b | 512 条目全同行 | 偏差大；倍数拟合收敛 **m=256** |
+| E0g | 300 条目同行 | 有效 m=256 而非 300 ⇒ **不是倍数缩放是截断** |
+| E0i | 仅有的条目放在位次 300 | **输出=无 cmp 逐位一致** ⇒ 位次在界外的条目被丢弃 |
+| E1 | 随机 512 索引 + 前缀版 | **med=0.002 big=1.5%**：前缀版复现官方 |
+
+### 官方算子 decode 语义（最终）
+
+1. **行号 = 索引值直用**（`sparseBlockSize=1` 硬编码，无 ratio 除法）
+2. **只消费前 `(pos+1)//ratio` 个条目**——位置前缀因果（算子假定索引器
+   输出按位置有序，用"前多少个条目"实现因果裁剪，不做逐条目因果判断）
+3. 重复条目各自独立进 softmax；sinks 加分；ori 滑窗 [pos-127, pos]
+4. **prefill 无前缀截断、索引=压缩行号**（v9 引擎内逐位一致实证）——
+   prefill/decode 走不同调度路径（"decode 调度由 metadata 驱动"）
+
+引擎 decode 侧的索引单位混乱（原始空间 + cseq 原始单位，违背算子契约
+"索引 ∈ [0, Lc)"）是**上游既有状态**——基线 A=5.89 就是在这套喂法上
+测得的。替换实现的目标是匹配官方行为本身（离线已 bf16 级复现），而非
+"语义正确"的想象版本。
+
+### v16 修复（双语义按调用级检测切换）
+
+```python
+is_orig = cseq_max * ratio > sl_max + ratio        # cseq 原始单位检测
+nvis = (pos + 1) // ratio                          # 前缀可见条目数
+kvis = arange(K)[None,:] < nvis[:,None]
+cvalid = (idx >= 0) & (kvis | ~is_orig)            # 压缩空间不截断
+c = idx                                            # 行号直用(两空间同式)
+cvalid &= (c*ratio <= pos) & (c < cseq_row)
+```
+
+（v13/v14 的教训固化在检测器里：idx 与 cseq 永远同空间，互比较不出
+翻转；必须拿空间固定的 seq_lens 当参照。）
+
+### 方法论沉淀
+
+- **离线拟合台 >> 引擎内试错**：一次重启 25 分钟只测一个假设；离线
+  `cann_ops_transformer` 直调一秒一轮，阶梯实验（无 cmp → 单条目 →
+  双条目 → 全同行 → 位次越界）五步把语义钉死。
+- **csrc 就是文档**：`csrc/attention/sparse_flash_mla/docs/ratio2_a2a3.md`
+  给出因果公式 `visible_cmp = clamp((p+1)/r, 0, Lc)`——"前缀截断"正是
+  它的逐条目退化形式；作者示例 `test_aclnn_sparse_flash_mla.cpp:264`
+  给出索引契约 `idx ∈ [0, cmpKvLen)`。
+- **E2 复现引擎喂法直接 AI Core Error**（窄 block table 下）——引擎里
+  4096 列零填充宽表掩盖了越界，这是上游单位混乱的第三重证据。
+
+## 13. 收官状态（2026-10-28 晚）：离线全链路逐位复现，引擎内最后 5% 未闭环
+
+### 已证明（全部离线 bf16/逐位级）
+
+| 环节 | 结论 | 证据 |
+|---|---|---|
+| 组合数学 = official | **med=0.00000 big=0.0%**（随机/降序索引、引擎尺度 L=8676、stale/0 块表、有限垃圾池） | `tools/smla_final_fit.py` |
+| decode 语义 | 行号=索引直用、全部条目、无逐条目因果（值界/位次界/前缀均被否证）；prefill=v9 压缩语义 | 同上矩阵 |
+| NaN 机制 | `0 权重 × NaN V = NaN`（我的 softmax-bmm 结构固有；官方 flash 核逐块跳过掩码列）；修法=isfinite 掩码+无效列 V 清零 | v17 nan=47% → v18 nan=0% |
+| 图捕获执行 = eager | med=0.000000（含 buffer 刷新后 replay） | `tools/smla_capture_test.py` |
+| 垃圾现场 | bt 尾列=stale 真实块 id(852-863)+大量 0（`torch.zeros_like` 初始化）；无 -1 | 引擎 BTDUMP |
+
+### 未闭环
+
+v17 语义代码装进引擎（1mv 双算）实测：非 NaN 部分与 official 0.03% 一致，
+但 A=4.3-5.6（应 5.89）——**引擎内我的组合仍与 official 有 ~45% 元素级差异，
+而同样代码离线逐位一致**。剩余嫌疑（按序）：
+
+1. **DSA 多流重叠**（`multistream_dsv4_dsa_overlap`）：索引器在辅助流写
+   `shared.topk_indices`，我的组合与官方算子对流的依赖记录可能不同，
+   replay 时读到不同步的索引
+2. **metadata 单次消费**：1mv 模式对 official 的额外调用可能污染
+   smla_metadata device task（v19 崩溃 "previous submission has not been
+   released" 是同一机制的显形）——即 45% 的测量本身可能有假
+3. 静态内核对我算子组合的编译差异（捕获测试已排除普通 npugraph，
+   但引擎用的是 npugraph_ex + static_kernel 路径）
+
+**下一轮入口**：在 1mv 里加"输入指纹"（每层调用的 q/kv/bt/idx/cseq 校验和
+累计）+ 同图双份 mine（fp32 路径对照），一次区分"输入不同步"vs"数值路径不同"。
+
+### 本轮副产物
+
+- 磁盘抢救：根分区 100% 满 → 清 13 天前旧 results 释放 9.3G（docker 335G
+  是他人容器未动）
+- 工具沉淀：`smla_semantics_fit.py`（小尺度阶梯）、`smla_final_fit.py`
+  （引擎尺度终局拟合）、`smla_capture_test.py`（捕获等价性）、
+  `p41_v1x` 全系 installer（v17+v22 存档于 tools/）
+- 工程教训 ×2：installer 的每次 replace 必须 assert（本轮 3 次"以为装上了"：
+  v16 前缀分支、v18 isfinite、v20 BTDUMP 全部静默失败过）；引擎内测量
+  （1mv 双算）本身可能扰动被测系统（metadata 单次消费）
