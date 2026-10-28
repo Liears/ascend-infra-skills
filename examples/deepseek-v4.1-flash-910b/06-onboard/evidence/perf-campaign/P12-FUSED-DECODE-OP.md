@@ -162,6 +162,29 @@ eager 237µs 印证图外测量的 launch 税。）
 拟合台对拍副本 vs 原版（应逐位一致——同代码），µbench 同口径计时，
 然后开始真正的特化剥离。
 
+## 路线 2 M2 达成（2026-10-29）：副本逐位一致 + 离线驱动就绪
+
+- **pybind JIT 包装**（`tools/smla_decode_wrap.cpp`）：sed 克隆原版包装，
+  换 aclnn 调用名；JIT 需 5 个 include/链接修正（graph 头、libascendcl、
+  libtorch_npu、vendor lib 的 LD_LIBRARY_PATH）
+- **冒烟**（`tools/decode_op_smoke.py`）：
+  `T=6: bit-diff max=0.000000 nonzero=0, 41.5µs`；
+  `T=24: 0.000000, 60.2µs`——**改名副本经全链与原版逐位一致、同速**
+  （JIT 包装→aclnnGetWorkspaceSize/aclnn→自编译内核二进制）
+- 开发循环定型：停引擎→改 tiling/kernel→`build_aclnn.sh` 增量→smoke
+  对拍+计时→恢复生产
+
+### 下一步（M3：特化剥离——真正开始动刀）
+
+按 144µs 引擎实况 → 25-30µs 目标，剥离方向（对照
+`sparse_flash_mla_decode_tiling.cpp` 2539 行的通用机器）：
+1. 固定 decode 假设：T≤32、W=128+K=512、H=16、D=512、bf16、PA_BBND
+   —— 让 tiling 走单分支（去掉 mode/topk/layout 的全排列组合）
+2. 调度简化：`SplitBalanced`/多核分派按 decode 形状特化（S2=512+128
+   单趟、G=1 固定）
+3. 验收：smoke 逐位（同一语义）→ 拟合台 bf16 级 → µbench ≥3× 快
+   → 引擎接线（dsa_v41 调 `_C_ascend` 处换调用）→ 三件套
+
 ## 风险
 
 - ~~Triton tl.dot 小块效率~~（已实证：69µs 上限）
