@@ -136,6 +136,32 @@ eager 237µs 印证图外测量的 launch 税。）
 2. 特化剥离：固定 T≤32/W+K=640/单趟调度，去掉 metadata 驱动的多核分派
 3. 数值验收：拟合台（bf16 级）→ µbench（对官方 ≥3× 快）→ 引擎三件套
 
+## 路线 2 M1 达成（2026-10-29）：改名副本编译+安装成功
+
+`SparseFlashMlaDecode` 已编过全链并装进 vendor 包（源码补丁归档
+`smla-decode-op-m1.patch`，61 文件 +21962 行）：
+
+- 构建链：`build_aclnn.sh`（名单驱动）→ CMake/ninja（增量，csrc/build
+  保留）→ CPack .run → 安装到 `_cann_ops_custom/vendors/custom_transformer`
+  （会先清空重建，安装前备份了原包 `csrc/_cann_ops_custom.bak`）
+- 三个坑（全有解）：
+  1. ODR：副本的 `GetOptionalStorageShape`/`SMLATilingCheck::` 等无
+     前缀助手与原版撞符号 → infershape 助手加 `static`、全目录
+     `SMLA→SMLAD` 类名前缀重命名
+  2. 构建中途失败留下陈旧 `aic-ascend910b-ops-info.json`（ninja restat
+     时序）→ 删 json 强制从 ini 重生成
+  3. 安装会清空 vendor 目录且引擎正在用 → 备份 + 停机安装
+- 验收：44 算子注册（`SparseFlashMlaDecode` ✓）、`aclnnSparseFlashMlaDecode`
+  符号导出（×2）、内核 `.o` 落 `tbe/kernel/ascend910b/`、
+  **重建包驱动生产引擎健康（A=5.89、148.3 tok/s 中位）**
+
+### 下一步（M2：离线驱动）
+
+写 pybind JIT 包装（复刻 cann_ops_transformer 的
+`ops/csrc/sparse_flash_mla.cpp` 模式调 `aclnnSparseFlashMlaDecode`），
+拟合台对拍副本 vs 原版（应逐位一致——同代码），µbench 同口径计时，
+然后开始真正的特化剥离。
+
 ## 风险
 
 - ~~Triton tl.dot 小块效率~~（已实证：69µs 上限）
