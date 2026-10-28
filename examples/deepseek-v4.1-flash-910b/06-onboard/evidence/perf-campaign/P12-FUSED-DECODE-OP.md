@@ -185,6 +185,32 @@ eager 237µs 印证图外测量的 launch 税。）
 3. 验收：smoke 逐位（同一语义）→ 拟合台 bf16 级 → µbench ≥3× 快
    → 引擎接线（dsa_v41 调 `_C_ascend` 处换调用）→ 三件套
 
+## M3 前置判定（2026-10-29 夜）：时间对 SEQ 完全平坦——固定开销坐实
+
+K 缩放实验被 checker 锁死（cmp_topk 只允许 512/1024），改 SEQ 缩放
+（T=6/R=1/K=512，NPUGraph 图内）：
+
+| SEQ | orig µs |
+|---|---|
+| 2048 | 41.2 |
+| 8676 | 41.0 |
+| 32768 | 41.2 |
+| 65536 | 41.4 |
+
+**完全平坦**——列数固定 640 时，实际数据搬运/计算可忽略，41µs 全部是
+固定机器开销（kernel 启动 + metadata 驱动的分派 + 逐块 mask 机器 +
+跨核归约 + FIXPIPE）。P7 的"99% 固定开销"预测被直接测量坐实。
+
+**设计推论**：特化核不需要任何聪明调度——目标是**砍机器**。最小核
+（读 q/640 slots → FMA → online softmax → 写出）理论上界 ~5-15µs；
+引擎口径 144µs → 15µs = 每步省 ~2.4ms ≈ **8-10% tok/s**。
+
+手术面（kernel 入口已读）：910B3 → `SMLAD_OP_IMPL(SparseFlashMlaDecodeCsa, ...)`
+（arch22，979 行 csa_kernel.h + block_cube/vector 头）；tiling 侧
+`SplitBalanced`/`DoOpTiling`（2539 行）。多核分派在 **metadata AICPU**
+侧（引擎每步构建，共享受原版算子）——特化核可选择忽略 metadata 分派、
+内核自算静态列划分（T≤32 时 core i 处理列 [i·64,(i+1)·64) + 定槽归约）。
+
 ## 风险
 
 - ~~Triton tl.dot 小块效率~~（已实证：69µs 上限）
