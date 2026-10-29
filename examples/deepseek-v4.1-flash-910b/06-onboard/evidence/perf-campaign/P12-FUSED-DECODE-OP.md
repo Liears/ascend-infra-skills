@@ -290,6 +290,17 @@ decode 的 MM1/MM2 实际计算仅 ~1-2µs；41µs 中 ~39µs 是机器。
 SoftmaxFlashV2Compute 原语，但 UB 直连（绕过 mm1ResGm/mm2ResGm 的 GM
 中转）；入口运行时分派 `qSeqSize≤32 → Fast`。验收循环不变。
 
+**深夜补勘（写作策略修正 ×2）**：
+1. `SMLADCubeBlock::ComputeMm1/Mm2` 不是高层 matmul API——是**手写
+   MTE/L1/L0 三级流水**（3d load、L1 三缓冲、L0A/B 事件律动、迭代器
+   状态），复用门槛极高且自带机器。**Fast 核改用高层
+   `matmul::Matmul`（lib/matmul_intf.h）自写两段 MM**——decode 形状
+   小、目标松（总预算 10-15µs），高层 API 的封顶开销可接受。
+2. per-core 区间（bN2/gS1/s2 的 Start/End）从 **metadata GM** 逐核读出
+   （csa_kernel.h:589-596），AIC 与 AIV 两侧配对一致——"单核对集中"
+   的盲探针会破坏配对（死锁风险），已放弃；Fast 核自带静态分派不走
+   这些区间。核 0 的全零约定（bN2End=gS1End=s2End=0=全量）记录在案。
+
 ## 风险
 
 - ~~Triton tl.dot 小块效率~~（已实证：69µs 上限）
