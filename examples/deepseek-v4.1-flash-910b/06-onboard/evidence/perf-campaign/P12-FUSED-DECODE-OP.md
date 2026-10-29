@@ -211,6 +211,45 @@ K 缩放实验被 checker 锁死（cmp_topk 只允许 512/1024），改 SEQ 缩�
 侧（引擎每步构建，共享受原版算子）——特化核可选择忽略 metadata 分派、
 内核自算静态列划分（T≤32 时 core i 处理列 [i·64,(i+1)·64) + 定槽归约）。
 
+## M3 手术单（行级锚点，2026-10-29 深夜测绘完成）
+
+`ProcessBalance`（csa_kernel.h:778-873）的通用机器全貌：
+
+```
+AIC: 4× CrossCoreSetFlag(MTE2) ──┐ 立方/向量管线握手
+for bN2 (批×N2):                 │
+  GetActualSeqLenQ/KV/CmpKV  ← GM 逐项标量读
+  for gS1 (mBaseSize 块):        │
+    掩码四件套(oriMaskL/R, cmpMaskRight)
+    GetSparseActualSeqLen → CountValidCmpSparseLen  ← 逐条目走索引表(标量)
+    UpdateInnerLoopCond / split 数计算
+    for s2 (per-core 列区间, metadata 定):
+      PreloadPipeline(gloop, cmpLoop, ...)  ← 预取缓存 + MM1/MM2 流水
+AIV: 4× CrossCoreWaitFlag ───────┘
+```
+
+**方案：不改这台机器，另起 `SparseFlashMlaDecodeCsaFast`**（同文件新类，
+入口按形状运行时分派）：
+
+1. **Init**：只取 q/oriKV/cmpKV/indices/两 bt/sinks/cu_q/seq_lens——
+   **完全跳过 metadata 分派解析**；req/pos 由 cu_q/seq_lens 直算
+   （Triton v5 已验证的广播比较法）
+2. **Process**：静态划分——T≤24 × H=16 = ≤96 个 (t,h) 工作对，~40 核
+   2.4 波；每核 128 ori 列 + 512 cmp 条目单趟 online softmax（复用
+   `block_cube.h` 的 CopyInKv/MM 块），无 bN2/gS1/s2 通用循环、无预取
+   缓存、无 CountValidCmpSparseLen（有效性 = idx≥0 & bt≥0 & 有限，
+   即 P10 规格的 decode 语义）
+3. **入口分派**：`sparse_flash_mla_decode.cpp` 运行时判
+   `s1≤32 && CSA && bf16 && TND && PA_BBND → Fast`，其余形状回落原路径
+4. **验收循环**（已定型）：增量构建 → smoke 对拍（decode 形状对官方
+   bf16 级，拟合台口径）→ µbench ≥3× → 引擎接线（dsa_v41 的
+   `_C_ascend.npu_sparse_flash_mla` 换 `npu_sparse_flash_mla_decode`）
+   → 三件套
+
+风险与对策：AscendC 模板契约（SMLAD_OP_IMPL 的 tiling data 消费）从简
+——Fast 类只读 baseParams 的少量字段；数值验收以 P10 规格为准
+（decode 形状下与官方 bf16 级一致，拟合台三重验证）。
+
 ## 风险
 
 - ~~Triton tl.dot 小块效率~~（已实证：69µs 上限）
