@@ -267,6 +267,29 @@ smoke：`T=6: 40.8µs, bit-diff=0；T=24: 60.0µs, bit-diff=0`——
 
 附注：多分裂合并 bit-exact——Fast 核若用列分裂+归约，数值确定性有据。
 
+## M3 设计修正（2026-10-29 深夜定稿）：向量单趟不可行，Fast = 保留 cube 砍机器
+
+**证据**：Triton v5（向量单趟实现，69µs@T=6）比官方（41µs）还慢——
+63 MFLOP × 2（score+accum）÷ 向量核 ~2 TFLOP/s ≈ 63µs，**纯向量路径
+计算受限**，与官方的机器开销无关。cube（矩阵核）吞吐高 1-2 个量级：
+decode 的 MM1/MM2 实际计算仅 ~1-2µs；41µs 中 ~39µs 是机器。
+
+**修正后的 Fast 核设计**：
+- **保留** MM1→softmax→MM2 的 cube/向量四段流水（Ascend 硬件分工所致，
+  MM1/MM2 在 AIC、softmax 在 AIV）
+- **砍掉**：多核分派（静态**单 AIC+AIV 核对**包办全部 640 列——工作量
+  本来就只有 ~5µs）、GM workspace 往返（mm1Res [16,640] f32 = 40KB、
+  acc [16,512] f32 = 32KB 全部 **UB 常驻**）、preload/分裂/掩码四件套/
+  CountValidCmpSparseLen 的通用循环
+- 预算：cube ~2µs + softmax ~5µs + 跨核同步 ×4 ~2µs + 启动 ≈ **10-15µs**
+  （vs 41µs 官方；引擎口径 144→15µs）
+- 同步极简：单核对间 4 个 flag 律动即可，无 SyncAll 全栅栏
+
+**写作策略**（下会话执行）：克隆 arch22 CSA 类结构，Process 换成静态
+单核对循环；复用 SMLADCubeBlock::ComputeMm1/Mm2 与 SMLADVectorBlock::
+SoftmaxFlashV2Compute 原语，但 UB 直连（绕过 mm1ResGm/mm2ResGm 的 GM
+中转）；入口运行时分派 `qSeqSize≤32 → Fast`。验收循环不变。
+
 ## 风险
 
 - ~~Triton tl.dot 小块效率~~（已实证：69µs 上限）
