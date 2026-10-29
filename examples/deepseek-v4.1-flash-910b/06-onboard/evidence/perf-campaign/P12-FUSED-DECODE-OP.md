@@ -307,3 +307,52 @@ SoftmaxFlashV2Compute 原语，但 UB 直连（绕过 mm1ResGm/mm2ResGm 的 GM
 - ~~npugraph 捕获约束~~（已实证：捕获可行，乱序是另一回事）
 - 路线 2：AscendC 开发周期与 csrc 构建链的学习成本；官方核的 tiling 机器
   剥离后需重验数值（拟合台现成）
+
+## M3 前置收官 + FlashMLA 官方参照收获（2026-10-29，DeepInfer 开源后）
+
+DeepSeek 2026-09-30 开源了 950 平台的完整稀疏注意力 AscendC 核（FlashMLA
+`csrc/ascend_kernels`，含中文深潜文档），克隆于 /mnt/local/hbw-work/DeepInfer。
+950 专属指令（SIMD VF/SS buffer/gather2/双 AIV）不可直接移植，但**结构与常量
+全部可抄**。收获清单（逐条对我们 M3 设计的冲击）：
+
+**1. 静态分派获官方背书**。FlashMLA launch：`num_ctas = min(total_q,
+GRID_SHAPE=32)`，**每 q token 一个 AI Core**，超出的核走持久循环——与我们
+"每 token 一核对、静态分派不走 metadata"完全同构。910B3 版：GRID=20
+（cube_core_cnt=20，vector=40，split 模式，CANN platform_config 权威值）。
+
+**2. skip-scale 常量与判决逻辑**（kernel_body.h softmax_vf）：
+- `RESCALE_THRESHOLD = 6`，比较单位是**未乘 scale 的 logits 差**（阈值
+  实际 = 6/sm_scale）
+- 双 max 结构：`row_max`（真最大，块块更新）与 `row_max_for_o`（softmax
+  缩放基准，**滞后跟随**——Δ=max(new_max−old_for_o) 不超阈就不换）
+- 判决取"行间最大 Δ"广播到全行（一行要刷全刷）
+- S=exp(p·s−for_o·s) 直接出 bf16 喂 MM2；exp 容忍上溢 e^6≈403
+
+**3. 无效索引技巧**：索引全按 uint32 处理，负数→巨数，只需 `idx < s_kv`
+一个比较（decode 取 s_kv=0x7FFFFFFF，即只滤 −1）。P10 语义的官方版。
+
+**4. UB 256KB 施工图**（config.h UnifiedBufferMemoryPlan，整份逐字节预算）：
+output_accum [MMA_M_PER_V][512]f32 是最大件；NZ 中转 buffer 多 pad 一行防
+bank conflict；`MMA_M = ceil(H_Q,32)` 补到 32 的理由（L0C fractal 高 16×2 +
+FixPipe 拷贝怪癖）——我们 16 head 单核无需补，但 L0C/fixpipe 对齐留意。
+
+**5. 屋顶线重算（910B3 版，tools/roofline_910b3.py）——瓶颈定性反转**：
+```
+T= 6: cube=1.9µs  mem: L2 miss 9.8µs / L2 80% 命中 2.3µs   （kv 3.9MB）
+T=24: cube=3.8µs  mem: L2 miss 39µs  / L2 80% 命中 9.4µs   （kv 15.7MB）
+```
+我们在 910B3（16 head）**访存 bound**——KV gather（640KB/token）是唯一
+大件；950 上他们（64 head）算力 bound。优化优先级修正为：
+**gather 读效率（MTE2 发射合并、窗口段块拷贝）> 砍机器 > cube 吞吐**。
+引擎实际中同请求 6 个 draft token 的 topk 高度重叠 → L2 命中率显著高于
+µbench 随机索引，T=6 真实预期 5-8µs + 机器 3-5µs ≈ **8-13µs**（3-5×）。
+
+**6. M3 设计修订（吸收 1+2+5）**：
+- 分派：`核 i ← token i mod 20`（T≤20 一核一 token，≤32 两轮），无 metadata
+- 主循环：分块 online-softmax（B=64/128 列一块），**砍掉 mm1Res [16,640]
+  物化**——P [16,B] 逐块即产即消，UB 只驻 acc [16,512]f32=32KB + 双 max/
+  sum + KV 块 buffer，192KB 绰绰有余
+- skip-scale 阈值 6/sm_scale 照抄；Δ 判决行间取 max
+- 窗口段（W=128 列）：block table 连续时用整块拷贝（128KB/块）替代逐 token
+  gather；topk 段逐 token（1KB/个）MTE2
+- 两段 MM 仍走高层 matmul::Matmul（SetLocalBuffer 全 UB 常驻，无 GM 往返）
