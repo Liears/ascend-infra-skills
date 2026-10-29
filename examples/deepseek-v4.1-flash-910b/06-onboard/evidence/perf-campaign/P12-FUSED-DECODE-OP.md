@@ -435,3 +435,41 @@ assets/sparse_flash_mla_decode_csa_fast_kernel.h）——**数值逐位一致（
 - 追非确定性 NaN（umpire：ScalarExp 通道独立 tmp；sinks 半区
   DataCopy 32B 对齐核对）。
 - 达标判据不变：µbench ≥3×（<14µs @T=6）→ 恢复 gate → M4 引擎接线。
+
+## M3-2 会话终局（2026-10-29 深夜）
+
+**v2.1 达成**（容器 `1554b9b09` + 本轮工作树，源码同步 assets/）：
+- **幽灵竞争根治**：ScalarExp 的 `SetValue→Exp→GetValue`（标量写→向量读同地址
+  无屏障）= v2 时代"非确定 NaN"与漂移单行归零（head 12 换行）的共同根因；
+  改 `Duplicate(立即数)→Exp→GetValue` 后 **6 连跑逐位一致（含 NaN 模式）**。
+  机理：Duplicate 的标量走向量指令立即数通道，无标量存储。
+- **双 token 路径修复**：T>20（每核 2 token）时 RunVector 每次 InitBuffer
+  重复分配 UB（v2 95KB×2=190KB 压线侥幸，v2.1 加 mm2 缓冲后 222KB 必炸
+  aicore exception）→ 分配挪到 Init() 一次性执行。
+- **流水重排**：gather(c+1) 预取移到 softmax(c) 后、独立 mm2 读缓冲、
+  掩码重置随预取前移。**全形状（T=6/12/21/24）图内稳定，无死锁无陷阱。**
+
+**性能现状 vs 官方**（NPUGraph 中位）：
+```
+T= 6: 官方 41.7µs  fast 54.1µs (-30%)   [v2 串行 65.1 → v2.1 54.1]
+T=12: 官方 43.0µs  fast 55.9µs (-30%)
+T=21: 官方 45.3µs  fast 89.7µs (双 token 路径崩，-98%)
+T=24: 官方 60.0µs  fast 91.8µs (-53%)
+```
+
+**瓶颈定量**：AIC 串行 10 次 IterateAll（每次固定开销 ~1.5-2µs）≈ 15-20µs
+地板 + 每块 4 次跨核握手残差。**过 3× 门槛（<14µs）必须砍 MM 调用次数**。
+
+**v3 教训（3-call 全物化，已放弃本轮）**：N=640 全宽 MM1 后 mm1 内容错位
+（诊断被 mm1Ub 就地变换污染未定位根因）+ 向量 count 非 8 倍数陷阱
+（树归约 20/10 → aicore exception，40 以下标量化）。两个坑都已记录。
+
+**M3-3 计划**（下轮，达标路径明确）：
+1. MM2 L0C 累积：matmul API SetTensorC + Iterate 累加模式（5 次 MM1 +
+   1 次 MM2 输出）——MM 调用 10→6，免 per-chunk mm2 GM 往返+acc 累加
+2. 若 API 不支持跨调用累积 → 回 3-call 全物化（v3 复活，先修 mm1 链路：
+   用独立诊断缓冲直写 GM 而非就地变换区）
+3. T>20 双 token：token 级并行改为列块级分核（2 核对/请求，各 320 列，
+   GM 归并 lse——FlashMLA 的 split-KV 模式）
+
+**生产**：gate 已 safe-state（fastFlag=0 全形状走官方逐位一致路径），引擎恢复中。
