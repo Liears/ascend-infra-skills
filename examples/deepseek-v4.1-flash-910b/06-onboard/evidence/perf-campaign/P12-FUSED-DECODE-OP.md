@@ -356,3 +356,82 @@ T=24: cube=3.8µs  mem: L2 miss 39µs  / L2 80% 命中 9.4µs   （kv 15.7MB）
 - 窗口段（W=128 列）：block table 连续时用整块拷贝（128KB/块）替代逐 token
   gather；topk 段逐 token（1KB/个）MTE2
 - 两段 MM 仍走高层 matmul::Matmul（SetLocalBuffer 全 UB 常驻，无 GM 往返）
+
+## M3 实作日志（2026-10-29，构建-调试循环实录）
+
+**内核落地**：`op_kernel/arch22/sparse_flash_mla_decode_csa_fast_kernel.h`
+（~430 行）：静态分派（token 轮转 20 核对，MIX_AIC_1_2 偶数 AIV 干活）、
+5×128 列块 online-softmax（统一公式免 chunk0 分支）、AIC 双 matmul::Matmul
+（MM1 B 带转置）、AIC/AIV GM workspace 双缓冲中转、无效列清零+屏蔽。
+宿主 gate：arch22+CSA+bf16+TND/PA_BBND+T≤32+形状常量全匹配（W=128/K=512/
+块 128/ratio 2/heads 16）→ fastFlag；tiling struct 增 fastParams
+（flag/totalQ/numAic + 两个 TCubeTiling），opParaSize 232→648。
+
+**循环实录**（编译 2 轮 + 运行 ~6 轮）：
+1. 编译：include 路径（arch22 common）、REGISTER_TILING_DATA_CLASS 注册缺失
+   （框架按 XOp 名反查）——2 轮过编译。
+2. 安装链三坑（全部与"ninja restat 陈旧产物"同族）：
+   a. gen/*.sh 只查文件存在不查opc退出码——陈旧 .o 掩盖真实编译失败
+   b. per-op bin/<op>.json（binList/SoC 表）与 binary_info_config.json 整套
+      陈旧——`ninja ops_config_ascend910b` 重生成 46 个 json 才齐
+   c. 手拷单个 .so 破坏包一致性（"tiling function does not exist"）——必须
+      CPack 全树重装
+3. 测试环境关键：冒烟必须带 `ASCEND_CUSTOM_OPP_PATH=<vendor>`（vendor 注册）
+   + LD_LIBRARY_PATH——否则 aclnn 解析到内置 CANN 算子（ratio=4 拒绝 +
+   不认识新核）。此前会话的冒烟跑在 vllm-ascend bootstrap 环境里所以没踩过。
+4. gate 未触发（decode 计时=官方 41µs）→ 探针强制 fastFlag=1 → **507014
+   同步超时**：fast 路径确认可达，内核死锁/陷阱。
+5. 已修：跨核旗标 tag 从 10..17 压到 2..9（官方上限 9）；本地事件改
+   FetchEventID 托管 + 用后 Release（防每 token 泄漏耗尽）。仍死锁。
+6. 进行中：纯协议模式隔离实验（跳过 matmul/softmax，只走旗标律动）。
+
+**死锁隔离实验梯**（每轮 = 内核重编+打包+安装+冒烟 ≈ 8 分钟）：
+
+| # | 变体 | matmul | 旗标 | 结果 |
+|---|---|---|---|---|
+| 1 | 全功能（裸旗标 tag10-17） | ✓ | 裸 | 死锁 507014 |
+| 2 | 全功能（旗标压 2..9 + FetchEventID 本地事件） | ✓ | 模板 | 死锁 |
+| 3 | 纯协议（无 mm 调用，mm.Init 仍在） | Init only | 模板 | 死锁 |
+| 4 | 无旗标（AIC 空转 + 跳 mm.Init，AIV 全管线：gather 128×DataCopyPad + 128KB DataCopy + softmax + Finalize） | ✗ | ✗ | **跑通** |
+| 5 | 纯协议（无 mm.Init） | ✗ | 模板 | 死锁 |
+| 6 | 全功能 + 奇数 AIV 镜像伴舞 | ✓ | 模板 | 判决中 |
+
+**已确证**：AIV 全管线（UB 185KB 布局/gather/128KB 单条 DataCopy/softmax 向量链/
+Finalize/本地事件）全部健康；死锁与跨核旗标强绑定。
+**主理论**：KERNEL_TYPE_MIX_AIC_1_2 下 mode2 跨核旗标是组同步（1 AIC+2 AIV），
+奇数 AIV 提前退出破坏 rendezvous（官方核双 AIV 都全程参与，subblock 分工）。
+对策：奇数 AIV 同序"伴舞"全部旗标（#6 在测）；备选 GM 自旋锁替代旗标。
+另：AIC 等 AIV 旗标官方证据为 `<2, PIPE_MTE3>`（ComputeMm2:907），AIV 等
+AIC 的 FIX 旗标为 `<2, PIPE_FIX>`（csa_block_vector:722）——裸调用默认
+mode0/PIPE_S 不可用于跨核。
+
+## M3 会话终局（2026-10-29 晚）
+
+**内核完成度**：`SparseFlashMlaDecodeCsaFast`（容器 `1554b9b09`，源码归档
+assets/sparse_flash_mla_decode_csa_fast_kernel.h）——**数值逐位一致（含 NaN
+模式，T=6/T=24）**，但性能未过：T=6 快核 65.1µs vs 官方 43.1µs（-51%）。
+原因明确：每块 4 次跨核握手 × 5 块 = 20 次串行往返，无流水重叠
+（设计里有双缓冲槽位，但 AIV/AIC 循环还是纯串行顺序）。
+
+**突破链**（详见上表实验梯）：
+1. 死锁根因 = MIX_AIC_1_2 的 mode2 跨核旗标是**组语义**：AIC+双 AIV 三体，
+   AIV→AIC 旗标需两个 AIV 各 set 一次才 fire；奇数 AIV 提前退出 = 死锁；
+   单 AIV set + ghost 只 wait = 死锁；ghost 全 set = 数据陈旧错。
+2. 正解 = **双 AIV 真工人**（官方同构）：行 0-7/8-15 分工 + 列 64/64 分半
+   gather，旗标天然满足组语义（fire=两者到齐=数据就绪）。
+3. 数值 bug = mask2d 复用为行移位缓冲跨块污染（另一 AIV 半区读到 −m 残留，
+   个别行 den 失效归零）→ 独立 shiftUb 4KB 修复 → 逐位一致。
+4. 残留：非确定性 NaN（偶发，与 bench 重播种相关，待追——疑似 ScalarExp
+   tmpUb 标量/向量竞争或 sinks 半区读）。
+
+**生产安全态**：gate 已强制 fastFlag=0（10 条形状条件全部显式 break），
+所有形状走官方路径 = M2 已验证逐位一致态；引擎已恢复。注：宿主诊断
+日志保留（INFO 级）。
+
+**下一轮 M3-2 计划**（性能达标路径，预算回到 10-15µs）：
+- 流水展开：AIV 循环重排为 gather(c+1) 先行（在等 MM1(c) 之前），
+  AIC 循环重排为 MM1(c+1) 先于 MM2(c)（读已就绪的 KV/P 槽）；
+  双缓冲槽位已在位，只动循环顺序 + 旗标时机。
+- 追非确定性 NaN（umpire：ScalarExp 通道独立 tmp；sinks 半区
+  DataCopy 32B 对齐核对）。
+- 达标判据不变：µbench ≥3×（<14µs @T=6）→ 恢复 gate → M4 引擎接线。
